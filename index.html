@@ -130,11 +130,12 @@
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
         #toolsBtn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; color: var(--muted-text); }
 
-        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: flex; gap: 10px; align-items: center; position: sticky; top: 48px; z-index: 25; }
-        .goal { display: flex; align-items: center; gap: 6px; }
+        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 10px; position: sticky; top: 48px; z-index: 25; }
+        .goal { display: inline-flex; align-items: center; gap: 6px; }
         .progress-bar { width: 120px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
-        .save-indicator { margin-left: auto; font-size: 12px; color: var(--muted-text); }
+        .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; min-width: 5ch; text-align: right; display: inline-block; }
+        .save-indicator { display: none; }
 
         #editor-wrapper { display: flex; justify-content: center; width: 100%; }
         #editor { width: min(100%, var(--editor-width)); margin: 8px 10px; padding: 14px; font-size: 1rem; line-height: 1.8; background-color: var(--panel-bg); color: var(--text-color); border: none; border-radius: 12px; box-shadow: var(--shadow-md); min-height: 56vh; resize: vertical; caret-color: var(--caret-color); }
@@ -155,7 +156,8 @@
         .radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip { border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 999px; cursor: pointer; background: transparent; color: var(--text-color); }
         .chip.active { background: var(--active-bg); border-color: var(--primary-color); }
-        .num-input, .text-input { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 8px 10px; border-radius: 8px; }
+        .num-input, .text-input, .text-area { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 8px 10px; border-radius: 8px; }
+        .text-area { min-height: 88px; line-height: 1.6; }
 
         /* Snackbar */
         #snackbar { position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 8px 12px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
@@ -221,12 +223,12 @@
         </div>
 
         <div class="word-count">
-            <div>字数：<span id="charCount">0</span></div>
-            <div>段落：<span id="paraCount">0</span></div>
+            <div>字数：<span id="charCount" class="num">0</span></div>
+            <div>段落：<span id="paraCount" class="num">0</span></div>
             <div class="goal">
-                目标：<span id="goalNum">1000</span>
+                目标：<span id="goalNum" class="num">1000</span>
                 <div class="progress-bar"><div id="goalProgress" class="progress"></div></div>
-                <span id="goalNow">0</span>
+                <span id="goalNow" class="num">0</span>
             </div>
             <div class="save-indicator" id="saveIndicator">已保存</div>
         </div>
@@ -258,8 +260,16 @@
                 <input id="goalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
             </div>
             <div class="form-group">
-                <label>符号栏（用空格分隔）</label>
-                <input id="symbolsInput" class="text-input" placeholder="，。、「」（）—…！？：；“”">
+                <label>符号栏行数（1-3）</label>
+                <input id="symbolRowsInput" class="num-input" type="number" min="1" max="3" step="1" placeholder="1">
+            </div>
+            <div class="form-group">
+                <label>符号栏（每行一组，组内用空格分隔）</label>
+                <textarea id="symbolsMultiInput" class="text-area" placeholder="，。、「」\n（ ） — … ！ ？\n“ ” 《 》"></textarea>
+            </div>
+            <div class="form-group">
+                <label>跳出双符号（成对，空格分隔，如 () [] {} “” 「」 《》 ）</label>
+                <input id="jumpPairsInput" class="text-input" placeholder="() [] {} “” 「」 《》 （） '' &quot;&quot;">
             </div>
             <button id="saveBarPrefs" class="primary-btn">保存</button>
         </div>
@@ -314,9 +324,7 @@
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
 
     <!-- Mobile Bottom Symbol Bar -->
-    <nav id="mobileBar">
-        <div class="row" id="symbolBar"></div>
-    </nav>
+    <nav id="mobileBar"></nav>
 
     <script>
         // Utilities
@@ -337,14 +345,18 @@
             THEME: 'theme',
             GOAL: 'dailyGoal',
             PROGRESS: 'dailyProgress',
-            SYMBOLS: 'customSymbols'
+            SYMBOLS: 'customSymbols', // array or array of arrays
+            SYMBOL_ROWS: 'symbolRows',
+            JUMP_PAIRS: 'jumpPairs' // array of two-char strings
         };
-        function loadDocs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS) || '[]'); } catch { return []; } }
-        function saveDocs(v) { localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(v)); }
-        function loadFolders() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLDERS) || '[]'); } catch { return []; } }
-        function saveFolders(v) { localStorage.setItem(STORAGE_KEYS.FOLDERS, JSON.stringify(v)); }
-        function loadFolderState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLDER_STATE) || '{}'); } catch { return {}; } }
-        function saveFolderState(v) { localStorage.setItem(STORAGE_KEYS.FOLDER_STATE, JSON.stringify(v)); }
+        function loadJSON(key, def){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
+        function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+        function loadDocs() { return loadJSON(STORAGE_KEYS.DOCS, []); }
+        function saveDocs(v) { saveJSON(STORAGE_KEYS.DOCS, v); }
+        function loadFolders() { return loadJSON(STORAGE_KEYS.FOLDERS, []); }
+        function saveFolders(v) { saveJSON(STORAGE_KEYS.FOLDERS, v); }
+        function loadFolderState() { return loadJSON(STORAGE_KEYS.FOLDER_STATE, {}); }
+        function saveFolderState(v) { saveJSON(STORAGE_KEYS.FOLDER_STATE, v); }
         function getCurrentId() { return localStorage.getItem(STORAGE_KEYS.CURRENT_ID); }
         function setCurrentId(id) { localStorage.setItem(STORAGE_KEYS.CURRENT_ID, id); }
         function generateId(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2) + Date.now().toString(36); }
@@ -352,10 +364,14 @@
         function saveTheme(theme) { localStorage.setItem(STORAGE_KEYS.THEME, theme); }
         function loadGoal() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.GOAL) || '1000', 10); return Number.isFinite(n) ? n : 1000; }
         function saveGoal(n) { localStorage.setItem(STORAGE_KEYS.GOAL, String(n)); }
-        function loadProgressMap() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) || '{}'); } catch { return {}; } }
-        function saveProgressMap(map) { localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(map)); }
-        function loadSymbols() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SYMBOLS) || '[]'); } catch { return []; } }
-        function saveSymbols(arr) { localStorage.setItem(STORAGE_KEYS.SYMBOLS, JSON.stringify(arr)); }
+        function loadProgressMap() { return loadJSON(STORAGE_KEYS.PROGRESS, {}); }
+        function saveProgressMap(map) { saveJSON(STORAGE_KEYS.PROGRESS, map); }
+        function loadSymbolsRaw() { return loadJSON(STORAGE_KEYS.SYMBOLS, []); }
+        function saveSymbolsRaw(arr) { saveJSON(STORAGE_KEYS.SYMBOLS, arr); }
+        function loadSymbolRows() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.SYMBOL_ROWS) || '1', 10); return Number.isFinite(n) ? clamp(n,1,3) : 1; }
+        function saveSymbolRows(n) { localStorage.setItem(STORAGE_KEYS.SYMBOL_ROWS, String(clamp(n,1,3))); }
+        function loadJumpPairs() { return loadJSON(STORAGE_KEYS.JUMP_PAIRS, ["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); }
+        function saveJumpPairs(arr) { saveJSON(STORAGE_KEYS.JUMP_PAIRS, arr); }
 
         // App state
         let docs = loadDocs();
@@ -371,12 +387,12 @@
         // Elements
         const sidebar = $('#sidebar');
         const overlay = $('#sidebar-overlay');
+        const mobileBar = $('#mobileBar');
         const editor = $('#editor');
         const treeEl = $('#tree');
         const titleInput = $('#titleInput');
         const charCountEl = $('#charCount');
         const paraCountEl = $('#paraCount');
-        const saveIndicator = $('#saveIndicator');
         const goalNum = $('#goalNum');
         const goalNow = $('#goalNow');
         const goalProgress = $('#goalProgress');
@@ -385,10 +401,12 @@
         const toolsDrawer = $('#toolsDrawer');
         const toolsOverlay = $('#toolsOverlay');
         const goalInput = $('#goalInput');
+        const symbolRowsInput = $('#symbolRowsInput');
+        const symbolsMultiInput = $('#symbolsMultiInput');
+        const jumpPairsInput = $('#jumpPairsInput');
         const sheet = $('#moveSheet');
         const sheetOverlay = $('#sheetOverlay');
         const sheetBody = $('#moveSheetBody');
-        const symbolBar = $('#symbolBar');
 
         // Theme
         function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
@@ -426,6 +444,26 @@
         function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)).sort((a,b)=>a.sort - b.sort || (b.updatedAt - a.updatedAt)); }
         function isOpen(folderId) { return !!folderOpenState[folderId]; }
         function setOpen(folderId, open) { folderOpenState[folderId] = open; saveFolderState(folderOpenState); }
+
+        // Symbol bars
+        function getSymbolBars(){
+            const raw = loadSymbolsRaw();
+            if (Array.isArray(raw) && Array.isArray(raw[0])) return raw; // array of arrays
+            if (Array.isArray(raw)) return [raw];
+            return [[]];
+        }
+        function renderSymbolBars(){
+            mobileBar.innerHTML = '';
+            const rows = loadSymbolRows();
+            document.documentElement.style.setProperty('--mobile-rows', String(rows));
+            const bars = getSymbolBars();
+            for (let i=0; i<rows; i++) {
+                const row = createEl('div','row');
+                const list = Array.isArray(bars[i]) ? bars[i] : [];
+                for (const sym of list) { const b = createEl('button','m-btn'); b.textContent = sym; b.addEventListener('click',()=> insertAtCursor(sym)); row.appendChild(b); }
+                mobileBar.appendChild(row);
+            }
+        }
 
         // Render tree
         function renderTree(filter = '') {
@@ -584,7 +622,6 @@
             lastCharCountForProgress = measureCharCount(editor.value);
             updateWordStats();
             renderTree($('#searchInput').value);
-            markSaved(true);
             editor.focus();
         }
         function createDoc(initialContent = '', folderId = null, title = '无标题文档') {
@@ -657,9 +694,9 @@
         }
 
         // Saving & stats
-        function markSaved(saved) { saveIndicator.textContent = saved ? '已保存' : '保存中…'; saveIndicator.style.color = saved ? 'var(--muted-text)' : 'var(--primary-color)'; }
-        const persist = debounce(function(){ const doc = docs.find(d => d.id === currentDocId); if (!doc) return; doc.title = titleInput.value.trim() || '无标题文档'; doc.content = editor.value; doc.updatedAt = Date.now(); saveDocs(docs); markSaved(true); renderTree($('#searchInput').value); }, 250);
-        function saveNow() { markSaved(false); persist(); }
+        function markSaved(saved) { /* no-op UI */ }
+        const persist = debounce(function(){ const doc = docs.find(d => d.id === currentDocId); if (!doc) return; doc.title = titleInput.value.trim() || '无标题文档'; doc.content = editor.value; doc.updatedAt = Date.now(); saveDocs(docs); renderTree($('#searchInput').value); }, 200);
+        function saveNow() { persist(); }
         function measureCharCount(text) { if (!text) return 0; return text.replace(/\s+/g, '').length; }
         const updateWordStats = throttleRaf(function(){ const text = editor.value || ''; const chars = measureCharCount(text); const paras = text.trim() ? text.split(/\n{2,}/).length : 0; charCountEl.textContent = chars; paraCountEl.textContent = paras; updateDailyProgress(chars); });
         function updateDailyProgress(currentChars){ const key = todayKey(); const map = loadProgressMap(); const delta = Math.max(0, currentChars - lastCharCountForProgress); if (delta > 0) { map[key] = (map[key] || 0) + delta; saveProgressMap(map); lastCharCountForProgress = currentChars; } const goal = loadGoal(); goalNum.textContent = goal; const now = (loadProgressMap()[key] || 0); goalNow.textContent = now; const pct = goal === 0 ? 1 : clamp(now / goal, 0, 1); goalProgress.style.width = (pct * 100).toFixed(1) + '%'; }
@@ -669,11 +706,8 @@
         function insertAtCursor(text){ const start = editor.selectionStart; const end = editor.selectionEnd; const val = editor.value; editor.value = val.slice(0, start) + text + val.slice(end); const caret = start + text.length; editor.selectionStart = editor.selectionEnd = caret; editor.focus(); saveNow(); updateWordStats(); }
         function insertTemplate(name){ insertAtCursor('\n' + TEMPLATES[name] + '\n'); }
 
-        // Export / Import
-        function download(name, content, type){ const blob = new Blob([content], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
-
         // Snackbar
-        let snackTimer = null; function showSnack(msg, actionText, action) { $('#snackMsg').textContent = msg; const act = $('#snackAction'); if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; } const el = $('#snackbar'); el.classList.add('show'); clearTimeout(snackTimer); snackTimer = setTimeout(hideSnack, 2500); }
+        let snackTimer = null; function showSnack(msg, actionText, action) { $('#snackMsg').textContent = msg; const act = $('#snackAction'); if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; } const el = $('#snackbar'); el.classList.add('show'); clearTimeout(snackTimer); snackTimer = setTimeout(hideSnack, 2000); }
         function hideSnack(){ $('#snackbar').classList.remove('show'); }
 
         // Drawers
@@ -683,12 +717,35 @@
         function openTools() { toolsDrawer.classList.add('show'); toolsOverlay.style.display = 'block'; }
         function closeTools() { toolsDrawer.classList.remove('show'); toolsOverlay.style.display = 'none'; }
 
-        // Symbol bar
-        const DEFAULT_SYMBOLS = ['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”'];
-        function getSymbols(){ const a = loadSymbols(); return a.length ? a : DEFAULT_SYMBOLS; }
-        function renderSymbolBar(){ symbolBar.innerHTML=''; for (const sym of getSymbols()){ const b = createEl('button','m-btn'); b.textContent = sym; b.addEventListener('click',()=> insertAtCursor(sym)); symbolBar.appendChild(b); } }
-        function loadSymbolsPrefIntoUI(){ $('#symbolsInput').value = getSymbols().join(' '); }
-        function saveBarPrefs(){ const syms = $('#symbolsInput').value.trim().split(/\s+/).filter(Boolean); saveSymbols(syms.slice(0,24)); renderSymbolBar(); showSnack('已保存符号栏'); }
+        // Settings: symbol bars and pairs
+        const DEFAULT_SYMBOLS_SINGLE = ['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”'];
+        function getSymbolsBarsForUI(){ const bars = getSymbolBars(); return bars.length ? bars : [DEFAULT_SYMBOLS_SINGLE]; }
+        function loadSymbolsPrefIntoUI(){ const rows = loadSymbolRows(); symbolRowsInput.value = String(rows); const bars = getSymbolsBarsForUI(); const lines = []; for (let i=0;i<rows;i++){ lines.push((bars[i] || []).join(' ')); } symbolsMultiInput.value = lines.join('\n'); jumpPairsInput.value = loadJumpPairs().join(' '); }
+        function saveBarPrefs(){
+            let rows = parseInt(symbolRowsInput.value || '1', 10); if (!Number.isFinite(rows) || rows < 1) rows = 1; rows = Math.min(rows, 3);
+            const lines = symbolsMultiInput.value.split(/\n/); const out = [];
+            for (let i=0;i<rows;i++){ const syms = (lines[i] || '').trim().split(/\s+/).filter(Boolean); out.push(syms); }
+            if (!out.length) out.push(DEFAULT_SYMBOLS_SINGLE);
+            saveSymbolsRaw(out); saveSymbolRows(rows);
+            document.documentElement.style.setProperty('--mobile-rows', String(rows));
+            const pairsTokens = (jumpPairsInput.value || '').trim().split(/\s+/).filter(Boolean);
+            const pairs = [];
+            for (const tok of pairsTokens){ if (tok.length >= 2){ // take first two chars
+                    pairs.push(tok.slice(0,2)); } }
+            if (!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]);
+            saveJumpPairs(pairs);
+            renderSymbolBars(); showSnack('已保存设置');
+        }
+
+        // Enter to jump using custom pairs
+        function buildPairsMap(){
+            const arr = loadJumpPairs(); const map = new Map();
+            for (const p of arr){ const a = p[0], b = p[1]; // assume two chars
+                // right -> left mapping
+                map.set(b, a);
+            }
+            return map;
+        }
 
         // Bindings
         function bindGlobal(){
@@ -710,7 +767,8 @@
             $('#toolImport').addEventListener('click', ()=>{ $('#importFile').click(); closeTools(); });
 
             // Settings drawer
-            $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
+            $('#settingsBtn').addEventListener('click', () => { openDrawer(); });
+            $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
             $all('#themeChips .chip').forEach(chip => chip.addEventListener('click', () => { const theme = chip.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：' + chip.textContent); }));
             $('#saveBarPrefs').addEventListener('click', saveBarPrefs);
 
@@ -725,17 +783,17 @@
             $('#searchInput').addEventListener('input', debounce((e) => renderTree(e.target.value), 120));
 
             // Title / Editor
-            titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
-            editor.addEventListener('input', () => { markSaved(false); updateWordStats(); persist(); });
+            titleInput.addEventListener('input', () => { persist(); renderTree($('#searchInput').value); });
+            editor.addEventListener('input', () => { updateWordStats(); persist(); });
 
-            // Enter to jump out from paired symbols when cursor between them
+            // Enter to jump out from paired symbols (customizable)
             editor.addEventListener('keydown', (e) => {
                 if (e.key !== 'Enter') return;
                 const val = editor.value; const pos = editor.selectionStart; if (pos !== editor.selectionEnd) return;
                 if (pos <= 0 || pos >= val.length) return;
                 const next = val[pos]; const prev = val[pos-1];
-                const pairs = new Map([[')','('],[']','['],['}','{'],['”','“'],['’','‘'],['」','「'],['》','《'],['）','（'],['"','"'],['\'','\'']]);
-                if (pairs.has(next) && pairs.get(next) === prev) { e.preventDefault(); editor.selectionStart = editor.selectionEnd = pos + 1; editor.focus(); }
+                const map = buildPairsMap();
+                if (map.has(next) && map.get(next) === prev) { e.preventDefault(); editor.selectionStart = editor.selectionEnd = pos + 1; editor.focus(); }
             });
 
             // Keyboard shortcuts (mobile safe)
@@ -746,8 +804,7 @@
         }
 
         // Boot
-        function initBar(){ renderSymbolBar(); }
-        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); initBar();
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); renderSymbolBars();
     </script>
 </body>
 </html>
