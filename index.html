@@ -6,6 +6,7 @@
     <title>纯纯写作 · 小说创作工作台（移动端）</title>
     <style>
         :root {
+            --toolbar-height: 48px;
             --sidebar-width: 86vw;
             --primary-color: #4a86e8;
             --text-color: #222;
@@ -120,12 +121,12 @@
 
         /* Main */
         #main-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-        .toolbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
+        .toolbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; min-height: var(--toolbar-height); background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
         .menu-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
         .title-input { width: 100%; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 0.95rem; font-weight: 600; }
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
         #toolsBtn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; color: var(--muted-text); }
-        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; position: sticky; top: 48px; z-index: 25; }
+        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; position: sticky; top: var(--toolbar-height); z-index: 25; }
         .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; min-width: 5ch; text-align: right; display: inline-block; }
         .progress-bar { width: 100%; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
@@ -502,7 +503,7 @@
             // Sidebar & theme
             $('#menuToggle').addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.style.display=sidebar.classList.contains('show')?'block':'none'; });
             overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.style.display='none'; });
-            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); showSnack('主题已切换'); });
+            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); showSnack('主题已切换'); requestAnimationFrame(showBarsIfIME); });
 
             // Tools
             $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
@@ -538,7 +539,12 @@
             editor.addEventListener('keydown', jumpOutIfInside);
             editor.addEventListener('focus', ()=>{ imeVisible=true; showBarsIfIME(); });
             editor.addEventListener('blur', ()=>{ imeVisible=false; showBarsIfIME(); });
-            if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ const vv=window.visualViewport; imeVisible = (vv&& (window.innerHeight - vv.height) > 120); showBarsIfIME(); }); }
+            if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ const vv=window.visualViewport; imeVisible = !!vv && ((window.innerHeight - vv.height) > 120); showBarsIfIME(); }); }
+            // Fallback for browsers without visualViewport
+            window.addEventListener('resize', throttleRaf(()=>{ if(!window.visualViewport){ // assume keyboard visible if viewport shrinks a lot
+                const visible = window.innerHeight < screen.height * 0.82; imeVisible = visible; showBarsIfIME(); }}));
+            // Ensure bars appear on input if focused
+            editor.addEventListener('input', ()=>{ if(document.activeElement===editor){ imeVisible=true; showBarsIfIME(); } });
 
             // Shortcuts
             document.addEventListener('keydown', (e)=>{ const mod=e.ctrlKey||e.metaKey; if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); saveNow(); } if(mod && e.key.toLowerCase()==='k'){ e.preventDefault(); $('#searchInput').focus(); } }, {passive:false});
