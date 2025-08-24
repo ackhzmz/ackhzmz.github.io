@@ -30,6 +30,7 @@
             --name-rows: 1;
             --caret-color: #4a86e8;
             --name-font-size: 14px;
+            --symbol-font-size: 15px;
         }
 
         [data-theme="dark"] {
@@ -98,7 +99,7 @@
         .search-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
         .menu-section-title { font-size: 12px; color: var(--muted-text); padding: 8px 12px; text-transform: uppercase; letter-spacing: 1.2px; }
         #docList { flex: 1; overflow: auto; }
-        .tree { padding: 6px 6px calc(16px + env(safe-area-inset-bottom)); }
+        .tree { padding: 6px 6px calc(16px + env(safe-area-inset-bottom)); overflow-x: auto; }
         .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; position: sticky; top: 0; background: var(--panel-bg); z-index: 1; }
         .tree-root-drop.dragover { background: var(--active-bg); }
         .folder-node, .doc-node { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; overflow: hidden; }
@@ -169,7 +170,7 @@
 
         #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
         #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
-        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; padding: 6px 10px; white-space: nowrap; }
+        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: var(--symbol-font-size); padding: 6px 10px; white-space: nowrap; }
         #mobileBar .m-btn:active { background: var(--hover-bg); }
         .pad-bottom { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + env(safe-area-inset-bottom)); }
         .with-name { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + var(--name-bar-height) + env(safe-area-inset-bottom)); }
@@ -267,6 +268,15 @@
                 <textarea id="symbolsMultiInput" class="text-area" placeholder="，。、「」\n（ ） — … ！ ？\n“ ” 《 》"></textarea>
             </div>
             <div class="form-group">
+                <label>符号栏字体大小</label>
+                <div class="radio-row" id="symbolFontChips">
+                    <button class="chip" data-size="13">小</button>
+                    <button class="chip" data-size="15">中</button>
+                    <button class="chip" data-size="17">大</button>
+                    <button class="chip" data-size="19">特大</button>
+                </div>
+            </div>
+            <div class="form-group">
                 <label>跳出双符号（成对，空格分隔，如 () [] {} “” 「」 《》 ）</label>
                 <input id="jumpPairsInput" class="text-input" placeholder="() [] {} “” 「」 《》 （） '' &quot;&quot;">
             </div>
@@ -350,7 +360,8 @@
             JUMP_PAIRS: 'jumpPairs',
             NAMES: 'customNames',
             NAME_ROWS: 'nameRows',
-            NAME_FONT: 'nameFontPx'
+            NAME_FONT: 'nameFontPx',
+            SYMBOL_FONT: 'symbolFontPx'
         };
 
         // Persisted getters/setters
@@ -376,6 +387,8 @@
         function saveNameRows(n) { localStorage.setItem(STORAGE_KEYS.NAME_ROWS, String(clamp(n,1,10))); }
         function loadNameFont() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.NAME_FONT) || '14', 10); return Number.isFinite(n) ? clamp(n,10,28) : 14; }
         function saveNameFont(n) { localStorage.setItem(STORAGE_KEYS.NAME_FONT, String(n)); }
+        function loadSymbolFont() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.SYMBOL_FONT) || '15', 10); return Number.isFinite(n) ? clamp(n,10,28) : 15; }
+        function saveSymbolFont(n) { localStorage.setItem(STORAGE_KEYS.SYMBOL_FONT, String(n)); }
 
         // App state
         let docs = loadDocs();
@@ -431,7 +444,7 @@
 
         // Helpers for bars
         function getSymbolBars(){ const raw=loadSymbolsRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”']]; }
-        function renderSymbolBars(){ mobileBar.innerHTML=''; const rows=loadSymbolRows(); document.documentElement.style.setProperty('--mobile-rows', String(rows)); const bars=getSymbolBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const sym of list){ const b=createEl('button','m-btn'); b.textContent=sym; b.addEventListener('click',()=> insertSymbolToken(sym)); row.appendChild(b);} mobileBar.appendChild(row);} }
+        function renderSymbolBars(){ mobileBar.innerHTML=''; const rows=loadSymbolRows(); document.documentElement.style.setProperty('--mobile-rows', String(rows)); document.documentElement.style.setProperty('--symbol-font-size', loadSymbolFont()+'px'); const bars=getSymbolBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const sym of list){ const b=createEl('button','m-btn'); b.textContent=sym; b.addEventListener('click',()=> insertSymbolToken(sym)); row.appendChild(b);} mobileBar.appendChild(row);} }
         function getNameBars(){ const raw=loadNamesRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [[]]; }
         function renderNameBars(){ nameBar.innerHTML=''; const rows=loadNameRows(); document.documentElement.style.setProperty('--name-rows', String(rows)); document.documentElement.style.setProperty('--name-bar-height', '40px'); document.documentElement.style.setProperty('--name-font-size', loadNameFont()+'px'); const bars=getNameBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const nm of list){ const b=createEl('button','n-btn'); b.textContent=nm; b.style.fontSize=loadNameFont()+'px'; b.addEventListener('click',()=> insertAtCursor(nm)); row.appendChild(b);} nameBar.appendChild(row);} }
 
@@ -492,18 +505,18 @@
         function selectThemeChip(theme){ $all('#themeChips .chip').forEach(c=> c.classList.toggle('active', c.dataset.theme===theme)); }
         function openTools(){ toolsDrawer.classList.add('show'); toolsOverlay.style.display='block'; }
         function closeTools(){ toolsDrawer.classList.remove('show'); toolsOverlay.style.display='none'; }
-        function loadBarsIntoSettings(){ nameRowsInput.value=String(loadNameRows()); const nameBars=getNameBars(); const nameLines=[]; for(let i=0;i<loadNameRows();i++){ nameLines.push((nameBars[i]||[]).join(' ')); } namesMultiInput.value=nameLines.join('\n'); const font=loadNameFont(); $all('#nameFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===font)); symbolRowsInput.value=String(loadSymbolRows()); const symBars=getSymbolBars(); const symLines=[]; for(let i=0;i<loadSymbolRows();i++){ symLines.push((symBars[i]||[]).join(' ')); } symbolsMultiInput.value=symLines.join('\n'); jumpPairsInput.value=loadJumpPairs().join(' '); }
-        function saveBarsFromSettings(){ let nRows=parseInt(nameRowsInput.value||'1',10); if(!Number.isFinite(nRows)||nRows<1)nRows=1; nRows=Math.min(nRows,10); const nameLines=namesMultiInput.value.split(/\n/); const names=[]; for(let i=0;i<nRows;i++){ const parts=(nameLines[i]||'').trim().split(/\s+/).filter(Boolean); names.push(parts);} saveNamesRaw(names); saveNameRows(nRows); const active=$('#nameFontChips .chip.active'); const size=active?parseInt(active.dataset.size,10):14; saveNameFont(size); document.documentElement.style.setProperty('--name-font-size', size+'px'); let sRows=parseInt(symbolRowsInput.value||'1',10); if(!Number.isFinite(sRows)||sRows<1)sRows=1; sRows=Math.min(sRows,3); const symLines=symbolsMultiInput.value.split(/\n/); const syms=[]; for(let i=0;i<sRows;i++){ const parts=(symLines[i]||'').trim().split(/\s+/).filter(Boolean); syms.push(parts);} saveSymbolsRaw(syms); saveSymbolRows(sRows); const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs); const doc=currentDoc(); const g=parseInt(docGoalInput.value||'1000',10); if(doc){ doc.goal = Number.isFinite(g)? Math.max(0,g): 1000; saveDocs(docs); updateGoalUI(); } renderNameBars(); renderSymbolBars(); showBarsIfIME(); showSnack('已保存设置'); }
+        function loadBarsIntoSettings(){ nameRowsInput.value=String(loadNameRows()); const nameBars=getNameBars(); const nameLines=[]; for(let i=0;i<loadNameRows();i++){ nameLines.push((nameBars[i]||[]).join(' ')); } namesMultiInput.value=nameLines.join('\n'); const font=loadNameFont(); $all('#nameFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===font)); symbolRowsInput.value=String(loadSymbolRows()); const symBars=getSymbolBars(); const symLines=[]; for(let i=0;i<loadSymbolRows();i++){ symLines.push((symBars[i]||[]).join(' ')); } symbolsMultiInput.value=symLines.join('\n'); const sfont=loadSymbolFont(); $all('#symbolFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===sfont)); jumpPairsInput.value=loadJumpPairs().join(' '); }
+        function saveBarsFromSettings(){ let nRows=parseInt(nameRowsInput.value||'1',10); if(!Number.isFinite(nRows)||nRows<1)nRows=1; nRows=Math.min(nRows,10); const nameLines=namesMultiInput.value.split(/\n/); const names=[]; for(let i=0;i<nRows;i++){ const parts=(nameLines[i]||'').trim().split(/\s+/).filter(Boolean); names.push(parts);} saveNamesRaw(names); saveNameRows(nRows); const active=$('#nameFontChips .chip.active'); const size=active?parseInt(active.dataset.size,10):14; saveNameFont(size); document.documentElement.style.setProperty('--name-font-size', size+'px'); let sRows=parseInt(symbolRowsInput.value||'1',10); if(!Number.isFinite(sRows)||sRows<1)sRows=1; sRows=Math.min(sRows,3); const symLines=symbolsMultiInput.value.split(/\n/); const syms=[]; for(let i=0;i<sRows;i++){ const parts=(symLines[i]||'').trim().split(/\s+/).filter(Boolean); syms.push(parts);} saveSymbolsRaw(syms); saveSymbolRows(sRows); const sActive=$('#symbolFontChips .chip.active'); const sSize=sActive?parseInt(sActive.dataset.size,10):15; saveSymbolFont(sSize); document.documentElement.style.setProperty('--symbol-font-size', sSize+'px'); const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs); const doc=currentDoc(); const g=parseInt(docGoalInput.value||'1000',10); if(doc){ doc.goal = Number.isFinite(g)? Math.max(0,g): 1000; saveDocs(docs); updateGoalUI(); } renderNameBars(); renderSymbolBars(); showBarsIfIME(); showSnack('已保存设置'); }
 
         // IME visibility heuristics: show bars only when editing
-        let imeVisible=false; function showBarsIfIME(){ const rows=loadSymbolRows(); const nrows=loadNameRows(); if(imeVisible){ nameBar.style.display = nrows>0? 'block':'none'; mobileBar.style.display = rows>0? 'block':'none'; $('#editor-wrapper').classList.toggle('with-name', nrows>0); $('#editor-wrapper').classList.add('pad-bottom'); } else { nameBar.style.display='none'; mobileBar.style.display='none'; $('#editor-wrapper').classList.remove('with-name'); $('#editor-wrapper').classList.remove('pad-bottom'); } }
+        let imeVisible=false; function showBarsIfIME(){ const rows=loadSymbolRows(); const nrows=loadNameRows(); if(imeVisible){ const cs=getComputedStyle(document.documentElement); const mbh=parseInt(cs.getPropertyValue('--mobile-bar-height'))||44; const nbh=parseInt(cs.getPropertyValue('--name-bar-height'))||40; let kb=0; if(window.visualViewport){ const vv=window.visualViewport; kb = Math.max(0, (window.innerHeight - vv.height - (vv.offsetTop||0))); } nameBar.style.display = nrows>0? 'block':'none'; mobileBar.style.display = rows>0? 'block':'none'; mobileBar.style.bottom = kb + 'px'; nameBar.style.bottom = (kb + (rows>0? mbh:0)) + 'px'; $('#editor-wrapper').classList.toggle('with-name', nrows>0); $('#editor-wrapper').classList.add('pad-bottom'); } else { nameBar.style.display='none'; mobileBar.style.display='none'; mobileBar.style.bottom=''; nameBar.style.bottom=''; $('#editor-wrapper').classList.remove('with-name'); $('#editor-wrapper').classList.remove('pad-bottom'); } }
 
         // Bindings
         function bindGlobal(){
             // Sidebar & theme
             $('#menuToggle').addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.style.display=sidebar.classList.contains('show')?'block':'none'; });
             overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.style.display='none'; });
-            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); showSnack('主题已切换'); requestAnimationFrame(showBarsIfIME); });
+            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); requestAnimationFrame(showBarsIfIME); });
 
             // Tools
             $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
@@ -521,6 +534,7 @@
             $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
             $all('#themeChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ const theme=ch.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：'+ch.textContent); }));
             $all('#nameFontChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ $all('#nameFontChips .chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active'); }));
+            $all('#symbolFontChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ $all('#symbolFontChips .chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active'); }));
             $('#saveBarPrefs').addEventListener('click', saveBarsFromSettings);
 
             // Footer & import
