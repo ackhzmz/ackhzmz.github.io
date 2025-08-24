@@ -20,6 +20,9 @@
             --warning: #f39c12;
             --link: #2563eb;
             --editor-width: 780px;
+            --tree-indent: 18px;
+            --hover-bg: rgba(127,127,127,0.06);
+            --active-bg: rgba(74,134,232,0.12);
         }
 
         [data-theme="dark"] {
@@ -35,6 +38,50 @@
             --danger: #f87171;
             --warning: #f59e0b;
             --link: #93c5fd;
+            --hover-bg: rgba(255,255,255,0.05);
+            --active-bg: rgba(110,168,254,0.15);
+        }
+
+        [data-theme="sepia"] {
+            --primary-color: #8b5e34;
+            --text-color: #3e2c1c;
+            --muted-text: #7b6a58;
+            --bg-color: #f3ead7;
+            --panel-bg: #faf3e3;
+            --border-color: #e1d7c6;
+            --accent: #9c6f3d;
+            --warning: #c48f3c;
+            --link: #7a4e2b;
+            --hover-bg: rgba(139,94,52,0.07);
+            --active-bg: rgba(139,94,52,0.12);
+        }
+
+        [data-theme="solar"] {
+            --primary-color: #1f6feb;
+            --text-color: #24292f;
+            --muted-text: #57606a;
+            --bg-color: #f6f8fa;
+            --panel-bg: #ffffff;
+            --border-color: #d0d7de;
+            --accent: #2da44e;
+            --warning: #bf8700;
+            --link: #0969da;
+            --hover-bg: rgba(31,111,235,0.06);
+            --active-bg: rgba(31,111,235,0.12);
+        }
+
+        [data-theme="night"] {
+            --primary-color: #7aa2f7;
+            --text-color: #c0caf5;
+            --muted-text: #a9b1d6;
+            --bg-color: #0b1020;
+            --panel-bg: #101425;
+            --border-color: #1f2540;
+            --accent: #2ac3de;
+            --warning: #ffc777;
+            --link: #7dcfff;
+            --hover-bg: rgba(255,255,255,0.04);
+            --active-bg: rgba(122,162,247,0.15);
         }
 
         * {
@@ -45,9 +92,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         }
 
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
 
         body {
             background-color: var(--bg-color);
@@ -77,221 +122,101 @@
             gap: 10px;
         }
 
-        .logo {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: linear-gradient(135deg, var(--primary-color), #7cc5ff);
-            box-shadow: var(--shadow-sm);
-        }
+        .logo { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, var(--primary-color), #7cc5ff); box-shadow: var(--shadow-sm); }
+        .sidebar-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.4px; color: var(--primary-color); }
 
-        .sidebar-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            color: var(--primary-color);
-        }
+        .sidebar-actions { margin-left: auto; display: flex; gap: 8px; }
+        .icon-btn { background: none; border: 1px solid transparent; color: var(--muted-text); cursor: pointer; border-radius: 8px; padding: 6px 8px; transition: all 0.15s ease; }
+        .icon-btn:hover { background-color: var(--hover-bg); border-color: var(--border-color); }
 
-        .sidebar-actions {
-            margin-left: auto;
-            display: flex;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            background: none;
-            border: 1px solid transparent;
-            color: var(--muted-text);
-            cursor: pointer;
-            border-radius: 8px;
-            padding: 6px 8px;
-            transition: all 0.15s ease;
-        }
-        .icon-btn:hover { background-color: rgba(127,127,127,0.08); border-color: var(--border-color); }
-
-        .sidebar-search {
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            gap: 8px;
-        }
-
-        .search-input {
-            flex: 1;
-            border: 1px solid var(--border-color);
-            background: transparent;
-            border-radius: 8px;
-            padding: 8px 10px;
-            color: var(--text-color);
-        }
+        .sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; }
+        .search-input { flex: 1; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; padding: 8px 10px; color: var(--text-color); }
         .search-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
 
-        .sidebar-menu {
-            padding: 10px 0 8px 0;
-            overflow: hidden auto;
-            flex: 1;
-        }
+        .sidebar-menu { padding: 6px 0 8px 0; overflow: hidden auto; flex: 1; }
+        .menu-section-title { font-size: 12px; color: var(--muted-text); padding: 8px 16px; text-transform: uppercase; letter-spacing: 1.2px; }
 
-        .menu-section-title {
-            font-size: 12px;
-            color: var(--muted-text);
-            padding: 8px 16px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-        }
+        /* Tree */
+        .tree { padding: 6px 6px 16px 6px; }
+        .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; }
+        .tree-root-drop.dragover { background: var(--active-bg); }
 
-        .menu-item {
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: background-color 0.15s;
-            color: var(--text-color);
-        }
-        .menu-item:hover { background-color: rgba(127,127,127,0.06); }
+        .folder-node, .doc-node { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; }
+        .folder-node:hover, .doc-node:hover { background: var(--hover-bg); }
+        .doc-node.active { background: var(--active-bg); }
+        .indent { width: var(--tree-indent); flex: 0 0 var(--tree-indent); height: 1px; }
+        .caret { width: 16px; text-align: center; cursor: pointer; color: var(--muted-text); }
+        .folder-title { font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .doc-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .node-actions { display: flex; gap: 6px; }
+        .node-actions .icon-btn { padding: 4px 6px; border-radius: 6px; }
+        .children { margin-left: calc(var(--tree-indent) + 8px); }
+        .drop-target { outline: 2px dashed var(--primary-color); }
 
-        .menu-item.active {
-            background-color: rgba(74,134,232,0.15);
-            color: var(--primary-color);
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .doc-list {
-            margin-top: 6px;
-        }
-
-        .doc-row {
-            padding: 10px 16px;
-            border-top: 1px solid var(--border-color);
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .doc-row:hover { background-color: rgba(127,127,127,0.06); }
-        .doc-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .doc-meta { font-size: 12px; color: var(--muted-text); }
-        .doc-actions { display: flex; gap: 6px; }
-        .starred { color: var(--warning); }
-
-        .sidebar-footer {
-            border-top: 1px solid var(--border-color);
-            padding: 10px 12px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .primary-btn {
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            padding: 8px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-        }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding: 10px 12px; display: flex; gap: 10px; }
+        .primary-btn { background: var(--primary-color); color: #fff; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
         .primary-btn:hover { filter: brightness(1.05); }
 
         /* Main */
-        #main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+        #main-container { flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        .toolbar {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 30;
-        }
+        .toolbar { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; padding: 10px 14px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
         .menu-toggle { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
 
-        .title-input {
-            width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 10px;
-            background: transparent;
-            color: var(--text-color);
-            font-size: 1rem;
-            font-weight: 600;
-        }
+        .title-input { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 1rem; font-weight: 600; }
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
 
         .toolbar-actions { display: flex; gap: 8px; align-items: center; }
         .toolbar-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; cursor: pointer; color: var(--muted-text); }
-        .toolbar-btn:hover { background: rgba(127,127,127,0.08); }
+        .toolbar-btn:hover { background: var(--hover-bg); }
 
         .format-bar { display: flex; gap: 6px; align-items: center; }
         .divider { width: 1px; height: 22px; background: var(--border-color); margin: 0 6px; }
         select.format-switch { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 8px; padding: 6px 8px; }
 
         #editor-wrapper { display: flex; justify-content: center; width: 100%; }
-        #editor {
-            width: min(100%, var(--editor-width));
-            margin: 24px 16px;
-            padding: 28px;
-            font-size: 1.06rem;
-            line-height: 1.9;
-            background-color: var(--panel-bg);
-            outline: none;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            min-height: 58vh;
-        }
+        #editor { width: min(100%, var(--editor-width)); margin: 24px 16px; padding: 28px; font-size: 1.06rem; line-height: 1.9; background-color: var(--panel-bg); outline: none; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 58vh; }
         #editor:focus { border-color: rgba(74,134,232,0.5); box-shadow: 0 0 0 3px rgba(74,134,232,0.15), var(--shadow-md); }
         #editor p { margin: 0 0 1em 0; }
         #editor h1, #editor h2, #editor h3 { margin: 1.2em 0 0.6em; }
         #editor blockquote { border-left: 3px solid var(--primary-color); padding-left: 10px; margin: 1em 0; color: var(--muted-text); }
         #editor ul, #editor ol { padding-left: 1.2em; }
 
-        .word-count {
-            padding: 10px 14px;
-            background-color: var(--panel-bg);
-            border-top: 1px solid var(--border-color);
-            font-size: 0.92rem;
-            color: var(--muted-text);
-            display: flex;
-            gap: 14px;
-            align-items: center;
-        }
-
+        .word-count { padding: 10px 14px; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); font-size: 0.92rem; color: var(--muted-text); display: flex; gap: 14px; align-items: center; }
         .goal { display: flex; align-items: center; gap: 8px; }
         .progress-bar { width: 180px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
         .save-indicator { margin-left: auto; font-size: 12px; color: var(--muted-text); }
 
-        /* Overlay for mobile */
-        #sidebar-overlay {
-            position: absolute;
-            inset: 0;
-            background-color: rgba(0,0,0,0.35);
-            z-index: 20;
-            display: none;
-        }
+        /* Overlays */
+        #sidebar-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.35); z-index: 20; display: none; }
+        #drawerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
 
         /* Focus mode */
         body.focus-mode #sidebar { display: none; }
         body.focus-mode .toolbar { opacity: 0.1; pointer-events: none; }
         body.focus-mode #editor { margin-top: 6vh; min-height: 76vh; }
 
+        /* Settings Drawer */
+        #settingsDrawer { position: fixed; top: 0; right: 0; height: 100%; width: 340px; background: var(--panel-bg); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md); transform: translateX(100%); transition: transform 0.25s ease; z-index: 70; display: flex; flex-direction: column; }
+        #settingsDrawer.show { transform: translateX(0); }
+        .drawer-header { padding: 14px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+        .drawer-body { padding: 12px 16px; overflow: auto; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted-text); }
+        .radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip { border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 999px; cursor: pointer; background: transparent; color: var(--text-color); }
+        .chip.active { background: var(--active-bg); border-color: var(--primary-color); }
+        .num-input { width: 120px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 6px 8px; border-radius: 8px; }
+
+        /* Snackbar */
+        #snackbar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 10px 14px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
+        #snackbar.show { display: inline-flex; animation: fadeup 180ms ease; }
+        #snackbar .snack-action { color: var(--primary-color); cursor: pointer; }
+        @keyframes fadeup { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
         /* Responsive */
-        @media (max-width: 1024px) {
-            :root { --sidebar-width: 260px; --editor-width: 680px; }
-        }
+        @media (max-width: 1024px) { :root { --sidebar-width: 260px; --editor-width: 680px; } }
         @media (max-width: 768px) {
             #sidebar { position: fixed; transform: translateX(-100%); }
             #sidebar.show { transform: translateX(0); }
@@ -300,6 +225,7 @@
             :root { --editor-width: 100%; }
             .toolbar { grid-template-columns: auto 1fr auto; gap: 6px; }
             .format-bar { display: none; }
+            #settingsDrawer { width: 92vw; }
         }
     </style>
 </head>
@@ -309,6 +235,7 @@
             <div class="logo"></div>
             <div class="sidebar-title">纯纯写作</div>
             <div class="sidebar-actions">
+                <button id="settingsBtn" class="icon-btn" title="设置">⚙️</button>
                 <button id="themeToggle" class="icon-btn" title="切换明暗">🌗</button>
                 <button id="focusToggle" class="icon-btn" title="专注模式">🎯</button>
             </div>
@@ -316,9 +243,12 @@
         <div class="sidebar-search">
             <input id="searchInput" class="search-input" placeholder="搜索文档 (⌘/Ctrl K)">
             <button id="newDocBtn" class="primary-btn" title="新建文档">＋</button>
+            <button id="newFolderBtn" class="toolbar-btn" title="新建文件夹">📁＋</button>
         </div>
-        <div class="menu-section-title">文档</div>
-        <div id="docList" class="doc-list"></div>
+        <div class="menu-section-title">目录</div>
+        <div id="docList" class="doc-list">
+            <div id="tree" class="tree"></div>
+        </div>
         <div class="sidebar-footer">
             <button id="importBtn" class="toolbar-btn" title="导入 .txt">📥 导入</button>
             <input id="importFile" type="file" accept=".txt,.md,text/plain" style="display:none">
@@ -380,47 +310,95 @@
         </div>
     </div>
 
+    <!-- Settings Drawer -->
+    <div id="drawerOverlay"></div>
+    <aside id="settingsDrawer">
+        <div class="drawer-header">
+            <span>全局设置</span>
+            <button id="closeDrawer" class="icon-btn">✖</button>
+        </div>
+        <div class="drawer-body">
+            <div class="form-group">
+                <label>主题</label>
+                <div class="radio-row" id="themeChips">
+                    <button class="chip" data-theme="light">明亮</button>
+                    <button class="chip" data-theme="dark">暗黑</button>
+                    <button class="chip" data-theme="sepia">仿古</button>
+                    <button class="chip" data-theme="solar">清朗</button>
+                    <button class="chip" data-theme="night">夜蓝</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>今日目标字数</label>
+                <input id="goalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
+            </div>
+            <div class="form-group">
+                <label>界面密度</label>
+                <div class="radio-row" id="densityChips">
+                    <button class="chip" data-density="comfortable">舒适</button>
+                    <button class="chip" data-density="compact">紧凑</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Snackbar -->
+    <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
+
     <script>
         // Utilities
         function $(sel) { return document.querySelector(sel); }
+        function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
         function createEl(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
         function debounce(fn, wait) { let t; return function(...args){ clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); }; }
+        function throttleRaf(fn) { let ticking = false; return function(...args){ if (ticking) return; ticking = true; requestAnimationFrame(() => { fn.apply(this, args); ticking = false; }); }; }
         function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
         function todayKey() { const d = new Date(); return d.toISOString().slice(0,10); }
 
         // Storage
         const STORAGE_KEYS = {
             DOCS: 'novelDocs',
+            FOLDERS: 'novelFolders',
+            FOLDER_STATE: 'novelFolderState',
             CURRENT_ID: 'currentDocId',
             THEME: 'theme',
             GOAL: 'dailyGoal',
-            PROGRESS: 'dailyProgress'
+            PROGRESS: 'dailyProgress',
+            DENSITY: 'uiDensity'
         };
-        function loadDocs() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS) || '[]'); } catch { return []; }
-        }
-        function saveDocs(docs) { localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs)); }
+        function loadDocs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS) || '[]'); } catch { return []; } }
+        function saveDocs(v) { localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(v)); }
+        function loadFolders() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLDERS) || '[]'); } catch { return []; } }
+        function saveFolders(v) { localStorage.setItem(STORAGE_KEYS.FOLDERS, JSON.stringify(v)); }
+        function loadFolderState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.FOLDER_STATE) || '{}'); } catch { return {}; } }
+        function saveFolderState(v) { localStorage.setItem(STORAGE_KEYS.FOLDER_STATE, JSON.stringify(v)); }
         function getCurrentId() { return localStorage.getItem(STORAGE_KEYS.CURRENT_ID); }
         function setCurrentId(id) { localStorage.setItem(STORAGE_KEYS.CURRENT_ID, id); }
-        function generateId() { return 'doc_' + Math.random().toString(36).slice(2) + Date.now().toString(36); }
+        function generateId(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2) + Date.now().toString(36); }
         function loadTheme() { return localStorage.getItem(STORAGE_KEYS.THEME) || 'light'; }
         function saveTheme(theme) { localStorage.setItem(STORAGE_KEYS.THEME, theme); }
         function loadGoal() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.GOAL) || '1000', 10); return Number.isFinite(n) ? n : 1000; }
         function saveGoal(n) { localStorage.setItem(STORAGE_KEYS.GOAL, String(n)); }
         function loadProgressMap() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) || '{}'); } catch { return {}; } }
         function saveProgressMap(map) { localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(map)); }
+        function loadDensity() { return localStorage.getItem(STORAGE_KEYS.DENSITY) || 'comfortable'; }
+        function saveDensity(v) { localStorage.setItem(STORAGE_KEYS.DENSITY, v); }
 
         // App state
         let docs = loadDocs();
+        let folders = loadFolders();
+        let folderOpenState = loadFolderState();
         let currentDocId = getCurrentId();
         let isSaving = false;
         let lastCharCountForProgress = 0;
+        let draggedDocId = null;
+        let lastDeleted = null; // {doc, prevId}
 
         // Elements
         const sidebar = $('#sidebar');
         const overlay = $('#sidebar-overlay');
         const editor = $('#editor');
-        const docList = $('#docList');
+        const treeEl = $('#tree');
         const titleInput = $('#titleInput');
         const charCountEl = $('#charCount');
         const paraCountEl = $('#paraCount');
@@ -428,59 +406,139 @@
         const goalNum = $('#goalNum');
         const goalNow = $('#goalNow');
         const goalProgress = $('#goalProgress');
+        const drawer = $('#settingsDrawer');
+        const drawerOverlay = $('#drawerOverlay');
+        const goalInput = $('#goalInput');
 
         // Theme setup
-        function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); }
+        function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
         applyTheme(loadTheme());
 
-        // Initialize default doc if none
+        // Density setup
+        function applyDensity(density) {
+            document.body.dataset.density = density;
+            // simple density tuning via CSS vars
+            if (density === 'compact') {
+                document.documentElement.style.setProperty('--editor-width', '720px');
+            } else {
+                document.documentElement.style.setProperty('--editor-width', '780px');
+            }
+            selectDensityChip(density);
+        }
+        applyDensity(loadDensity());
+
+        // Initialize folders/docs if empty
         if (!docs.length) {
-            const id = generateId();
+            const id = generateId('doc');
             const now = Date.now();
-            docs.push({ id, title: '我的写作笔记', content: '<p>这是一个纯粹专注的写作环境。</p><p>在这里，您可以自由地创作，不受干扰。</p><p>使用左侧的列表管理您的文档。</p>', starred: false, createdAt: now, updatedAt: now });
+            docs.push({ id, title: '我的写作笔记', content: '<p>这是一个纯粹专注的写作环境。</p><p>在这里，您可以自由地创作，不受干扰。</p><p>使用左侧的目录管理您的文档与文件夹。</p>', starred: false, createdAt: now, updatedAt: now, folderId: null });
             saveDocs(docs);
             currentDocId = id;
             setCurrentId(id);
         }
-
-        // Render document list
-        function renderDocList(filter = '') {
-            docList.innerHTML = '';
-            const keyword = filter.trim().toLowerCase();
-            const sorted = [...docs].sort((a,b) => (b.starred - a.starred) || (b.updatedAt - a.updatedAt));
-            for (const d of sorted) {
-                if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
-                const row = createEl('div', 'doc-row');
-                const title = createEl('div', 'doc-title');
-                title.textContent = d.title || '无标题';
-                const meta = createEl('div', 'doc-meta');
-                const date = new Date(d.updatedAt);
-                meta.textContent = date.toLocaleString();
-                const actions = createEl('div', 'doc-actions');
-
-                const starBtn = createEl('button', 'icon-btn');
-                starBtn.innerHTML = d.starred ? '⭐' : '☆';
-                if (d.starred) starBtn.classList.add('starred');
-                starBtn.title = d.starred ? '取消收藏' : '收藏';
-                starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(d.id); });
-
-                const delBtn = createEl('button', 'icon-btn');
-                delBtn.textContent = '🗑️';
-                delBtn.title = '删除';
-                delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteDoc(d.id); });
-
-                actions.appendChild(starBtn);
-                actions.appendChild(delBtn);
-
-                row.appendChild(title);
-                row.appendChild(meta);
-                row.appendChild(actions);
-
-                if (d.id === currentDocId) row.style.background = 'rgba(74,134,232,0.12)';
-                row.addEventListener('click', () => selectDoc(d.id));
-                docList.appendChild(row);
-            }
+        if (!folders.length) {
+            const fid = generateId('fld');
+            folders.push({ id: fid, name: '我的作品', parentId: null });
+            folderOpenState[fid] = true;
+            saveFolders(folders);
+            saveFolderState(folderOpenState);
         }
+
+        // Tree helpers
+        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId); }
+        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)); }
+        function isOpen(folderId) { return !!folderOpenState[folderId]; }
+        function setOpen(folderId, open) { folderOpenState[folderId] = open; saveFolderState(folderOpenState); }
+
+        function renderTree(filter = '') {
+            const keyword = filter.trim().toLowerCase();
+            treeEl.innerHTML = '';
+
+            // Root drop target
+            const rootDrop = createEl('div', 'tree-root-drop');
+            rootDrop.textContent = '拖动文档到此处移动到根目录';
+            rootDrop.addEventListener('dragover', (e) => { e.preventDefault(); rootDrop.classList.add('dragover'); });
+            rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('dragover'));
+            rootDrop.addEventListener('drop', (e) => { e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
+            treeEl.appendChild(rootDrop);
+
+            // Root docs (no folder)
+            const rootDocs = getFolderDocs(null).sort(sortDoc);
+            for (const d of rootDocs) {
+                if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
+                treeEl.appendChild(renderDocNode(d, 0));
+            }
+
+            // Recursive folders
+            function renderFolder(folder, level) {
+                const row = createEl('div', 'folder-node');
+                row.dataset.folderId = folder.id;
+                if (!isOpen(folder.id)) row.classList.add('collapsed');
+                const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
+                const caret = createEl('div', 'caret'); caret.textContent = isOpen(folder.id) ? '▾' : '▸';
+                caret.addEventListener('click', () => { const open = !isOpen(folder.id); setOpen(folder.id, open); caret.textContent = open ? '▾' : '▸'; children.style.display = open ? '' : 'none'; });
+                const icon = createEl('div'); icon.textContent = '📁';
+                const title = createEl('div', 'folder-title'); title.textContent = folder.name;
+                const actions = createEl('div', 'node-actions');
+                const addBtn = createEl('button', 'icon-btn'); addBtn.title = '新建子文件夹'; addBtn.textContent = '＋';
+                addBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
+                const renameBtn = createEl('button', 'icon-btn'); renameBtn.title = '重命名'; renameBtn.textContent = '✎';
+                renameBtn.addEventListener('click', (e) => { e.stopPropagation(); inlineRenameFolder(folder.id, title); });
+                const delBtn = createEl('button', 'icon-btn'); delBtn.title = '删除文件夹'; delBtn.textContent = '🗑️';
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(folder.id); });
+                actions.appendChild(addBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
+
+                row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
+                row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('drop-target'); });
+                row.addEventListener('dragleave', () => row.classList.remove('drop-target'));
+                row.addEventListener('drop', (e) => { e.preventDefault(); row.classList.remove('drop-target'); moveDocToFolder(draggedDocId, folder.id); });
+
+                const children = createEl('div', 'children');
+                children.style.display = isOpen(folder.id) ? '' : 'none';
+
+                // docs
+                const docsIn = getFolderDocs(folder.id).sort(sortDoc);
+                for (const d of docsIn) {
+                    if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
+                    children.appendChild(renderDocNode(d, level + 1));
+                }
+                // subfolders
+                const sub = getChildrenFolders(folder.id).sort((a,b) => a.name.localeCompare(b.name));
+                for (const sf of sub) children.appendChild(renderFolder(sf, level + 1));
+
+                const container = createEl('div');
+                container.appendChild(row);
+                container.appendChild(children);
+                return container;
+            }
+
+            const topFolders = getChildrenFolders(null).sort((a,b) => a.name.localeCompare(b.name));
+            for (const f of topFolders) treeEl.appendChild(renderFolder(f, 0));
+        }
+
+        function renderDocNode(doc, level) {
+            const row = createEl('div', 'doc-node');
+            row.draggable = true;
+            row.dataset.docId = doc.id;
+            if (doc.id === currentDocId) row.classList.add('active');
+            const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
+            const icon = createEl('div'); icon.textContent = '📝';
+            const title = createEl('div', 'doc-title'); title.textContent = doc.title || '无标题';
+            const actions = createEl('div', 'node-actions');
+            const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏';
+            starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
+            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除文档';
+            delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
+            actions.appendChild(starBtn); actions.appendChild(delBtn);
+
+            row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
+            row.addEventListener('click', () => selectDoc(doc.id));
+            row.addEventListener('dragstart', () => { draggedDocId = doc.id; });
+            row.addEventListener('dragend', () => { draggedDocId = null; });
+            return row;
+        }
+
+        function sortDoc(a, b) { return (b.starred - a.starred) || (b.updatedAt - a.updatedAt); }
 
         function selectDoc(id) {
             const doc = docs.find(x => x.id === id);
@@ -491,31 +549,40 @@
             editor.innerHTML = doc.content || '';
             lastCharCountForProgress = measureCharCount(editor.innerText);
             updateWordStats();
-            renderDocList($('#searchInput').value);
+            renderTree($('#searchInput').value);
             markSaved(true);
         }
 
-        function createDoc(initialContent = '<p></p>') {
-            const id = generateId();
+        function createDoc(initialContent = '<p></p>', folderId = null) {
+            const id = generateId('doc');
             const now = Date.now();
-            const newDoc = { id, title: '无标题文档', content: initialContent, starred: false, createdAt: now, updatedAt: now };
+            const newDoc = { id, title: '无标题文档', content: initialContent, starred: false, createdAt: now, updatedAt: now, folderId };
             docs.unshift(newDoc);
             saveDocs(docs);
             selectDoc(id);
             titleInput.focus();
         }
 
-        function deleteDoc(id) {
-            if (!confirm('确定删除该文档？此操作不可撤销。')) return;
+        function moveDocToFolder(docId, folderId) {
+            const doc = docs.find(d => d.id === docId);
+            if (!doc) return;
+            doc.folderId = folderId || null;
+            doc.updatedAt = Date.now();
+            saveDocs(docs);
+            renderTree($('#searchInput').value);
+        }
+
+        function softDeleteDoc(id) {
             const idx = docs.findIndex(d => d.id === id);
             if (idx === -1) return;
-            docs.splice(idx, 1);
+            const removed = docs.splice(idx, 1)[0];
             saveDocs(docs);
             if (currentDocId === id) {
                 if (docs.length) selectDoc(docs[0].id); else { createDoc(); }
-            } else {
-                renderDocList($('#searchInput').value);
             }
+            renderTree($('#searchInput').value);
+            lastDeleted = { doc: removed };
+            showSnack('已删除文档', '撤销', () => { if (!lastDeleted) return; docs.unshift(lastDeleted.doc); saveDocs(docs); lastDeleted = null; renderTree($('#searchInput').value); });
         }
 
         function toggleStar(id) {
@@ -524,7 +591,42 @@
             doc.starred = !doc.starred;
             doc.updatedAt = Date.now();
             saveDocs(docs);
-            renderDocList($('#searchInput').value);
+            renderTree($('#searchInput').value);
+        }
+
+        function createFolder(parentId = null) {
+            const id = generateId('fld');
+            const f = { id, name: '新建文件夹', parentId: parentId || null };
+            folders.push(f);
+            folderOpenState[id] = true;
+            saveFolders(folders); saveFolderState(folderOpenState);
+            renderTree($('#searchInput').value);
+        }
+
+        function inlineRenameFolder(folderId, titleEl) {
+            const folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+            const old = folder.name;
+            const input = document.createElement('input');
+            input.type = 'text'; input.value = old; input.style.width = '100%';
+            titleEl.replaceWith(input);
+            input.focus(); input.select();
+            const commit = () => { folder.name = input.value.trim() || old; saveFolders(folders); renderTree($('#searchInput').value); };
+            input.addEventListener('blur', commit);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { folder.name = old; input.blur(); } });
+        }
+
+        function deleteFolder(folderId) {
+            // move docs in folder to root, and reparent subfolders to its parent
+            const folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+            const parentId = folder.parentId || null;
+            for (const d of docs) { if (d.folderId === folderId) d.folderId = parentId; }
+            for (const f of folders) { if (f.parentId === folderId) f.parentId = parentId; }
+            folders = folders.filter(f => f.id !== folderId);
+            saveDocs(docs); saveFolders(folders);
+            showSnack('文件夹已删除（内容已上移）');
+            renderTree($('#searchInput').value);
         }
 
         // Saving
@@ -542,24 +644,21 @@
             doc.updatedAt = Date.now();
             saveDocs(docs);
             markSaved(true);
-            renderDocList($('#searchInput').value);
-        }, 450);
+            renderTree($('#searchInput').value);
+        }, 400);
 
         function saveNow() { markSaved(false); persist(); }
 
         // Word stats
-        function measureCharCount(text) {
-            if (!text) return 0;
-            return text.replace(/\s+/g, '').length;
-        }
-        function updateWordStats() {
+        function measureCharCount(text) { if (!text) return 0; return text.replace(/\s+/g, '').length; }
+        const updateWordStats = throttleRaf(function(){
             const text = editor.innerText || '';
             const chars = measureCharCount(text);
             const paras = (editor.innerHTML.match(/<p[\s>]|<h[1-6][\s>]|<li[\s>]|<blockquote[\s>]/gi) || []).length || (text ? text.split(/\n{2,}/).length : 0);
             charCountEl.textContent = chars;
             paraCountEl.textContent = paras;
             updateDailyProgress(chars);
-        }
+        });
 
         // Daily goal
         function updateDailyProgress(currentChars){
@@ -593,16 +692,7 @@
         function insertTemplate(name){ exec('insertHTML', TEMPLATES[name]); saveNow(); }
 
         // Export / Import
-        function htmlToText(html){
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null);
-            let out = '';
-            let node;
-            while ((node = walker.nextNode())) { out += node.nodeValue; }
-            out = out.replace(/\n{3,}/g, '\n\n');
-            return out.trim();
-        }
+        function htmlToText(html){ const tmp = document.createElement('div'); tmp.innerHTML = html; const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null); let out = ''; let node; while ((node = walker.nextNode())) { out += node.nodeValue; } out = out.replace(/\n{3,}/g, '\n\n'); return out.trim(); }
         function htmlToMarkdown(html){
             let md = html
                 .replace(/<\/?strong>/gi, '**')
@@ -625,24 +715,30 @@
                 .trim();
             return md;
         }
-        function download(name, content, type){
-            const blob = new Blob([content], { type });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = name;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-        }
+        function download(name, content, type){ const blob = new Blob([content], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
 
-        // Handlers & Wiring
+        // Snackbar
+        let snackTimer = null;
+        function showSnack(msg, actionText, action) {
+            $('#snackMsg').textContent = msg;
+            const act = $('#snackAction');
+            if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; }
+            const el = $('#snackbar'); el.classList.add('show');
+            clearTimeout(snackTimer);
+            snackTimer = setTimeout(hideSnack, 3000);
+        }
+        function hideSnack(){ $('#snackbar').classList.remove('show'); }
+
+        // Settings Drawer
+        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); selectDensityChip(loadDensity()); }
+        function closeDrawer() { drawer.classList.remove('show'); drawerOverlay.style.display = 'none'; }
+        function selectThemeChip(theme) { $all('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme)); }
+        function selectDensityChip(d) { $all('#densityChips .chip').forEach(c => c.classList.toggle('active', c.dataset.density === d)); }
+
+        // Bind toolbar
         function bindToolbar() {
             document.querySelectorAll('.toolbar-btn[data-cmd]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const cmd = btn.getAttribute('data-cmd');
-                    exec(cmd);
-                    saveNow();
-                });
+                btn.addEventListener('click', () => { const cmd = btn.getAttribute('data-cmd'); exec(cmd); saveNow(); });
             });
             $('#quoteBtn').addEventListener('click', () => { setBlock('BLOCKQUOTE'); saveNow(); });
             $('#clearFormatBtn').addEventListener('click', () => { exec('removeFormat'); saveNow(); });
@@ -654,60 +750,41 @@
             $('#tplScene').addEventListener('click', () => insertTemplate('scene'));
             $('#tplWorld').addEventListener('click', () => insertTemplate('world'));
 
-            $('#exportTxt').addEventListener('click', () => {
-                const doc = docs.find(d => d.id === currentDocId);
-                if (!doc) return;
-                download((doc.title || '导出') + '.txt', htmlToText(doc.content || ''), 'text/plain;charset=utf-8');
-            });
-            $('#exportMd').addEventListener('click', () => {
-                const doc = docs.find(d => d.id === currentDocId);
-                if (!doc) return;
-                download((doc.title || '导出') + '.md', htmlToMarkdown(doc.content || ''), 'text/markdown;charset=utf-8');
-            });
+            $('#exportTxt').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.txt', htmlToText(doc.content || ''), 'text/plain;charset=utf-8'); });
+            $('#exportMd').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.md', htmlToMarkdown(doc.content || ''), 'text/markdown;charset=utf-8'); });
         }
 
+        // Global bindings
         function bindGlobal() {
-            // Sidebar toggle
+            // Sidebar
             $('#menuToggle').addEventListener('click', () => sidebar.classList.toggle('show'));
             overlay.addEventListener('click', () => sidebar.classList.remove('show'));
 
-            // Theme toggle
-            $('#themeToggle').addEventListener('click', () => {
-                const next = (loadTheme() === 'dark') ? 'light' : 'dark';
-                saveTheme(next); applyTheme(next);
-            });
+            // Theme quick toggle (light/dark)
+            $('#themeToggle').addEventListener('click', () => { const cur = loadTheme(); const next = (cur === 'dark') ? 'light' : 'dark'; saveTheme(next); applyTheme(next); showSnack('主题：' + (next === 'dark' ? '暗黑' : '明亮')); });
 
             // Focus mode
-            $('#focusToggle').addEventListener('click', () => {
-                document.body.classList.toggle('focus-mode');
-            });
+            $('#focusToggle').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); showSnack(document.body.classList.contains('focus-mode') ? '已进入专注模式' : '已退出专注模式'); });
 
-            // New doc
+            // New doc/folder
             $('#newDocBtn').addEventListener('click', () => createDoc());
+            $('#newFolderBtn').addEventListener('click', () => createFolder(null));
 
             // Search
-            $('#searchInput').addEventListener('input', (e) => renderDocList(e.target.value));
+            $('#searchInput').addEventListener('input', debounce((e) => renderTree(e.target.value), 120));
 
             // Import
             $('#importBtn').addEventListener('click', () => $('#importFile').click());
-            $('#importFile').addEventListener('change', async (e) => {
-                const file = e.target.files && e.target.files[0];
-                if (!file) return;
-                const text = await file.text();
-                createDoc('<p>' + text.replace(/[\r\n]+/g, '</p><p>') + '</p>');
-                e.target.value = '';
-            });
+            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc('<p>' + text.replace(/[\r\n]+/g, '</p><p>') + '</p>'); e.target.value = ''; showSnack('已导入：' + file.name); });
 
-            // Title change
-            titleInput.addEventListener('input', () => { markSaved(false); persist(); renderDocList($('#searchInput').value); });
-
-            // Editor input
+            // Title / Editor
+            titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
             editor.addEventListener('input', () => { markSaved(false); updateWordStats(); persist(); });
 
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 const mod = e.ctrlKey || e.metaKey;
-                if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); }
+                if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); }
                 if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); exec('bold'); saveNow(); }
                 if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); exec('italic'); saveNow(); }
                 if (mod && e.key.toLowerCase() === 'u') { e.preventDefault(); exec('underline'); saveNow(); }
@@ -716,25 +793,28 @@
                 if (mod && e.key.toLowerCase() === '3') { e.preventDefault(); setBlock('H3'); saveNow(); }
                 if (mod && e.shiftKey && e.key.toLowerCase() === 'f') { e.preventDefault(); document.body.classList.toggle('focus-mode'); }
                 if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); }
-                if (mod && e.key.toLowerCase() === 'e') { e.preventDefault(); const next = (loadTheme() === 'dark') ? 'light' : 'dark'; saveTheme(next); applyTheme(next); }
-            });
+            }, { passive: false });
 
-            // Daily goal
-            $('#setGoalBtn').addEventListener('click', () => {
-                const current = loadGoal();
-                const input = prompt('设置今日目标字数：', String(current));
-                if (input === null) return;
-                const n = parseInt(input, 10);
-                if (!Number.isFinite(n) || n < 0) return alert('请输入有效数字');
-                saveGoal(n);
-                updateWordStats();
-            });
+            // Settings drawer
+            $('#settingsBtn').addEventListener('click', openDrawer);
+            $('#setGoalBtn').addEventListener('click', openDrawer);
+            $('#closeDrawer').addEventListener('click', closeDrawer);
+            drawerOverlay.addEventListener('click', closeDrawer);
+
+            // Theme select in drawer
+            $all('#themeChips .chip').forEach(chip => chip.addEventListener('click', () => { const theme = chip.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：' + chip.textContent); }));
+
+            // Density select
+            $all('#densityChips .chip').forEach(chip => chip.addEventListener('click', () => { const d = chip.dataset.density; saveDensity(d); applyDensity(d); showSnack('界面密度：' + (d === 'compact' ? '紧凑' : '舒适')); }));
+
+            // Goal input (live apply)
+            goalInput.addEventListener('change', () => { const n = parseInt(goalInput.value || '0', 10); if (Number.isFinite(n) && n >= 0) { saveGoal(n); updateWordStats(); showSnack('已更新今日目标：' + n); } });
         }
 
         // Boot
         bindToolbar();
         bindGlobal();
-        renderDocList();
+        renderTree();
         selectDoc(currentDocId || docs[0].id);
         updateWordStats();
     </script>
