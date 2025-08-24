@@ -23,9 +23,12 @@
             --tree-indent: 18px;
             --hover-bg: rgba(127,127,127,0.06);
             --active-bg: rgba(74,134,232,0.12);
-            --mobile-bar-height: 48px;
+            --mobile-bar-height: 44px;
+            --name-bar-height: 40px;
             --mobile-rows: 1;
+            --name-rows: 1;
             --caret-color: #4a86e8;
+            --name-font-size: 14px;
         }
 
         [data-theme="dark"] {
@@ -80,28 +83,23 @@
         html, body { height: 100%; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; overflow: hidden; }
 
-        /* Sidebar - mobile slide in */
+        /* Sidebar */
         #sidebar { width: var(--sidebar-width); max-width: 100vw; height: 100%; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: transform 0.26s ease; z-index: 40; box-shadow: var(--shadow-sm); position: fixed; left: 0; top: 0; transform: translateX(-100%); overflow: hidden; }
         #sidebar.show { transform: translateX(0); }
-
         .sidebar-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
         .logo { width: 24px; height: 24px; border-radius: 6px; background: linear-gradient(135deg, var(--primary-color), #7cc5ff); box-shadow: var(--shadow-sm); }
         .sidebar-title { font-size: 1rem; font-weight: 700; letter-spacing: 0.4px; color: var(--primary-color); }
         .sidebar-actions { margin-left: auto; display: flex; gap: 6px; }
         .icon-btn { background: none; border: 1px solid var(--border-color); color: var(--muted-text); cursor: pointer; border-radius: 8px; padding: 6px 8px; transition: all 0.15s ease; }
         .icon-btn:hover { background-color: var(--hover-bg); }
-
         .sidebar-search { padding: 8px 10px; border-bottom: 1px solid var(--border-color); display: flex; gap: 6px; }
         .search-input { flex: 1; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; padding: 8px 10px; color: var(--text-color); font-size: 14px; }
         .search-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
-
         .menu-section-title { font-size: 12px; color: var(--muted-text); padding: 8px 12px; text-transform: uppercase; letter-spacing: 1.2px; }
-
         #docList { flex: 1; overflow: auto; }
         .tree { padding: 6px 6px calc(16px + env(safe-area-inset-bottom)); }
         .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; position: sticky; top: 0; background: var(--panel-bg); z-index: 1; }
         .tree-root-drop.dragover { background: var(--active-bg); }
-
         .folder-node, .doc-node { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; overflow: hidden; }
         .folder-node:hover, .doc-node:hover { background: var(--hover-bg); }
         .doc-node.active { background: var(--active-bg); }
@@ -116,35 +114,27 @@
         .drop-before::before, .drop-after::after { content: ""; position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px solid var(--primary-color); }
         .drop-before::before { top: -1px; }
         .drop-after::after { bottom: -1px; }
-
         .sidebar-footer { border-top: 1px solid var(--border-color); padding: 8px 10px; display: flex; gap: 10px; }
         .primary-btn { background: var(--primary-color); color: #fff; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
         .primary-btn:hover { filter: brightness(1.05); }
 
         /* Main */
         #main-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-
         .toolbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
         .menu-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
         .title-input { width: 100%; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 0.95rem; font-weight: 600; }
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
         #toolsBtn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; color: var(--muted-text); }
-
-        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; gap: 10px; position: sticky; top: 48px; z-index: 25; }
-        .goal { display: inline-flex; align-items: center; gap: 6px; }
-        .progress-bar { width: 120px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
-        .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
+        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; position: sticky; top: 48px; z-index: 25; }
         .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; min-width: 5ch; text-align: right; display: inline-block; }
-        .save-indicator { display: none; }
-
+        .progress-bar { width: 100%; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
+        .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
         #editor-wrapper { display: flex; justify-content: center; width: 100%; }
         #editor { width: min(100%, var(--editor-width)); margin: 8px 10px; padding: 14px; font-size: 1rem; line-height: 1.8; background-color: var(--panel-bg); color: var(--text-color); border: none; border-radius: 12px; box-shadow: var(--shadow-md); min-height: 56vh; resize: vertical; caret-color: var(--caret-color); }
         #editor:focus { outline: none; }
 
         /* Overlays */
-        #sidebar-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.35); z-index: 20; display: none; }
-        #drawerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
-        #toolsOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
+        #sidebar-overlay, #drawerOverlay, #toolsOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
 
         /* Drawers */
         #settingsDrawer, #toolsDrawer { position: fixed; top: 0; right: 0; height: 100%; width: 92vw; max-width: 380px; background: var(--panel-bg); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md); transform: translateX(100%); transition: transform 0.25s ease; z-index: 70; display: flex; flex-direction: column; }
@@ -159,33 +149,18 @@
         .num-input, .text-input, .text-area { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 8px 10px; border-radius: 8px; }
         .text-area { min-height: 88px; line-height: 1.6; }
 
-        /* Snackbar */
-        #snackbar { position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 8px 12px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
-        #snackbar.show { display: inline-flex; animation: fadeup 180ms ease; }
-        #snackbar .snack-action { color: var(--primary-color); cursor: pointer; }
-        @keyframes fadeup { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        /* Bottom Bars */
+        #nameBar { position: fixed; left: 0; right: 0; bottom: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; }
+        #nameBar .row { height: var(--name-bar-height); display: grid; grid-auto-columns: max-content; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
+        #nameBar .n-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: var(--name-font-size); padding: 4px 10px; white-space: nowrap; }
+        #nameBar .n-btn:active { background: var(--hover-bg); }
 
-        /* Move-To Sheet */
-        #sheetOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 65; }
-        #moveSheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-md); transform: translateY(100%); transition: transform 0.25s ease; z-index: 70; }
-        #moveSheet.show { transform: translateY(0); }
-        .sheet-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
-        .sheet-body { max-height: 52vh; overflow: auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
-        .sheet-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; margin: 4px 8px; cursor: pointer; }
-        .sheet-row:hover { background: var(--hover-bg); }
-        .sheet-indent { width: 14px; }
-
-        /* Mobile Bottom Symbol Bar */
-        #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: block; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
+        #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
         #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
         #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; padding: 6px 10px; white-space: nowrap; }
         #mobileBar .m-btn:active { background: var(--hover-bg); }
         .pad-bottom { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + env(safe-area-inset-bottom)); }
-
-        /* Focus mode */
-        body.focus-mode #sidebar { display: none; }
-        body.focus-mode .toolbar { opacity: 0.1; pointer-events: none; }
-        body.focus-mode #editor { margin-top: 6vh; min-height: 60vh; }
+        .with-name { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + var(--name-bar-height) + env(safe-area-inset-bottom)); }
     </style>
 </head>
 <body>
@@ -224,13 +199,8 @@
 
         <div class="word-count">
             <div>字数：<span id="charCount" class="num">0</span></div>
-            <div>段落：<span id="paraCount" class="num">0</span></div>
-            <div class="goal">
-                目标：<span id="goalNum" class="num">1000</span>
-                <div class="progress-bar"><div id="goalProgress" class="progress"></div></div>
-                <span id="goalNow" class="num">0</span>
-            </div>
-            <div class="save-indicator" id="saveIndicator">已保存</div>
+            <div class="progress-bar"><div id="goalProgress" class="progress"></div></div>
+            <div>目标：<span id="goalNum" class="num">1000</span></div>
         </div>
 
         <div id="editor-wrapper" class="pad-bottom">
@@ -256,15 +226,32 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>今日目标字数</label>
-                <input id="goalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
+                <label>当前文档字数目标</label>
+                <input id="docGoalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
+            </div>
+            <div class="form-group">
+                <label>人物栏行数（1-10）</label>
+                <input id="nameRowsInput" class="num-input" type="number" min="1" max="10" step="1" placeholder="1">
+            </div>
+            <div class="form-group">
+                <label>人物栏（每行以空格分隔多个名字；多行用换行）</label>
+                <textarea id="namesMultiInput" class="text-area" placeholder="小明 小红\n张三 李四"></textarea>
+            </div>
+            <div class="form-group">
+                <label>人物栏字体大小</label>
+                <div class="radio-row" id="nameFontChips">
+                    <button class="chip" data-size="12">小</button>
+                    <button class="chip" data-size="14">中</button>
+                    <button class="chip" data-size="16">大</button>
+                    <button class="chip" data-size="18">特大</button>
+                </div>
             </div>
             <div class="form-group">
                 <label>符号栏行数（1-3）</label>
                 <input id="symbolRowsInput" class="num-input" type="number" min="1" max="3" step="1" placeholder="1">
             </div>
             <div class="form-group">
-                <label>符号栏（每行一组，组内用空格分隔）</label>
+                <label>符号栏（每行一组，组内用空格分隔；输入成对符号如 “”，会将光标放在中间）</label>
                 <textarea id="symbolsMultiInput" class="text-area" placeholder="，。、「」\n（ ） — … ！ ？\n“ ” 《 》"></textarea>
             </div>
             <div class="form-group">
@@ -323,11 +310,12 @@
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
 
-    <!-- Mobile Bottom Symbol Bar -->
+    <!-- Bottom Bars -->
+    <nav id="nameBar"></nav>
     <nav id="mobileBar"></nav>
 
     <script>
-        // Utilities
+        // Utilities & Storage helpers
         function $(sel) { return document.querySelector(sel); }
         function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
         function createEl(tag, cls) { const el = document.createElement(tag); if (cls) el.className = cls; return el; }
@@ -335,22 +323,25 @@
         function throttleRaf(fn) { let ticking = false; return function(...args){ if (ticking) return; ticking = true; requestAnimationFrame(() => { fn.apply(this, args); ticking = false; }); }; }
         function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
         function todayKey() { const d = new Date(); return d.toISOString().slice(0,10); }
+        function loadJSON(key, def){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
+        function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
 
-        // Storage
+        // Storage keys
         const STORAGE_KEYS = {
             DOCS: 'novelDocs',
             FOLDERS: 'novelFolders',
             FOLDER_STATE: 'novelFolderState',
             CURRENT_ID: 'currentDocId',
             THEME: 'theme',
-            GOAL: 'dailyGoal',
-            PROGRESS: 'dailyProgress',
-            SYMBOLS: 'customSymbols', // array or array of arrays
+            SYMBOLS: 'customSymbols',
             SYMBOL_ROWS: 'symbolRows',
-            JUMP_PAIRS: 'jumpPairs' // array of two-char strings
+            JUMP_PAIRS: 'jumpPairs',
+            NAMES: 'customNames',
+            NAME_ROWS: 'nameRows',
+            NAME_FONT: 'nameFontPx'
         };
-        function loadJSON(key, def){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; } }
-        function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+        // Persisted getters/setters
         function loadDocs() { return loadJSON(STORAGE_KEYS.DOCS, []); }
         function saveDocs(v) { saveJSON(STORAGE_KEYS.DOCS, v); }
         function loadFolders() { return loadJSON(STORAGE_KEYS.FOLDERS, []); }
@@ -359,48 +350,49 @@
         function saveFolderState(v) { saveJSON(STORAGE_KEYS.FOLDER_STATE, v); }
         function getCurrentId() { return localStorage.getItem(STORAGE_KEYS.CURRENT_ID); }
         function setCurrentId(id) { localStorage.setItem(STORAGE_KEYS.CURRENT_ID, id); }
-        function generateId(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2) + Date.now().toString(36); }
         function loadTheme() { return localStorage.getItem(STORAGE_KEYS.THEME) || 'light'; }
         function saveTheme(theme) { localStorage.setItem(STORAGE_KEYS.THEME, theme); }
-        function loadGoal() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.GOAL) || '1000', 10); return Number.isFinite(n) ? n : 1000; }
-        function saveGoal(n) { localStorage.setItem(STORAGE_KEYS.GOAL, String(n)); }
-        function loadProgressMap() { return loadJSON(STORAGE_KEYS.PROGRESS, {}); }
-        function saveProgressMap(map) { saveJSON(STORAGE_KEYS.PROGRESS, map); }
         function loadSymbolsRaw() { return loadJSON(STORAGE_KEYS.SYMBOLS, []); }
         function saveSymbolsRaw(arr) { saveJSON(STORAGE_KEYS.SYMBOLS, arr); }
         function loadSymbolRows() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.SYMBOL_ROWS) || '1', 10); return Number.isFinite(n) ? clamp(n,1,3) : 1; }
         function saveSymbolRows(n) { localStorage.setItem(STORAGE_KEYS.SYMBOL_ROWS, String(clamp(n,1,3))); }
         function loadJumpPairs() { return loadJSON(STORAGE_KEYS.JUMP_PAIRS, ["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); }
         function saveJumpPairs(arr) { saveJSON(STORAGE_KEYS.JUMP_PAIRS, arr); }
+        function loadNamesRaw() { return loadJSON(STORAGE_KEYS.NAMES, []); }
+        function saveNamesRaw(arr) { saveJSON(STORAGE_KEYS.NAMES, arr); }
+        function loadNameRows() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.NAME_ROWS) || '1', 10); return Number.isFinite(n) ? clamp(n,1,10) : 1; }
+        function saveNameRows(n) { localStorage.setItem(STORAGE_KEYS.NAME_ROWS, String(clamp(n,1,10))); }
+        function loadNameFont() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.NAME_FONT) || '14', 10); return Number.isFinite(n) ? clamp(n,10,28) : 14; }
+        function saveNameFont(n) { localStorage.setItem(STORAGE_KEYS.NAME_FONT, String(n)); }
 
         // App state
         let docs = loadDocs();
         let folders = loadFolders();
         let folderOpenState = loadFolderState();
         let currentDocId = getCurrentId();
-        let lastCharCountForProgress = 0;
         let draggedDocId = null;
         let draggedFolderId = null;
-        let lastDeleted = null; // {doc}
-        let moveTargetDocId = null;
+        let lastDeleted = null;
 
         // Elements
         const sidebar = $('#sidebar');
         const overlay = $('#sidebar-overlay');
         const mobileBar = $('#mobileBar');
+        const nameBar = $('#nameBar');
         const editor = $('#editor');
         const treeEl = $('#tree');
         const titleInput = $('#titleInput');
         const charCountEl = $('#charCount');
-        const paraCountEl = $('#paraCount');
         const goalNum = $('#goalNum');
-        const goalNow = $('#goalNow');
         const goalProgress = $('#goalProgress');
         const drawer = $('#settingsDrawer');
         const drawerOverlay = $('#drawerOverlay');
         const toolsDrawer = $('#toolsDrawer');
         const toolsOverlay = $('#toolsOverlay');
-        const goalInput = $('#goalInput');
+        const docGoalInput = $('#docGoalInput');
+        const nameRowsInput = $('#nameRowsInput');
+        const namesMultiInput = $('#namesMultiInput');
+        const nameFontChips = $('#nameFontChips');
         const symbolRowsInput = $('#symbolRowsInput');
         const symbolsMultiInput = $('#symbolsMultiInput');
         const jumpPairsInput = $('#jumpPairsInput');
@@ -412,224 +404,39 @@
         function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
         applyTheme(loadTheme());
 
-        // Initialize default data
+        // Initialize defaults
         if (!docs.length) {
-            const id = generateId('doc');
-            const now = Date.now();
-            docs.push({ id, title: '我的写作笔记', content: '这是一个纯粹专注的写作环境。\n\n在这里，您可以自由地创作，不受干扰。\n\n使用左侧的目录管理您的文档与文件夹。', starred: false, createdAt: now, updatedAt: now, folderId: null, sort: 0 });
-            saveDocs(docs);
-            currentDocId = id;
-            setCurrentId(id);
+            const id = 'doc_' + Date.now();
+            docs.push({ id, title: '我的写作笔记', content: '开始创作……', starred: false, createdAt: Date.now(), updatedAt: Date.now(), folderId: null, sort: 0, goal: 1000 });
+            saveDocs(docs); currentDocId = id; setCurrentId(id);
         }
         if (!folders.length) {
-            const fid = generateId('fld');
+            const fid = 'fld_' + Date.now();
             folders.push({ id: fid, name: '我的作品', parentId: null, sort: 0 });
-            folderOpenState[fid] = true;
-            saveFolders(folders);
-            saveFolderState(folderOpenState);
+            folderOpenState[fid] = true; saveFolders(folders); saveFolderState(folderOpenState);
         }
-        function ensureOrdering() {
-            const perParent = new Map();
-            for (const f of folders) { const pid = f.parentId || null; if (!perParent.has(pid)) perParent.set(pid, []); perParent.get(pid).push(f); }
-            for (const [pid, list] of perParent.entries()) { list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || a.name.localeCompare(b.name)); list.forEach((f,i)=>{ if (typeof f.sort !== 'number') f.sort = i; }); }
-            const perDocParent = new Map();
-            for (const d of docs) { const pid = d.folderId || null; if (!perDocParent.has(pid)) perDocParent.set(pid, []); perDocParent.get(pid).push(d); }
-            for (const [pid, list] of perDocParent.entries()) { list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || (b.updatedAt - a.updatedAt)); list.forEach((d,i)=>{ if (typeof d.sort !== 'number') d.sort = i; }); }
-            saveFolders(folders); saveDocs(docs);
-        }
-        ensureOrdering();
+        function ensureOrdering(){ const perF = new Map(); for (const f of folders){ const p=f.parentId||null; if(!perF.has(p)) perF.set(p,[]); perF.get(p).push(f);} for (const [p,arr] of perF){ arr.sort((a,b)=>((a.sort??1e9)-(b.sort??1e9))||a.name.localeCompare(b.name)); arr.forEach((f,i)=>{ if(typeof f.sort!== 'number') f.sort=i; }); } const perD=new Map(); for(const d of docs){ const p=d.folderId||null; if(!perD.has(p)) perD.set(p,[]); perD.get(p).push(d);} for(const [p,arr] of perD){ arr.sort((a,b)=>((a.sort??1e9)-(b.sort??1e9))|| (b.updatedAt-a.updatedAt)); arr.forEach((d,i)=>{ if(typeof d.sort!== 'number') d.sort=i; if(typeof d.goal!== 'number') d.goal=1000;}); } saveFolders(folders); saveDocs(docs);} ensureOrdering();
 
-        // Helpers
-        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId).sort((a,b)=>a.sort - b.sort || a.name.localeCompare(b.name)); }
-        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)).sort((a,b)=>a.sort - b.sort || (b.updatedAt - a.updatedAt)); }
-        function isOpen(folderId) { return !!folderOpenState[folderId]; }
-        function setOpen(folderId, open) { folderOpenState[folderId] = open; saveFolderState(folderOpenState); }
+        // Helpers for bars
+        function getSymbolBars(){ const raw=loadSymbolsRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”']]; }
+        function renderSymbolBars(){ mobileBar.innerHTML=''; const rows=loadSymbolRows(); document.documentElement.style.setProperty('--mobile-rows', String(rows)); const bars=getSymbolBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const sym of list){ const b=createEl('button','m-btn'); b.textContent=sym; b.addEventListener('click',()=> insertSymbolToken(sym)); row.appendChild(b);} mobileBar.appendChild(row);} }
+        function getNameBars(){ const raw=loadNamesRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [[]]; }
+        function renderNameBars(){ nameBar.innerHTML=''; const rows=loadNameRows(); document.documentElement.style.setProperty('--name-rows', String(rows)); document.documentElement.style.setProperty('--name-bar-height', '40px'); document.documentElement.style.setProperty('--name-font-size', loadNameFont()+'px'); const bars=getNameBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const nm of list){ const b=createEl('button','n-btn'); b.textContent=nm; b.style.fontSize=loadNameFont()+'px'; b.addEventListener('click',()=> insertAtCursor(nm)); row.appendChild(b);} nameBar.appendChild(row);} }
 
-        // Symbol bars
-        function getSymbolBars(){
-            const raw = loadSymbolsRaw();
-            if (Array.isArray(raw) && Array.isArray(raw[0])) return raw; // array of arrays
-            if (Array.isArray(raw)) return [raw];
-            return [[]];
-        }
-        function renderSymbolBars(){
-            mobileBar.innerHTML = '';
-            const rows = loadSymbolRows();
-            document.documentElement.style.setProperty('--mobile-rows', String(rows));
-            const bars = getSymbolBars();
-            for (let i=0; i<rows; i++) {
-                const row = createEl('div','row');
-                const list = Array.isArray(bars[i]) ? bars[i] : [];
-                for (const sym of list) { const b = createEl('button','m-btn'); b.textContent = sym; b.addEventListener('click',()=> insertAtCursor(sym)); row.appendChild(b); }
-                mobileBar.appendChild(row);
-            }
-        }
+        // Render tree (unchanged inputs omitted for brevity)
+        function getChildrenFolders(parentId) { return folders.filter(f=>f.parentId===parentId).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name)); }
+        function getFolderDocs(folderId) { return docs.filter(d=>(d.folderId||null)===(folderId||null)).sort((a,b)=>a.sort-b.sort||(b.updatedAt-a.updatedAt)); }
+        function isOpen(fid){ return !!folderOpenState[fid]; }
+        function setOpen(fid,open){ folderOpenState[fid]=open; saveFolderState(folderOpenState); }
+        function renderTree(filter=''){ const kw=(filter||'').trim().toLowerCase(); treeEl.innerHTML=''; const rootDrop=createEl('div','tree-root-drop'); rootDrop.textContent='拖动文档到此处移动到根目录'; rootDrop.addEventListener('dragover',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.add('dragover'); },{passive:false}); rootDrop.addEventListener('dragleave',()=> rootDrop.classList.remove('dragover')); rootDrop.addEventListener('drop',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId,null); }); treeEl.appendChild(rootDrop); for(const d of getFolderDocs(null)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; treeEl.appendChild(renderDocNode(d,0)); } function renderFolder(f,level){ const row=createEl('div','folder-node'); row.dataset.folderId=f.id; row.draggable=true; const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const caret=createEl('div','caret'); caret.textContent=isOpen(f.id)?'▾':'▸'; caret.addEventListener('click',()=>{ const op=!isOpen(f.id); setOpen(f.id,op); caret.textContent=op?'▾':'▸'; children.style.display=op?'':'none'; }); const icon=createEl('div'); icon.textContent='📁'; const title=createEl('div','folder-title'); title.textContent=f.name; const actions=createEl('div','node-actions'); const addDocBtn=createEl('button','icon-btn'); addDocBtn.textContent='📝＋'; addDocBtn.title='新建文档'; addDocBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createDoc('',f.id,'新文档'); }); const addFolderBtn=createEl('button','icon-btn'); addFolderBtn.textContent='＋'; addFolderBtn.title='新建子文件夹'; addFolderBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createFolder(f.id); }); const renameBtn=createEl('button','icon-btn'); renameBtn.textContent='✎'; renameBtn.title='重命名'; renameBtn.addEventListener('click',(e)=>{ e.stopPropagation(); inlineRenameFolder(f.id,title); }); actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn); row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('dragover',(e)=>{ if(draggedDocId){ e.preventDefault(); row.classList.add('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); }},{passive:false}); row.addEventListener('dragleave',()=>{ row.classList.remove('drop-target','drop-before','drop-after'); }); row.addEventListener('drop',(e)=>{ e.preventDefault(); if(draggedDocId){ moveDocToFolder(draggedDocId,f.id); row.classList.remove('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderFolders(dragged.parentId||null, draggedFolderId, f.id, before?'before':'after'); } row.classList.remove('drop-before','drop-after'); }); row.addEventListener('dragstart', (e)=>{ draggedFolderId=f.id; e.dataTransfer.effectAllowed='move'; }); row.addEventListener('dragend', ()=>{ draggedFolderId=null; }); const children=createEl('div','children'); children.style.display=isOpen(f.id)?'':'none'; for(const d of getFolderDocs(f.id)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; children.appendChild(renderDocNode(d,level+1)); } for(const sf of getChildrenFolders(f.id)) children.appendChild(renderFolder(sf,level+1)); const wrap=createEl('div'); wrap.appendChild(row); wrap.appendChild(children); return wrap; } for(const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f,0)); }
+        function renderDocNode(doc, level){ const row=createEl('div','doc-node'); row.draggable=true; row.dataset.docId=doc.id; if(doc.id===currentDocId) row.classList.add('active'); const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const icon=createEl('div'); icon.textContent='📝'; const title=createEl('div','doc-title'); title.textContent=doc.title||'无标题'; const actions=createEl('div','node-actions'); const starBtn=createEl('button','icon-btn'); starBtn.innerHTML=doc.starred?'⭐':'☆'; starBtn.title=doc.starred?'取消收藏':'收藏'; starBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleStar(doc.id); }); const moveBtn=createEl('button','icon-btn'); moveBtn.textContent='↪️'; moveBtn.title='移动到'; moveBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openMoveSheet(doc.id); }); const delBtn=createEl('button','icon-btn'); delBtn.textContent='🗑️'; delBtn.title='删除'; delBtn.addEventListener('click',(e)=>{ e.stopPropagation(); softDeleteDoc(doc.id); }); actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn); row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('click',()=> selectDoc(doc.id)); row.addEventListener('dragstart',(e)=>{ draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; }); row.addEventListener('dragend',()=>{ draggedDocId=null; row.classList.remove('drop-before','drop-after'); }); row.addEventListener('dragover',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); },{passive:false}); row.addEventListener('dragleave',()=> row.classList.remove('drop-before','drop-after')); row.addEventListener('drop',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderDocs(doc.folderId||null, draggedDocId, doc.id, before?'before':'after'); }); return row; }
+        function reorderDocs(parentId, draggedId, targetId, position){ const list=docs.filter(d=>(d.folderId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((d,i)=>[d.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, docs.find(d=>d.id===draggedId)); list.forEach((d,i)=> d.sort=i); saveDocs(docs); renderTree($('#searchInput').value); }
+        function reorderFolders(parentId, draggedId, targetId, position){ const list=folders.filter(f=>(f.parentId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((f,i)=>[f.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, folders.find(f=>f.id===draggedId)); list.forEach((f,i)=> f.sort=i); saveFolders(folders); renderTree($('#searchInput').value); }
 
-        // Render tree
-        function renderTree(filter = '') {
-            const keyword = filter.trim().toLowerCase();
-            treeEl.innerHTML = '';
-
-            const rootDrop = createEl('div', 'tree-root-drop');
-            rootDrop.textContent = '拖动文档到此处移动到根目录';
-            rootDrop.addEventListener('dragover', (e) => { if (!draggedDocId) return; e.preventDefault(); rootDrop.classList.add('dragover'); }, { passive: false });
-            rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('dragover'));
-            rootDrop.addEventListener('drop', (e) => { if (!draggedDocId) return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
-            treeEl.appendChild(rootDrop);
-
-            for (const d of getFolderDocs(null)) {
-                if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
-                treeEl.appendChild(renderDocNode(d, 0));
-            }
-
-            function renderFolder(folder, level) {
-                const row = createEl('div', 'folder-node');
-                row.dataset.folderId = folder.id;
-                row.draggable = true;
-                const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
-                const caret = createEl('div', 'caret'); caret.textContent = isOpen(folder.id) ? '▾' : '▸';
-                caret.addEventListener('click', () => { const open = !isOpen(folder.id); setOpen(folder.id, open); caret.textContent = open ? '▾' : '▸'; children.style.display = open ? '' : 'none'; });
-                const icon = createEl('div'); icon.textContent = '📁';
-                const title = createEl('div', 'folder-title'); title.textContent = folder.name;
-                const actions = createEl('div', 'node-actions');
-                const addDocBtn = createEl('button', 'icon-btn'); addDocBtn.title = '新建文档'; addDocBtn.textContent = '📝＋'; addDocBtn.addEventListener('click', (e) => { e.stopPropagation(); createDoc('', folder.id, '新文档'); });
-                const addFolderBtn = createEl('button', 'icon-btn'); addFolderBtn.title = '新建子文件夹'; addFolderBtn.textContent = '＋'; addFolderBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
-                const renameBtn = createEl('button', 'icon-btn'); renameBtn.title = '重命名'; renameBtn.textContent = '✎'; renameBtn.addEventListener('click', (e) => { e.stopPropagation(); inlineRenameFolder(folder.id, title); });
-                actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn);
-
-                row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
-
-                row.addEventListener('dragover', (e) => {
-                    if (draggedDocId) { e.preventDefault(); row.classList.add('drop-target'); return; }
-                    if (draggedFolderId && draggedFolderId !== folder.id) {
-                        const dragged = folders.find(f => f.id === draggedFolderId);
-                        if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
-                        e.preventDefault();
-                        const rect = row.getBoundingClientRect();
-                        const before = (e.clientY - rect.top) < rect.height / 2;
-                        row.classList.toggle('drop-before', before);
-                        row.classList.toggle('drop-after', !before);
-                    }
-                }, { passive: false });
-                row.addEventListener('dragleave', () => { row.classList.remove('drop-target','drop-before','drop-after'); });
-                row.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    if (draggedDocId) { moveDocToFolder(draggedDocId, folder.id); row.classList.remove('drop-target'); return; }
-                    if (draggedFolderId && draggedFolderId !== folder.id) {
-                        const dragged = folders.find(f => f.id === draggedFolderId);
-                        if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
-                        const rect = row.getBoundingClientRect();
-                        const before = (e.clientY - rect.top) < rect.height / 2;
-                        reorderFolders(dragged.parentId || null, draggedFolderId, folder.id, before ? 'before' : 'after');
-                    }
-                    row.classList.remove('drop-before','drop-after');
-                });
-                row.addEventListener('dragstart', (e) => { draggedFolderId = folder.id; e.dataTransfer.effectAllowed = 'move'; });
-                row.addEventListener('dragend', () => { draggedFolderId = null; });
-
-                const children = createEl('div', 'children');
-                children.style.display = isOpen(folder.id) ? '' : 'none';
-
-                for (const d of getFolderDocs(folder.id)) {
-                    if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
-                    children.appendChild(renderDocNode(d, level + 1));
-                }
-                for (const sf of getChildrenFolders(folder.id)) children.appendChild(renderFolder(sf, level + 1));
-
-                const container = createEl('div');
-                container.appendChild(row); container.appendChild(children);
-                return container;
-            }
-
-            for (const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f, 0));
-        }
-
-        function renderDocNode(doc, level) {
-            const row = createEl('div', 'doc-node');
-            row.draggable = true;
-            row.dataset.docId = doc.id;
-            if (doc.id === currentDocId) row.classList.add('active');
-            const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
-            const icon = createEl('div'); icon.textContent = '📝';
-            const title = createEl('div', 'doc-title'); title.textContent = doc.title || '无标题';
-            const actions = createEl('div', 'node-actions');
-            const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏'; starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
-            const moveBtn = createEl('button', 'icon-btn'); moveBtn.textContent = '↪️'; moveBtn.title = '移动到'; moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveSheet(doc.id); });
-            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
-            actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn);
-
-            row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
-            row.addEventListener('click', () => selectDoc(doc.id));
-
-            row.addEventListener('dragstart', (e) => { draggedDocId = doc.id; e.dataTransfer.effectAllowed = 'move'; });
-            row.addEventListener('dragend', () => { draggedDocId = null; row.classList.remove('drop-before','drop-after'); });
-            row.addEventListener('dragover', (e) => {
-                if (!draggedDocId || draggedDocId === doc.id) return;
-                const dragged = docs.find(d => d.id === draggedDocId);
-                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return;
-                e.preventDefault();
-                const rect = row.getBoundingClientRect();
-                const before = (e.clientY - rect.top) < rect.height / 2;
-                row.classList.toggle('drop-before', before);
-                row.classList.toggle('drop-after', !before);
-            }, { passive: false });
-            row.addEventListener('dragleave', () => row.classList.remove('drop-before','drop-after'));
-            row.addEventListener('drop', (e) => {
-                if (!draggedDocId || draggedDocId === doc.id) return;
-                const dragged = docs.find(d => d.id === draggedDocId);
-                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return;
-                e.preventDefault();
-                const rect = row.getBoundingClientRect();
-                const before = (e.clientY - rect.top) < rect.height / 2;
-                reorderDocs(doc.folderId || null, draggedDocId, doc.id, before ? 'before' : 'after');
-            });
-            return row;
-        }
-
-        function reorderDocs(parentId, draggedId, targetId, position) {
-            const list = docs.filter(d => (d.folderId || null) === (parentId || null)).sort((a,b)=>a.sort - b.sort);
-            const orderMap = new Map(list.map((d,i)=>[d.id,i]));
-            const draggedIdx = orderMap.get(draggedId);
-            const targetIdx = orderMap.get(targetId);
-            if (draggedIdx == null || targetIdx == null) return;
-            list.splice(draggedIdx, 1);
-            const newIndex = position === 'before' ? targetIdx : targetIdx + 1;
-            list.splice(newIndex, 0, docs.find(d=>d.id===draggedId));
-            list.forEach((d,i)=>{ d.sort = i; });
-            saveDocs(docs);
-            renderTree($('#searchInput').value);
-        }
-        function reorderFolders(parentId, draggedId, targetId, position) {
-            const list = folders.filter(f => (f.parentId || null) === (parentId || null)).sort((a,b)=>a.sort - b.sort);
-            const orderMap = new Map(list.map((f,i)=>[f.id,i]));
-            const draggedIdx = orderMap.get(draggedId);
-            const targetIdx = orderMap.get(targetId);
-            if (draggedIdx == null || targetIdx == null) return;
-            list.splice(draggedIdx, 1);
-            const newIndex = position === 'before' ? targetIdx : targetIdx + 1;
-            list.splice(newIndex, 0, folders.find(f=>f.id===draggedId));
-            list.forEach((f,i)=>{ f.sort = i; });
-            saveFolders(folders);
-            renderTree($('#searchInput').value);
-        }
-
-        // CRUD
-        function selectDoc(id) {
-            const doc = docs.find(x => x.id === id); if (!doc) return;
-            currentDocId = id; setCurrentId(id);
-            titleInput.value = doc.title || '';
-            editor.value = doc.content || '';
-            lastCharCountForProgress = measureCharCount(editor.value);
-            updateWordStats();
-            renderTree($('#searchInput').value);
-            editor.focus();
-        }
-        function createDoc(initialContent = '', folderId = null, title = '无标题文档') {
-            const id = generateId('doc'); const now = Date.now();
-            const siblingCount = docs.filter(d => (d.folderId || null) === (folderId || null)).length;
-            const newDoc = { id, title, content: initialContent, starred: false, createdAt: now, updatedAt: now, folderId, sort: siblingCount };
-            docs.push(newDoc); saveDocs(docs); selectDoc(id);
-        }
+        // CRUD & selection
+        function currentDoc(){ return docs.find(x=>x.id===currentDocId); }
+        function selectDoc(id){ const doc=docs.find(x=>x.id===id); if(!doc) return; currentDocId=id; setCurrentId(id); titleInput.value=doc.title||''; editor.value=doc.content||''; updateWordStats(); updateGoalUI(); renderTree($('#searchInput').value); editor.focus(); }
+        function createDoc(initialContent='', folderId=null, title='无标题文档'){ const id='doc_'+Math.random().toString(36).slice(2); const now=Date.now(); const sibling=docs.filter(d=>(d.folderId||null)===(folderId||null)).length; const newDoc={ id, title, content: initialContent, starred:false, createdAt:now, updatedAt:now, folderId, sort:sibling, goal:1000 }; docs.push(newDoc); saveDocs(docs); selectDoc(id); }
         function createNovel() {
             const fid = generateId('fld'); const parentId = null;
             const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
@@ -639,120 +446,52 @@
             createDoc('第1章\n\n', fid, '第1章');
             showSnack('已创建小说“新小说”'); renderTree($('#searchInput').value);
         }
-        function moveDocToFolder(docId, folderId) {
-            const doc = docs.find(d => d.id === docId); if (!doc) return;
-            const newParent = folderId || null; doc.folderId = newParent; doc.updatedAt = Date.now();
-            doc.sort = docs.filter(d => (d.folderId || null) === newParent).length;
-            saveDocs(docs); renderTree($('#searchInput').value);
-            if (docId === currentDocId) showSnack('已移动到' + (folderId ? '选中文件夹' : '根目录'));
-        }
-        function softDeleteDoc(id) {
-            const idx = docs.findIndex(d => d.id === id); if (idx === -1) return;
-            const removed = docs.splice(idx, 1)[0]; saveDocs(docs);
-            if (currentDocId === id) { if (docs.length) selectDoc(docs[0].id); else { createDoc(); } }
-            renderTree($('#searchInput').value);
-            lastDeleted = { doc: removed };
-            showSnack('已删除文档', '撤销', () => { if (!lastDeleted) return; docs.push(lastDeleted.doc); saveDocs(docs); lastDeleted = null; renderTree($('#searchInput').value); });
-        }
-        function toggleStar(id) { const doc = docs.find(d => d.id === id); if (!doc) return; doc.starred = !doc.starred; doc.updatedAt = Date.now(); saveDocs(docs); renderTree($('#searchInput').value); }
-        function createFolder(parentId = null) {
-            const id = generateId('fld'); const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
-            const f = { id, name: '新建文件夹', parentId: parentId || null, sort: siblingCount };
-            folders.push(f); folderOpenState[id] = true; saveFolders(folders); saveFolderState(folderOpenState); renderTree($('#searchInput').value);
-        }
-        function inlineRenameFolder(folderId, titleEl) {
-            const folder = folders.find(f => f.id === folderId); if (!folder) return;
-            const old = folder.name; const input = document.createElement('input'); input.type = 'text'; input.value = old; input.className = 'text-input';
-            titleEl.replaceWith(input); input.focus(); input.select();
-            const commit = () => { folder.name = input.value.trim() || old; saveFolders(folders); renderTree($('#searchInput').value); };
-            input.addEventListener('blur', commit); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { folder.name = old; input.blur(); } });
-        }
-        function deleteFolder(folderId) {
-            const folder = folders.find(f => f.id === folderId); if (!folder) return; const parentId = folder.parentId || null;
-            for (const d of docs) { if (d.folderId === folderId) { d.folderId = parentId; d.sort = docs.filter(x => (x.folderId || null) === parentId).length; } }
-            for (const f of folders) { if (f.parentId === folderId) { f.parentId = parentId; f.sort = folders.filter(x => (x.parentId || null) === parentId).length; } }
-            folders = folders.filter(f => f.id !== folderId); saveDocs(docs); saveFolders(folders);
-            showSnack('文件夹已删除（内容已上移）'); renderTree($('#searchInput').value);
-        }
+        function moveDocToFolder(docId, folderId){ const doc=docs.find(d=>d.id===docId); if(!doc) return; const p=folderId||null; doc.folderId=p; doc.updatedAt=Date.now(); doc.sort=docs.filter(d=>(d.folderId||null)===p).length; saveDocs(docs); renderTree($('#searchInput').value); }
+        function softDeleteDoc(id){ const i=docs.findIndex(d=>d.id===id); if(i===-1) return; const rm=docs.splice(i,1)[0]; saveDocs(docs); if(currentDocId===id){ if(docs.length) selectDoc(docs[0].id); else createDoc(); } renderTree($('#searchInput').value); lastDeleted={doc:rm}; }
+        function toggleStar(id){ const doc=docs.find(d=>d.id===id); if(!doc) return; doc.starred=!doc.starred; doc.updatedAt=Date.now(); saveDocs(docs); renderTree($('#searchInput').value); }
+        function createFolder(parentId=null){ const id='fld_'+Math.random().toString(36).slice(2); const sibling=folders.filter(f=>(f.parentId||null)===(parentId||null)).length; const f={ id, name:'新建文件夹', parentId:parentId||null, sort:sibling }; folders.push(f); folderOpenState[id]=true; saveFolders(folders); saveFolderState(folderOpenState); renderTree($('#searchInput').value); }
+        function inlineRenameFolder(folderId, titleEl){ const f=folders.find(x=>x.id===folderId); if(!f) return; const old=f.name; const input=document.createElement('input'); input.type='text'; input.value=old; input.className='text-input'; titleEl.replaceWith(input); input.focus(); input.select(); const commit=()=>{ f.name=(input.value.trim()||old); saveFolders(folders); renderTree($('#searchInput').value); }; input.addEventListener('blur',commit); input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); input.blur(); } if(e.key==='Escape'){ f.name=old; input.blur(); } }); }
 
-        // Move-To sheet
-        function openMoveSheet(docId) { moveTargetDocId = docId; renderMoveSheet(); sheet.classList.add('show'); sheetOverlay.style.display = 'block'; }
-        function closeMoveSheet() { sheet.classList.remove('show'); sheetOverlay.style.display = 'none'; moveTargetDocId = null; }
-        function renderMoveSheet() {
-            sheetBody.innerHTML = '';
-            const rootRow = createEl('div', 'sheet-row'); rootRow.innerHTML = '<span>📄</span><span>根目录</span>';
-            rootRow.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, null); closeMoveSheet(); }); sheetBody.appendChild(rootRow);
-            function renderFolderOption(folder, level) {
-                const row = createEl('div', 'sheet-row'); const indent = createEl('div', 'sheet-indent'); indent.style.marginLeft = (level * 14) + 'px';
-                const icon = createEl('span'); icon.textContent = '📁'; const name = createEl('span'); name.textContent = folder.name;
-                row.appendChild(indent); row.appendChild(icon); row.appendChild(name);
-                row.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, folder.id); closeMoveSheet(); });
-                sheetBody.appendChild(row);
-                for (const cf of getChildrenFolders(folder.id)) renderFolderOption(cf, level + 1);
-            }
-            for (const f of getChildrenFolders(null)) renderFolderOption(f, 0);
-        }
+        // Goal bar logic (per-doc)
+        function updateGoalUI(){ const doc=currentDoc(); const goal=(doc&&typeof doc.goal==='number')? doc.goal : 1000; goalNum.textContent=goal; const chars=(editor.value||'').replace(/\s+/g,'').length; charCountEl.textContent=chars; const pct=goal<=0?1:Math.max(0, Math.min(1, chars/goal)); goalProgress.style.width=(pct*100).toFixed(1)+'%'; }
 
         // Saving & stats
-        function markSaved(saved) { /* no-op UI */ }
-        const persist = debounce(function(){ const doc = docs.find(d => d.id === currentDocId); if (!doc) return; doc.title = titleInput.value.trim() || '无标题文档'; doc.content = editor.value; doc.updatedAt = Date.now(); saveDocs(docs); renderTree($('#searchInput').value); }, 200);
-        function saveNow() { persist(); }
-        function measureCharCount(text) { if (!text) return 0; return text.replace(/\s+/g, '').length; }
-        const updateWordStats = throttleRaf(function(){ const text = editor.value || ''; const chars = measureCharCount(text); const paras = text.trim() ? text.split(/\n{2,}/).length : 0; charCountEl.textContent = chars; paraCountEl.textContent = paras; updateDailyProgress(chars); });
-        function updateDailyProgress(currentChars){ const key = todayKey(); const map = loadProgressMap(); const delta = Math.max(0, currentChars - lastCharCountForProgress); if (delta > 0) { map[key] = (map[key] || 0) + delta; saveProgressMap(map); lastCharCountForProgress = currentChars; } const goal = loadGoal(); goalNum.textContent = goal; const now = (loadProgressMap()[key] || 0); goalNow.textContent = now; const pct = goal === 0 ? 1 : clamp(now / goal, 0, 1); goalProgress.style.width = (pct * 100).toFixed(1) + '%'; }
+        const persist=debounce(function(){ const doc=currentDoc(); if(!doc) return; doc.title=titleInput.value.trim()||'无标题文档'; doc.content=editor.value; doc.updatedAt=Date.now(); saveDocs(docs); updateGoalUI(); renderTree($('#searchInput').value); }, 180);
+        function saveNow(){ persist(); }
+        const updateWordStats=throttleRaf(()=>{ updateGoalUI(); });
 
-        // Templates (plain text)
-        const TEMPLATES = { person: "人物卡\n——\n姓名：\n年龄：\n外貌特征：\n性格标签：\n背景故事：\n目标/动机：\n人际关系：\n", scene: "场景卡\n——\n地点：\n时间：\n天气/氛围：\n登场人物：\n冲突点：\n细节道具：\n节奏/张力：\n", world: "世界观\n——\n时代背景：\n地理设定：\n社会结构：\n科技/魔法体系：\n宗教/文化：\n禁忌与规则：\n核心矛盾：\n" };
-        function insertAtCursor(text){ const start = editor.selectionStart; const end = editor.selectionEnd; const val = editor.value; editor.value = val.slice(0, start) + text + val.slice(end); const caret = start + text.length; editor.selectionStart = editor.selectionEnd = caret; editor.focus(); saveNow(); updateWordStats(); }
-        function insertTemplate(name){ insertAtCursor('\n' + TEMPLATES[name] + '\n'); }
+        // Templates & insertion helpers
+        function insertAtCursor(text){ const start=editor.selectionStart, end=editor.selectionEnd, val=editor.value; editor.value=val.slice(0,start)+text+val.slice(end); const caret=start+text.length; editor.selectionStart=editor.selectionEnd=caret; editor.focus(); saveNow(); updateWordStats(); }
+        function buildPairs(){ return loadJumpPairs().map(p=>[p[0], p[1]]); }
+        function insertPair(left,right){ const start=editor.selectionStart, end=editor.selectionEnd, val=editor.value; const inside=left+right; editor.value=val.slice(0,start)+inside+val.slice(end); editor.selectionStart=editor.selectionEnd=start+1; editor.focus(); saveNow(); updateWordStats(); }
+        function insertSymbolToken(tok){ if(typeof tok==='string' && tok.length===2){ const pairs=buildPairs(); for(const [L,R] of pairs){ if(tok===L+R){ insertPair(L,R); return; } } }
+            insertAtCursor(tok); }
+
+        // Jump-out anywhere inside pair on Enter
+        function isInsidePair(pos, left, right, text){ const l=text.lastIndexOf(left, pos-1); if(l<0) return false; const r=text.indexOf(right, pos); if(r<0) return false; return l < pos && pos <= r; }
+        function jumpOutIfInside(e){ if(e.key!=='Enter') return; const pos=editor.selectionStart; if(pos!==editor.selectionEnd) return; const text=editor.value; if(pos<=0 || pos>text.length) return; const pairs=buildPairs(); for(const [L,R] of pairs){ const inside=isInsidePair(pos, L, R, text); if(inside){ const r=text.indexOf(R, pos); if(r>=0){ e.preventDefault(); editor.selectionStart=editor.selectionEnd=r+1; editor.focus(); return; } } } }
 
         // Snackbar
-        let snackTimer = null; function showSnack(msg, actionText, action) { $('#snackMsg').textContent = msg; const act = $('#snackAction'); if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; } const el = $('#snackbar'); el.classList.add('show'); clearTimeout(snackTimer); snackTimer = setTimeout(hideSnack, 2000); }
-        function hideSnack(){ $('#snackbar').classList.remove('show'); }
+        let snackTimer=null; function showSnack(msg){ const el=$('#snackbar'); $('#snackMsg').textContent=msg; $('#snackAction').textContent=''; el.classList.add('show'); clearTimeout(snackTimer); snackTimer=setTimeout(()=> el.classList.remove('show'), 1600); }
 
-        // Drawers
-        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); loadSymbolsPrefIntoUI(); }
-        function closeDrawer() { drawer.classList.remove('show'); drawerOverlay.style.display = 'none'; }
-        function selectThemeChip(theme) { $all('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme)); }
-        function openTools() { toolsDrawer.classList.add('show'); toolsOverlay.style.display = 'block'; }
-        function closeTools() { toolsDrawer.classList.remove('show'); toolsOverlay.style.display = 'none'; }
+        // Drawers & settings
+        function openDrawer(){ drawer.classList.add('show'); drawerOverlay.style.display='block'; const doc=currentDoc(); docGoalInput.value = doc && typeof doc.goal==='number' ? String(doc.goal) : '1000'; loadBarsIntoSettings(); }
+        function closeDrawer(){ drawer.classList.remove('show'); drawerOverlay.style.display='none'; }
+        function selectThemeChip(theme){ $all('#themeChips .chip').forEach(c=> c.classList.toggle('active', c.dataset.theme===theme)); }
+        function openTools(){ toolsDrawer.classList.add('show'); toolsOverlay.style.display='block'; }
+        function closeTools(){ toolsDrawer.classList.remove('show'); toolsOverlay.style.display='none'; }
+        function loadBarsIntoSettings(){ nameRowsInput.value=String(loadNameRows()); const nameBars=getNameBars(); const nameLines=[]; for(let i=0;i<loadNameRows();i++){ nameLines.push((nameBars[i]||[]).join(' ')); } namesMultiInput.value=nameLines.join('\n'); const font=loadNameFont(); $all('#nameFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===font)); symbolRowsInput.value=String(loadSymbolRows()); const symBars=getSymbolBars(); const symLines=[]; for(let i=0;i<loadSymbolRows();i++){ symLines.push((symBars[i]||[]).join(' ')); } symbolsMultiInput.value=symLines.join('\n'); jumpPairsInput.value=loadJumpPairs().join(' '); }
+        function saveBarsFromSettings(){ let nRows=parseInt(nameRowsInput.value||'1',10); if(!Number.isFinite(nRows)||nRows<1)nRows=1; nRows=Math.min(nRows,10); const nameLines=namesMultiInput.value.split(/\n/); const names=[]; for(let i=0;i<nRows;i++){ const parts=(nameLines[i]||'').trim().split(/\s+/).filter(Boolean); names.push(parts);} saveNamesRaw(names); saveNameRows(nRows); const active=$('#nameFontChips .chip.active'); const size=active?parseInt(active.dataset.size,10):14; saveNameFont(size); document.documentElement.style.setProperty('--name-font-size', size+'px'); let sRows=parseInt(symbolRowsInput.value||'1',10); if(!Number.isFinite(sRows)||sRows<1)sRows=1; sRows=Math.min(sRows,3); const symLines=symbolsMultiInput.value.split(/\n/); const syms=[]; for(let i=0;i<sRows;i++){ const parts=(symLines[i]||'').trim().split(/\s+/).filter(Boolean); syms.push(parts);} saveSymbolsRaw(syms); saveSymbolRows(sRows); const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs); const doc=currentDoc(); const g=parseInt(docGoalInput.value||'1000',10); if(doc){ doc.goal = Number.isFinite(g)? Math.max(0,g): 1000; saveDocs(docs); updateGoalUI(); } renderNameBars(); renderSymbolBars(); showBarsIfIME(); showSnack('已保存设置'); }
 
-        // Settings: symbol bars and pairs
-        const DEFAULT_SYMBOLS_SINGLE = ['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”'];
-        function getSymbolsBarsForUI(){ const bars = getSymbolBars(); return bars.length ? bars : [DEFAULT_SYMBOLS_SINGLE]; }
-        function loadSymbolsPrefIntoUI(){ const rows = loadSymbolRows(); symbolRowsInput.value = String(rows); const bars = getSymbolsBarsForUI(); const lines = []; for (let i=0;i<rows;i++){ lines.push((bars[i] || []).join(' ')); } symbolsMultiInput.value = lines.join('\n'); jumpPairsInput.value = loadJumpPairs().join(' '); }
-        function saveBarPrefs(){
-            let rows = parseInt(symbolRowsInput.value || '1', 10); if (!Number.isFinite(rows) || rows < 1) rows = 1; rows = Math.min(rows, 3);
-            const lines = symbolsMultiInput.value.split(/\n/); const out = [];
-            for (let i=0;i<rows;i++){ const syms = (lines[i] || '').trim().split(/\s+/).filter(Boolean); out.push(syms); }
-            if (!out.length) out.push(DEFAULT_SYMBOLS_SINGLE);
-            saveSymbolsRaw(out); saveSymbolRows(rows);
-            document.documentElement.style.setProperty('--mobile-rows', String(rows));
-            const pairsTokens = (jumpPairsInput.value || '').trim().split(/\s+/).filter(Boolean);
-            const pairs = [];
-            for (const tok of pairsTokens){ if (tok.length >= 2){ // take first two chars
-                    pairs.push(tok.slice(0,2)); } }
-            if (!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]);
-            saveJumpPairs(pairs);
-            renderSymbolBars(); showSnack('已保存设置');
-        }
-
-        // Enter to jump using custom pairs
-        function buildPairsMap(){
-            const arr = loadJumpPairs(); const map = new Map();
-            for (const p of arr){ const a = p[0], b = p[1]; // assume two chars
-                // right -> left mapping
-                map.set(b, a);
-            }
-            return map;
-        }
+        // IME visibility heuristics: show bars only when editing
+        let imeVisible=false; function showBarsIfIME(){ const rows=loadSymbolRows(); const nrows=loadNameRows(); if(imeVisible){ nameBar.style.display = nrows>0? 'block':'none'; mobileBar.style.display = rows>0? 'block':'none'; $('#editor-wrapper').classList.toggle('with-name', nrows>0); $('#editor-wrapper').classList.add('pad-bottom'); } else { nameBar.style.display='none'; mobileBar.style.display='none'; $('#editor-wrapper').classList.remove('with-name'); $('#editor-wrapper').classList.remove('pad-bottom'); } }
 
         // Bindings
         function bindGlobal(){
-            // Sidebar
-            $('#menuToggle').addEventListener('click', () => { sidebar.classList.toggle('show'); overlay.style.display = sidebar.classList.contains('show') ? 'block' : 'none'; });
-            overlay.addEventListener('click', () => { sidebar.classList.remove('show'); overlay.style.display = 'none'; });
-            $('#themeToggle').addEventListener('click', () => { const cur = loadTheme(); const next = (cur === 'dark') ? 'light' : (cur === 'light' ? 'sepia' : (cur === 'sepia' ? 'eye' : 'dark')); saveTheme(next); applyTheme(next); showSnack('主题：' + (next === 'dark' ? '暗黑' : next === 'light' ? '明亮' : next === 'sepia' ? '古风' : '护眼')); });
+            // Sidebar & theme
+            $('#menuToggle').addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.style.display=sidebar.classList.contains('show')?'block':'none'; });
+            overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.style.display='none'; });
+            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); showSnack('主题已切换'); });
 
             // Tools
             $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
@@ -762,49 +501,40 @@
             $('#toolTplPerson').addEventListener('click', ()=>{ insertTemplate('person'); closeTools(); });
             $('#toolTplScene').addEventListener('click', ()=>{ insertTemplate('scene'); closeTools(); });
             $('#toolTplWorld').addEventListener('click', ()=>{ insertTemplate('world'); closeTools(); });
-            $('#toolExportTxt').addEventListener('click', ()=>{ const doc = docs.find(d=>d.id===currentDocId); if (!doc) return; download((doc.title||'导出')+'.txt', (doc.content||''), 'text/plain;charset=utf-8'); });
-            $('#toolExportMd').addEventListener('click', ()=>{ const doc = docs.find(d=>d.id===currentDocId); if (!doc) return; download((doc.title||'导出')+'.md', (doc.content||''), 'text/markdown;charset=utf-8'); });
+            $('#toolExportTxt').addEventListener('click', ()=>{ const doc=currentDoc(); if(!doc) return; const blob=new Blob([doc.content||''],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(doc.title||'导出')+'.txt'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0); });
+            $('#toolExportMd').addEventListener('click', ()=>{ const doc=currentDoc(); if(!doc) return; const blob=new Blob([doc.content||''],{type:'text/markdown;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(doc.title||'导出')+'.md'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },0); });
             $('#toolImport').addEventListener('click', ()=>{ $('#importFile').click(); closeTools(); });
 
-            // Settings drawer
-            $('#settingsBtn').addEventListener('click', () => { openDrawer(); });
-            $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
-            $all('#themeChips .chip').forEach(chip => chip.addEventListener('click', () => { const theme = chip.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：' + chip.textContent); }));
-            $('#saveBarPrefs').addEventListener('click', saveBarPrefs);
+            // Settings
+            $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
+            $all('#themeChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ const theme=ch.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：'+ch.textContent); }));
+            $all('#nameFontChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ $all('#nameFontChips .chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active'); }));
+            $('#saveBarPrefs').addEventListener('click', saveBarsFromSettings);
 
-            // Footer actions
-            $('#newDocBtn').addEventListener('click', () => createDoc());
-            $('#newFolderBtn').addEventListener('click', () => createFolder(null));
-            $('#newNovelBtn').addEventListener('click', createNovel);
-            $('#importBtn').addEventListener('click', () => $('#importFile').click());
-            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc(text, null, file.name.replace(/\.[^.]+$/, '')); e.target.value=''; showSnack('已导入：' + file.name); });
+            // Footer & import
+            $('#newDocBtn').addEventListener('click', ()=> createDoc());
+            $('#newFolderBtn').addEventListener('click', ()=> createFolder(null));
+            $('#newNovelBtn').addEventListener('click', ()=> createNovel());
+            $('#importBtn').addEventListener('click', ()=> $('#importFile').click());
+            $('#importFile').addEventListener('change', async (e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const text=await f.text(); createDoc(text,null,f.name.replace(/\.[^.]+$/, '')); e.target.value=''; });
 
             // Search
-            $('#searchInput').addEventListener('input', debounce((e) => renderTree(e.target.value), 120));
+            $('#searchInput').addEventListener('input', debounce((e)=> renderTree(e.target.value), 120));
 
-            // Title / Editor
-            titleInput.addEventListener('input', () => { persist(); renderTree($('#searchInput').value); });
-            editor.addEventListener('input', () => { updateWordStats(); persist(); });
+            // Editor
+            titleInput.addEventListener('input', ()=>{ persist(); renderTree($('#searchInput').value); });
+            editor.addEventListener('input', ()=>{ updateWordStats(); persist(); });
+            editor.addEventListener('keydown', jumpOutIfInside);
+            editor.addEventListener('focus', ()=>{ imeVisible=true; showBarsIfIME(); });
+            editor.addEventListener('blur', ()=>{ imeVisible=false; showBarsIfIME(); });
+            if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ const vv=window.visualViewport; imeVisible = (vv&& (window.innerHeight - vv.height) > 120); showBarsIfIME(); }); }
 
-            // Enter to jump out from paired symbols (customizable)
-            editor.addEventListener('keydown', (e) => {
-                if (e.key !== 'Enter') return;
-                const val = editor.value; const pos = editor.selectionStart; if (pos !== editor.selectionEnd) return;
-                if (pos <= 0 || pos >= val.length) return;
-                const next = val[pos]; const prev = val[pos-1];
-                const map = buildPairsMap();
-                if (map.has(next) && map.get(next) === prev) { e.preventDefault(); editor.selectionStart = editor.selectionEnd = pos + 1; editor.focus(); }
-            });
-
-            // Keyboard shortcuts (mobile safe)
-            document.addEventListener('keydown', (e) => { const mod = e.ctrlKey || e.metaKey; if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); } if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); } }, { passive: false });
-
-            // Touch passive
-            editor.addEventListener('touchstart', () => {}, { passive: true }); editor.addEventListener('touchmove', () => {}, { passive: true }); document.addEventListener('scroll', throttleRaf(() => {}), { passive: true, capture: true });
+            // Shortcuts
+            document.addEventListener('keydown', (e)=>{ const mod=e.ctrlKey||e.metaKey; if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); saveNow(); } if(mod && e.key.toLowerCase()==='k'){ e.preventDefault(); $('#searchInput').focus(); } }, {passive:false});
         }
 
         // Boot
-        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); renderSymbolBars();
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); renderNameBars(); renderSymbolBars(); showBarsIfIME();
     </script>
 </body>
 </html>
