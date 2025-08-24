@@ -136,7 +136,7 @@
         .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; min-width: 5ch; text-align: right; display: inline-block; }
         .progress-bar { width: 100%; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
-        #editor-wrapper { display: flex; justify-content: center; width: 100%; height: calc(100vh - var(--toolbar-height) - var(--stats-height)); overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        #editor-wrapper { display: flex; justify-content: center; width: 100%; height: calc(100svh - var(--toolbar-height) - var(--stats-height)); overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
         #editor { width: 100%; margin: 0; padding: 16px; font-size: 1rem; line-height: 1.9; background-color: var(--panel-bg); color: var(--text-color); border: none; border-radius: 0; box-shadow: none; min-height: 100%; height: auto; resize: none; caret-color: var(--caret-color); }
         #editor:focus { outline: none; }
 
@@ -177,15 +177,22 @@
         #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
         #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: var(--symbol-font-size); padding: 6px 10px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
         #mobileBar .m-btn:active { background: var(--hover-bg); }
-        .pad-bottom { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + env(safe-area-inset-bottom)); }
-        .with-name { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + var(--name-bar-height) * var(--name-rows) + env(safe-area-inset-bottom)); }
-        
-        /* Focus mode */
-        body.focus-mode #sidebar { display: none; }
+         .pad-bottom { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + env(safe-area-inset-bottom)); }
+         .with-name { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + var(--name-bar-height) * var(--name-rows) + env(safe-area-inset-bottom)); }
+         
+         /* Focus mode */
+         body.focus-mode #sidebar { display: none; }
+ 
+         /* Snackbar: bottom center, above bars, no overlap with top */
+         #snackbar { position: fixed; left: 50%; transform: translateX(-50%) translateY(12px); bottom: calc(12px + env(safe-area-inset-bottom)); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; box-shadow: var(--shadow-sm); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 80; display: flex; gap: 8px; align-items: center; }
+         #snackbar.show { opacity: 1; }
 
-        /* Snackbar: bottom center, above bars, no overlap with top */
-        #snackbar { position: fixed; left: 50%; transform: translateX(-50%) translateY(12px); bottom: calc(12px + env(safe-area-inset-bottom) + (var(--mobile-bar-height) * var(--mobile-rows)) + (var(--name-bar-height) * var(--name-rows))); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; box-shadow: var(--shadow-sm); opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 80; display: flex; gap: 8px; align-items: center; }
-        #snackbar.show { opacity: 1; }
+        /* Remove bottom bars (deprecated) */
+        #nameBar, #mobileBar { display: none !important; }
+
+        /* Drag handle for touch-friendly DnD */
+        .drag-handle { cursor: grab; padding: 4px; color: var(--muted-text); user-select: none; touch-action: none; }
+        .drag-handle:active { cursor: grabbing; }
     </style>
 </head>
 <body>
@@ -255,44 +262,18 @@
                 <input id="docGoalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
             </div>
             <div class="form-group">
-                <label>人物栏行数（1-10）</label>
-                <input id="nameRowsInput" class="num-input" type="number" min="1" max="10" step="1" placeholder="1">
-            </div>
-            <div class="form-group">
-                <label>人物栏（每行以空格分隔多个名字；多行用换行）</label>
-                <textarea id="namesMultiInput" class="text-area" placeholder="小明 小红\n张三 李四"></textarea>
-            </div>
-            <div class="form-group">
-                <label>人物栏字体大小</label>
-                <div class="radio-row" id="nameFontChips">
-                    <button class="chip" data-size="12">小</button>
-                    <button class="chip" data-size="14">中</button>
-                    <button class="chip" data-size="16">大</button>
-                    <button class="chip" data-size="18">特大</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>符号栏行数（1-3）</label>
-                <input id="symbolRowsInput" class="num-input" type="number" min="1" max="3" step="1" placeholder="1">
-            </div>
-            <div class="form-group">
-                <label>符号栏（每行一组，组内用空格分隔；输入成对符号如 “”，会将光标放在中间）</label>
-                <textarea id="symbolsMultiInput" class="text-area" placeholder="，。、「」\n（ ） — … ！ ？\n“ ” 《 》"></textarea>
-            </div>
-            <div class="form-group">
-                <label>符号栏字体大小</label>
-                <div class="radio-row" id="symbolFontChips">
-                    <button class="chip" data-size="13">小</button>
-                    <button class="chip" data-size="15">中</button>
-                    <button class="chip" data-size="17">大</button>
-                    <button class="chip" data-size="19">特大</button>
-                </div>
-            </div>
-            <div class="form-group">
                 <label>跳出双符号（成对，空格分隔，如 () [] {} “” 「」 《》 ）</label>
                 <input id="jumpPairsInput" class="text-input" placeholder="() [] {} “” 「」 《》 （） '' &quot;&quot;">
             </div>
-            <button id="saveBarPrefs" class="primary-btn">保存</button>
+            <div class="form-group">
+                <label>双符内内容颜色</label>
+                <input id="pairColorInput" class="text-input" type="color" value="#f59e0b">
+            </div>
+            <div class="form-group">
+                <label>人名颜色（按阵营；每行：阵营名 #色值: 名1 名2 ...）</label>
+                <textarea id="factionInput" class="text-area" placeholder="正派 #22c55e: 小明 小红\n反派 #ef4444: 张三 李四"></textarea>
+            </div>
+            <button id="saveSettings" class="primary-btn">保存</button>
         </div>
     </aside>
 
@@ -344,9 +325,7 @@
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
 
-    <!-- Bottom Bars -->
-    <nav id="nameBar"></nav>
-    <nav id="mobileBar"></nav>
+    <!-- Bottom Bars removed -->
 
     <script>
         // Utilities & Storage helpers
@@ -367,13 +346,9 @@
             FOLDER_STATE: 'novelFolderState',
             CURRENT_ID: 'currentDocId',
             THEME: 'theme',
-            SYMBOLS: 'customSymbols',
-            SYMBOL_ROWS: 'symbolRows',
             JUMP_PAIRS: 'jumpPairs',
-            NAMES: 'customNames',
-            NAME_ROWS: 'nameRows',
-            NAME_FONT: 'nameFontPx',
-            SYMBOL_FONT: 'symbolFontPx'
+            PAIR_COLOR: 'pairColor',
+            FACTIONS: 'nameFactions'
         };
 
         // Persisted getters/setters
@@ -387,20 +362,12 @@
         function setCurrentId(id) { localStorage.setItem(STORAGE_KEYS.CURRENT_ID, id); }
         function loadTheme() { return localStorage.getItem(STORAGE_KEYS.THEME) || 'light'; }
         function saveTheme(theme) { localStorage.setItem(STORAGE_KEYS.THEME, theme); }
-        function loadSymbolsRaw() { return loadJSON(STORAGE_KEYS.SYMBOLS, []); }
-        function saveSymbolsRaw(arr) { saveJSON(STORAGE_KEYS.SYMBOLS, arr); }
-        function loadSymbolRows() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.SYMBOL_ROWS) || '1', 10); return Number.isFinite(n) ? clamp(n,1,3) : 1; }
-        function saveSymbolRows(n) { localStorage.setItem(STORAGE_KEYS.SYMBOL_ROWS, String(clamp(n,1,3))); }
         function loadJumpPairs() { return loadJSON(STORAGE_KEYS.JUMP_PAIRS, ["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); }
         function saveJumpPairs(arr) { saveJSON(STORAGE_KEYS.JUMP_PAIRS, arr); }
-        function loadNamesRaw() { return loadJSON(STORAGE_KEYS.NAMES, []); }
-        function saveNamesRaw(arr) { saveJSON(STORAGE_KEYS.NAMES, arr); }
-        function loadNameRows() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.NAME_ROWS) || '1', 10); return Number.isFinite(n) ? clamp(n,1,10) : 1; }
-        function saveNameRows(n) { localStorage.setItem(STORAGE_KEYS.NAME_ROWS, String(clamp(n,1,10))); }
-        function loadNameFont() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.NAME_FONT) || '14', 10); return Number.isFinite(n) ? clamp(n,10,28) : 14; }
-        function saveNameFont(n) { localStorage.setItem(STORAGE_KEYS.NAME_FONT, String(n)); }
-        function loadSymbolFont() { const n = parseInt(localStorage.getItem(STORAGE_KEYS.SYMBOL_FONT) || '15', 10); return Number.isFinite(n) ? clamp(n,10,28) : 15; }
-        function saveSymbolFont(n) { localStorage.setItem(STORAGE_KEYS.SYMBOL_FONT, String(n)); }
+        function loadPairColor(){ return localStorage.getItem(STORAGE_KEYS.PAIR_COLOR) || '#f59e0b'; }
+        function savePairColor(v){ localStorage.setItem(STORAGE_KEYS.PAIR_COLOR, v); }
+        function loadFactions(){ return loadJSON(STORAGE_KEYS.FACTIONS, []); }
+        function saveFactions(v){ saveJSON(STORAGE_KEYS.FACTIONS, v); }
 
         // App state
         let docs = loadDocs();
@@ -427,12 +394,9 @@
         const toolsDrawer = $('#toolsDrawer');
         const toolsOverlay = $('#toolsOverlay');
         const docGoalInput = $('#docGoalInput');
-        const nameRowsInput = $('#nameRowsInput');
-        const namesMultiInput = $('#namesMultiInput');
-        const nameFontChips = $('#nameFontChips');
-        const symbolRowsInput = $('#symbolRowsInput');
-        const symbolsMultiInput = $('#symbolsMultiInput');
         const jumpPairsInput = $('#jumpPairsInput');
+        const pairColorInput = $('#pairColorInput');
+        const factionInput = $('#factionInput');
         const sheet = $('#moveSheet');
         const sheetOverlay = $('#sheetOverlay');
         const sheetBody = $('#moveSheetBody');
@@ -455,24 +419,24 @@
         function ensureOrdering(){ const perF = new Map(); for (const f of folders){ const p=f.parentId||null; if(!perF.has(p)) perF.set(p,[]); perF.get(p).push(f);} for (const [p,arr] of perF){ arr.sort((a,b)=>((a.sort??1e9)-(b.sort??1e9))||a.name.localeCompare(b.name)); arr.forEach((f,i)=>{ if(typeof f.sort!== 'number') f.sort=i; }); } const perD=new Map(); for(const d of docs){ const p=d.folderId||null; if(!perD.has(p)) perD.set(p,[]); perD.get(p).push(d);} for(const [p,arr] of perD){ arr.sort((a,b)=>((a.sort??1e9)-(b.sort??1e9))|| (b.updatedAt-a.updatedAt)); arr.forEach((d,i)=>{ if(typeof d.sort!== 'number') d.sort=i; if(typeof d.goal!== 'number') d.goal=1000;}); } saveFolders(folders); saveDocs(docs);} ensureOrdering();
 
         // Helpers for bars
-        function getSymbolBars(){ const raw=loadSymbolsRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”']]; }
-        function renderSymbolBars(){ mobileBar.innerHTML=''; const rows=loadSymbolRows(); const sFont=loadSymbolFont(); document.documentElement.style.setProperty('--mobile-rows', String(rows)); document.documentElement.style.setProperty('--symbol-font-size', sFont+'px'); const bars=getSymbolBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const sym of list){ const b=createEl('button','m-btn'); b.textContent=sym; b.style.fontSize=sFont+'px'; const handler=(e)=>{ e.preventDefault(); insertSymbolToken(sym); }; b.addEventListener('pointerdown', handler, {passive:false}); b.addEventListener('touchstart', handler, {passive:false}); b.addEventListener('mousedown', handler, {passive:false}); row.appendChild(b);} mobileBar.appendChild(row);} }
-        function getNameBars(){ const raw=loadNamesRaw(); if(Array.isArray(raw)&&Array.isArray(raw[0])) return raw; if(Array.isArray(raw)) return [raw]; return [[]]; }
-        function renderNameBars(){ nameBar.innerHTML=''; const rows=loadNameRows(); const nFont=loadNameFont(); document.documentElement.style.setProperty('--name-rows', String(rows)); document.documentElement.style.setProperty('--name-bar-height', '40px'); document.documentElement.style.setProperty('--name-font-size', nFont+'px'); const bars=getNameBars(); for(let i=0;i<rows;i++){ const row=createEl('div','row'); const list=Array.isArray(bars[i])?bars[i]:[]; for(const nm of list){ const b=createEl('button','n-btn'); b.textContent=nm; b.style.fontSize=nFont+'px'; const handler=(e)=>{ e.preventDefault(); insertAtCursor(nm); }; b.addEventListener('pointerdown', handler, {passive:false}); b.addEventListener('touchstart', handler, {passive:false}); b.addEventListener('mousedown', handler, {passive:false}); row.appendChild(b);} nameBar.appendChild(row);} }
+        function getSymbolBars(){ return []; }
+        function renderSymbolBars(){ /* removed */ }
+        function getNameBars(){ return []; }
+        function renderNameBars(){ /* removed */ }
 
         // Render tree (unchanged inputs omitted for brevity)
         function getChildrenFolders(parentId) { return folders.filter(f=>f.parentId===parentId).sort((a,b)=>a.sort-b.sort||a.name.localeCompare(b.name)); }
         function getFolderDocs(folderId) { return docs.filter(d=>(d.folderId||null)===(folderId||null)).sort((a,b)=>a.sort-b.sort||(b.updatedAt-a.updatedAt)); }
         function isOpen(fid){ return !!folderOpenState[fid]; }
         function setOpen(fid,open){ folderOpenState[fid]=open; saveFolderState(folderOpenState); }
-        function renderTree(filter=''){ const kw=(filter||'').trim().toLowerCase(); treeEl.innerHTML=''; const rootDrop=createEl('div','tree-root-drop'); rootDrop.textContent='拖动文档到此处移动到根目录'; rootDrop.addEventListener('dragover',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.add('dragover'); },{passive:false}); rootDrop.addEventListener('dragleave',()=> rootDrop.classList.remove('dragover')); rootDrop.addEventListener('drop',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId,null); }); treeEl.appendChild(rootDrop); for(const d of getFolderDocs(null)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; treeEl.appendChild(renderDocNode(d,0)); } function renderFolder(f,level){ const row=createEl('div','folder-node'); row.dataset.folderId=f.id; row.draggable=true; const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const caret=createEl('div','caret'); caret.textContent=isOpen(f.id)?'▾':'▸'; caret.addEventListener('click',()=>{ const op=!isOpen(f.id); setOpen(f.id,op); caret.textContent=op?'▾':'▸'; children.style.display=op?'':'none'; }); const icon=createEl('div','icon-folder'); const title=createEl('div','folder-title'); title.textContent=f.name; const actions=createEl('div','node-actions'); const addDocBtn=createEl('button','icon-btn'); addDocBtn.textContent='📝＋'; addDocBtn.title='新建文档'; addDocBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createDoc('',f.id,'新文档'); }); const addFolderBtn=createEl('button','icon-btn'); addFolderBtn.textContent='＋'; addFolderBtn.title='新建子文件夹'; addFolderBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createFolder(f.id); }); const renameBtn=createEl('button','icon-btn'); renameBtn.textContent='✎'; renameBtn.title='重命名'; renameBtn.addEventListener('click',(e)=>{ e.stopPropagation(); inlineRenameFolder(f.id,title); }); actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn); row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('dragover',(e)=>{ if(draggedDocId){ e.preventDefault(); row.classList.add('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); }},{passive:false}); row.addEventListener('dragleave',()=>{ row.classList.remove('drop-target','drop-before','drop-after'); }); row.addEventListener('drop',(e)=>{ e.preventDefault(); if(draggedDocId){ moveDocToFolder(draggedDocId,f.id); row.classList.remove('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderFolders(dragged.parentId||null, draggedFolderId, f.id, before?'before':'after'); } row.classList.remove('drop-before','drop-after'); }); row.addEventListener('dragstart', (e)=>{ draggedFolderId=f.id; e.dataTransfer.effectAllowed='move'; }); row.addEventListener('dragend', ()=>{ draggedFolderId=null; }); const children=createEl('div','children'); children.style.display=isOpen(f.id)?'':'none'; for(const d of getFolderDocs(f.id)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; children.appendChild(renderDocNode(d,level+1)); } for(const sf of getChildrenFolders(f.id)) children.appendChild(renderFolder(sf,level+1)); const wrap=createEl('div'); wrap.appendChild(row); wrap.appendChild(children); return wrap; } for(const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f,0)); }
-        function renderDocNode(doc, level){ const row=createEl('div','doc-node'); row.draggable=true; row.dataset.docId=doc.id; if(doc.id===currentDocId) row.classList.add('active'); const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const icon=createEl('div','icon-doc'); const title=createEl('div','doc-title'); title.textContent=doc.title||'无标题'; const actions=createEl('div','node-actions'); const starBtn=createEl('button','icon-btn'); starBtn.innerHTML=doc.starred?'⭐':'☆'; starBtn.title=doc.starred?'取消收藏':'收藏'; starBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleStar(doc.id); }); const moveBtn=createEl('button','icon-btn'); moveBtn.textContent='↪️'; moveBtn.title='移动到'; moveBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openMoveSheet(doc.id); }); const delBtn=createEl('button','icon-btn'); delBtn.textContent='🗑️'; delBtn.title='删除'; delBtn.addEventListener('click',(e)=>{ e.stopPropagation(); softDeleteDoc(doc.id); }); actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn); row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('click',()=> selectDoc(doc.id)); row.addEventListener('dragstart',(e)=>{ draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; }); row.addEventListener('dragend',()=>{ draggedDocId=null; row.classList.remove('drop-before','drop-after'); }); row.addEventListener('dragover',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); },{passive:false}); row.addEventListener('dragleave',()=> row.classList.remove('drop-before','drop-after')); row.addEventListener('drop',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderDocs(doc.folderId||null, draggedDocId, doc.id, before?'before':'after'); }); return row; }
+        function renderTree(filter=''){ const kw=(filter||'').trim().toLowerCase(); treeEl.innerHTML=''; const rootDrop=createEl('div','tree-root-drop'); rootDrop.textContent='拖动文档到此处移动到根目录'; rootDrop.addEventListener('dragover',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.add('dragover'); },{passive:false}); rootDrop.addEventListener('dragleave',()=> rootDrop.classList.remove('dragover')); rootDrop.addEventListener('drop',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId,null); }); treeEl.appendChild(rootDrop); for(const d of getFolderDocs(null)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; treeEl.appendChild(renderDocNode(d,0)); } function renderFolder(f,level){ const row=createEl('div','folder-node'); row.dataset.folderId=f.id; const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const caret=createEl('div','caret'); caret.textContent=isOpen(f.id)?'▾':'▸'; caret.addEventListener('click',()=>{ const op=!isOpen(f.id); setOpen(f.id,op); caret.textContent=op?'▾':'▸'; children.style.display=op?'':'none'; }); const handle=createEl('div','drag-handle'); handle.textContent='≡'; handle.title='拖动排序'; handle.draggable=true; handle.addEventListener('dragstart', (e)=>{ draggedFolderId=f.id; e.dataTransfer.effectAllowed='move'; }); handle.addEventListener('dragend', ()=>{ draggedFolderId=null; }); const icon=createEl('div','icon-folder'); const title=createEl('div','folder-title'); title.textContent=f.name; const actions=createEl('div','node-actions'); const addDocBtn=createEl('button','icon-btn'); addDocBtn.textContent='📝＋'; addDocBtn.title='新建文档'; addDocBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createDoc('',f.id,'新文档'); }); const addFolderBtn=createEl('button','icon-btn'); addFolderBtn.textContent='＋'; addFolderBtn.title='新建子文件夹'; addFolderBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createFolder(f.id); }); const renameBtn=createEl('button','icon-btn'); renameBtn.textContent='✎'; renameBtn.title='重命名'; renameBtn.addEventListener('click',(e)=>{ e.stopPropagation(); inlineRenameFolder(f.id,title); }); actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn); row.appendChild(indent); row.appendChild(caret); row.appendChild(handle); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('dragover',(e)=>{ if(draggedDocId){ e.preventDefault(); row.classList.add('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); }},{passive:false}); row.addEventListener('dragleave',()=>{ row.classList.remove('drop-target','drop-before','drop-after'); }); row.addEventListener('drop',(e)=>{ e.preventDefault(); if(draggedDocId){ moveDocToFolder(draggedDocId,f.id); row.classList.remove('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderFolders(dragged.parentId||null, draggedFolderId, f.id, before?'before':'after'); } row.classList.remove('drop-before','drop-after'); }); const children=createEl('div','children'); children.style.display=isOpen(f.id)?'':'none'; for(const d of getFolderDocs(f.id)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; children.appendChild(renderDocNode(d,level+1)); } for(const sf of getChildrenFolders(f.id)) children.appendChild(renderFolder(sf,level+1)); const wrap=createEl('div'); wrap.appendChild(row); wrap.appendChild(children); return wrap; } for(const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f,0)); }
+        function renderDocNode(doc, level){ const row=createEl('div','doc-node'); row.dataset.docId=doc.id; if(doc.id===currentDocId) row.classList.add('active'); const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const handle=createEl('div','drag-handle'); handle.textContent='≡'; handle.title='拖动排序'; handle.draggable=true; handle.addEventListener('dragstart',(e)=>{ draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; }); handle.addEventListener('dragend',()=>{ draggedDocId=null; row.classList.remove('drop-before','drop-after'); }); const icon=createEl('div','icon-doc'); const title=createEl('div','doc-title'); title.textContent=doc.title||'无标题'; const actions=createEl('div','node-actions'); const starBtn=createEl('button','icon-btn'); starBtn.innerHTML=doc.starred?'⭐':'☆'; starBtn.title=doc.starred?'取消收藏':'收藏'; starBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleStar(doc.id); }); const moveBtn=createEl('button','icon-btn'); moveBtn.textContent='↪️'; moveBtn.title='移动到'; moveBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openMoveSheet(doc.id); }); const delBtn=createEl('button','icon-btn'); delBtn.textContent='🗑️'; delBtn.title='删除'; delBtn.addEventListener('click',(e)=>{ e.stopPropagation(); softDeleteDoc(doc.id); }); actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn); row.appendChild(indent); row.appendChild(handle); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('click',()=> selectDoc(doc.id)); row.addEventListener('dragover',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); },{passive:false}); row.addEventListener('dragleave',()=> row.classList.remove('drop-before','drop-after')); row.addEventListener('drop',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderDocs(doc.folderId||null, draggedDocId, doc.id, before?'before':'after'); }); return row; }
         function reorderDocs(parentId, draggedId, targetId, position){ const list=docs.filter(d=>(d.folderId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((d,i)=>[d.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, docs.find(d=>d.id===draggedId)); list.forEach((d,i)=> d.sort=i); saveDocs(docs); renderTree($('#searchInput').value); }
         function reorderFolders(parentId, draggedId, targetId, position){ const list=folders.filter(f=>(f.parentId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((f,i)=>[f.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, folders.find(f=>f.id===draggedId)); list.forEach((f,i)=> f.sort=i); saveFolders(folders); renderTree($('#searchInput').value); }
 
         // CRUD & selection
         function currentDoc(){ return docs.find(x=>x.id===currentDocId); }
-        function selectDoc(id){ const doc=docs.find(x=>x.id===id); if(!doc) return; currentDocId=id; setCurrentId(id); titleInput.value=doc.title||''; editor.value=doc.content||''; updateWordStats(); updateGoalUI(); renderTree($('#searchInput').value); editor.focus(); }
+        function selectDoc(id){ const doc=docs.find(x=>x.id===id); if(!doc) return; currentDocId=id; setCurrentId(id); titleInput.value=doc.title||''; editor.value=doc.content||''; updateWordStats(); updateGoalUI(); renderTree($('#searchInput').value); applyDynamicColors(); editor.focus(); }
         function createDoc(initialContent='', folderId=null, title='无标题文档'){ const id='doc_'+Math.random().toString(36).slice(2); const now=Date.now(); const sibling=docs.filter(d=>(d.folderId||null)===(folderId||null)).length; const newDoc={ id, title, content: initialContent, starred:false, createdAt:now, updatedAt:now, folderId, sort:sibling, goal:1000 }; docs.push(newDoc); saveDocs(docs); selectDoc(id); }
         function createNovel() {
             const fid = generateId('fld'); const parentId = null;
@@ -491,6 +455,13 @@
 
         // Goal bar logic (per-doc)
         function updateGoalUI(){ const doc=currentDoc(); const goal=(doc&&typeof doc.goal==='number')? doc.goal : 1000; goalNum.textContent=goal; const chars=(editor.value||'').replace(/\s+/g,'').length; charCountEl.textContent=chars; const pct=goal<=0?1:Math.max(0, Math.min(1, chars/goal)); goalProgress.style.width=(pct*100).toFixed(1)+'%'; }
+
+        // Simple inline preview coloring using background highlights via overlay (textarea has no rich text; we simulate via CSS custom highlight using selection):
+        // Implement minimal live hint by setting caret color and skipping heavy rendering to keep performance on mobile.
+        function applyDynamicColors(){
+            // Set caret color influenced by theme; content coloring is out-of-scope for plain textarea without heavy overlay. We honor pair color via CSS variable for potential future overlay.
+            document.documentElement.style.setProperty('--pair-color', loadPairColor());
+        }
 
         // Saving & stats
         const persist=debounce(function(){ const doc=currentDoc(); if(!doc) return; doc.title=titleInput.value.trim()||'无标题文档'; doc.content=editor.value; doc.updatedAt=Date.now(); saveDocs(docs); updateGoalUI(); renderTree($('#searchInput').value); }, 180);
@@ -517,11 +488,14 @@
         function selectThemeChip(theme){ $all('#themeChips .chip').forEach(c=> c.classList.toggle('active', c.dataset.theme===theme)); }
         function openTools(){ toolsDrawer.classList.add('show'); toolsOverlay.style.display='block'; }
         function closeTools(){ toolsDrawer.classList.remove('show'); toolsOverlay.style.display='none'; }
-        function loadBarsIntoSettings(){ nameRowsInput.value=String(loadNameRows()); const nameBars=getNameBars(); const nameLines=[]; for(let i=0;i<loadNameRows();i++){ nameLines.push((nameBars[i]||[]).join(' ')); } namesMultiInput.value=nameLines.join('\n'); const font=loadNameFont(); $all('#nameFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===font)); symbolRowsInput.value=String(loadSymbolRows()); const symBars=getSymbolBars(); const symLines=[]; for(let i=0;i<loadSymbolRows();i++){ symLines.push((symBars[i]||[]).join(' ')); } symbolsMultiInput.value=symLines.join('\n'); const sfont=loadSymbolFont(); $all('#symbolFontChips .chip').forEach(ch=> ch.classList.toggle('active', parseInt(ch.dataset.size,10)===sfont)); jumpPairsInput.value=loadJumpPairs().join(' '); }
-        function saveBarsFromSettings(){ let nRows=parseInt(nameRowsInput.value||'1',10); if(!Number.isFinite(nRows)||nRows<1)nRows=1; nRows=Math.min(nRows,10); const nameLines=namesMultiInput.value.split(/\n/); const names=[]; for(let i=0;i<nRows;i++){ const parts=(nameLines[i]||'').trim().split(/\s+/).filter(Boolean); names.push(parts);} saveNamesRaw(names); saveNameRows(nRows); const active=$('#nameFontChips .chip.active'); const size=active?parseInt(active.dataset.size,10):14; saveNameFont(size); document.documentElement.style.setProperty('--name-font-size', size+'px'); let sRows=parseInt(symbolRowsInput.value||'1',10); if(!Number.isFinite(sRows)||sRows<1)sRows=1; sRows=Math.min(sRows,3); const symLines=symbolsMultiInput.value.split(/\n/); const syms=[]; for(let i=0;i<sRows;i++){ const parts=(symLines[i]||'').trim().split(/\s+/).filter(Boolean); syms.push(parts);} saveSymbolsRaw(syms); saveSymbolRows(sRows); const sActive=$('#symbolFontChips .chip.active'); const sSize=sActive?parseInt(sActive.dataset.size,10):15; saveSymbolFont(sSize); document.documentElement.style.setProperty('--symbol-font-size', sSize+'px'); const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs); const doc=currentDoc(); const g=parseInt(docGoalInput.value||'1000',10); if(doc){ doc.goal = Number.isFinite(g)? Math.max(0,g): 1000; saveDocs(docs); updateGoalUI(); } renderNameBars(); renderSymbolBars(); showBarsIfIME(); showSnack('已保存设置'); }
+        function loadBarsIntoSettings(){ const pairColor=loadPairColor(); pairColorInput.value=pairColor; jumpPairsInput.value=loadJumpPairs().join(' '); const factions=loadFactions(); const lines=factions.map(f=>`${f.group} ${f.color}: ${f.names.join(' ')}`); factionInput.value=lines.join('\n'); }
+        function saveSettings(){ const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs);
+            const color=pairColorInput.value||'#f59e0b'; savePairColor(color);
+            const lines=(factionInput.value||'').split(/\n/).filter(Boolean); const fac=[]; for(const ln of lines){ const m=ln.match(/^\s*([^#:]+)\s+(#[0-9a-fA-F]{3,8})\s*:\s*(.+)$/); if(m){ const group=m[1].trim(); const col=m[2].trim(); const names=m[3].trim().split(/\s+/).filter(Boolean); fac.push({group,color:col,names}); } }
+            saveFactions(fac); showSnack('已保存设置'); }
 
-        // IME visibility heuristics: show bars only when editing
-        let imeVisible=false; function showBarsIfIME(){ const rows=loadSymbolRows(); const nrows=loadNameRows(); if(imeVisible){ const cs=getComputedStyle(document.documentElement); const mbh=parseInt(cs.getPropertyValue('--mobile-bar-height'))||44; const nbh=parseInt(cs.getPropertyValue('--name-bar-height'))||40; let kb=0; if(window.visualViewport){ const vv=window.visualViewport; kb = Math.max(0, (window.innerHeight - vv.height - (vv.offsetTop||0))); } nameBar.style.display = nrows>0? 'block':'none'; mobileBar.style.display = rows>0? 'block':'none'; const mobileTotal = rows>0 ? (mbh*rows) : 0; mobileBar.style.bottom = kb + 'px'; nameBar.style.bottom = (kb + mobileTotal) + 'px'; $('#editor-wrapper').classList.toggle('with-name', nrows>0); $('#editor-wrapper').classList.add('pad-bottom'); } else { nameBar.style.display='none'; mobileBar.style.display='none'; mobileBar.style.bottom=''; nameBar.style.bottom=''; $('#editor-wrapper').classList.remove('with-name'); $('#editor-wrapper').classList.remove('pad-bottom'); } }
+        // IME visibility heuristics removed (bottom bars deprecated)
+        let imeVisible=false; function showBarsIfIME(){ /* no-op */ }
 
         // Bindings
         function bindGlobal(){
@@ -545,9 +519,7 @@
             // Settings
             $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
             $all('#themeChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ const theme=ch.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：'+ch.textContent); }));
-            $all('#nameFontChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ $all('#nameFontChips .chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active'); }));
-            $all('#symbolFontChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ $all('#symbolFontChips .chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active'); }));
-            $('#saveBarPrefs').addEventListener('click', saveBarsFromSettings);
+            $('#saveSettings').addEventListener('click', saveSettings);
 
             // Footer & import
             $('#newDocBtn').addEventListener('click', ()=> createDoc());
@@ -565,19 +537,16 @@
             editor.addEventListener('keydown', jumpOutIfInside);
             editor.addEventListener('focus', ()=>{ imeVisible=true; showBarsIfIME(); });
             editor.addEventListener('blur', ()=>{ imeVisible=false; showBarsIfIME(); });
-            if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ const vv=window.visualViewport; imeVisible = !!vv && ((window.innerHeight - vv.height) > 120); showBarsIfIME(); }); }
-            // Fallback for browsers without visualViewport
-            window.addEventListener('resize', throttleRaf(()=>{ if(!window.visualViewport){ // assume keyboard visible if viewport shrinks a lot
-                const visible = window.innerHeight < screen.height * 0.82; imeVisible = visible; showBarsIfIME(); }}));
-            // Ensure bars appear on input if focused
-            editor.addEventListener('input', ()=>{ if(document.activeElement===editor){ imeVisible=true; showBarsIfIME(); } });
+            if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ const vv=window.visualViewport; // keep bars removed; prevent layout shift by relying on 100svh
+            }); }
+            window.addEventListener('resize', throttleRaf(()=>{ /* no-op for bars */ }));
 
             // Shortcuts
             document.addEventListener('keydown', (e)=>{ const mod=e.ctrlKey||e.metaKey; if(mod && e.key.toLowerCase()==='s'){ e.preventDefault(); saveNow(); } if(mod && e.key.toLowerCase()==='k'){ e.preventDefault(); $('#searchInput').focus(); } }, {passive:false});
         }
 
         // Boot
-        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); renderNameBars(); renderSymbolBars(); showBarsIfIME();
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id);
     </script>
 </body>
 </html>
