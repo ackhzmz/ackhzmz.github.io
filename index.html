@@ -142,7 +142,7 @@
         .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; }
         .tree-root-drop.dragover { background: var(--active-bg); }
 
-        .folder-node, .doc-node { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; }
+        .folder-node, .doc-node { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; }
         .folder-node:hover, .doc-node:hover { background: var(--hover-bg); }
         .doc-node.active { background: var(--active-bg); }
         .indent { width: var(--tree-indent); flex: 0 0 var(--tree-indent); height: 1px; }
@@ -153,6 +153,9 @@
         .node-actions .icon-btn { padding: 4px 6px; border-radius: 6px; }
         .children { margin-left: calc(var(--tree-indent) + 8px); }
         .drop-target { outline: 2px dashed var(--primary-color); }
+        .drop-before::before, .drop-after::after { content: ""; position: absolute; left: 8px; right: 8px; height: 0; border-top: 2px solid var(--primary-color); }
+        .drop-before::before { top: -1px; }
+        .drop-after::after { bottom: -1px; }
 
         .sidebar-footer { border-top: 1px solid var(--border-color); padding: 10px 12px; display: flex; gap: 10px; }
         .primary-btn { background: var(--primary-color); color: #fff; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
@@ -171,17 +174,9 @@
         .toolbar-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; cursor: pointer; color: var(--muted-text); }
         .toolbar-btn:hover { background: var(--hover-bg); }
 
-        .format-bar { display: flex; gap: 6px; align-items: center; }
-        .divider { width: 1px; height: 22px; background: var(--border-color); margin: 0 6px; }
-        select.format-switch { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 8px; padding: 6px 8px; }
-
         #editor-wrapper { display: flex; justify-content: center; width: 100%; }
-        #editor { width: min(100%, var(--editor-width)); margin: 24px 16px; padding: 28px; font-size: 1.06rem; line-height: 1.9; background-color: var(--panel-bg); outline: none; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 58vh; }
-        #editor:focus { border-color: rgba(74,134,232,0.5); box-shadow: 0 0 0 3px rgba(74,134,232,0.15), var(--shadow-md); }
-        #editor p { margin: 0 0 1em 0; }
-        #editor h1, #editor h2, #editor h3 { margin: 1.2em 0 0.6em; }
-        #editor blockquote { border-left: 3px solid var(--primary-color); padding-left: 10px; margin: 1em 0; color: var(--muted-text); }
-        #editor ul, #editor ol { padding-left: 1.2em; }
+        #editor { width: min(100%, var(--editor-width)); margin: 24px 16px; padding: 18px; font-size: 1.02rem; line-height: 1.7; background-color: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 58vh; resize: vertical; }
+        #editor:focus { outline: 3px solid rgba(74,134,232,0.15); border-color: rgba(74,134,232,0.4); }
 
         .word-count { padding: 10px 14px; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); font-size: 0.92rem; color: var(--muted-text); display: flex; gap: 14px; align-items: center; }
         .goal { display: flex; align-items: center; gap: 8px; }
@@ -228,8 +223,8 @@
 
         /* Mobile Toolbar */
         #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
-        #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 6px; }
-        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 16px; }
+        #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 6px; }
+        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; }
         #mobileBar .m-btn:active { background: var(--hover-bg); }
 
         /* Responsive */
@@ -241,10 +236,9 @@
             #sidebar.show + #main-container #sidebar-overlay { opacity: 1; pointer-events: auto; }
             :root { --editor-width: 100%; }
             .toolbar { grid-template-columns: auto 1fr auto; gap: 6px; }
-            .format-bar { display: none; }
             #settingsDrawer { width: 92vw; }
             #mobileBar { display: block; }
-            #editor { padding-bottom: calc(28px + var(--mobile-bar-height) + env(safe-area-inset-bottom)); }
+            #editor { padding-bottom: calc(18px + var(--mobile-bar-height) + env(safe-area-inset-bottom)); }
         }
     </style>
 </head>
@@ -262,6 +256,7 @@
         <div class="sidebar-search">
             <input id="searchInput" class="search-input" placeholder="搜索文档 (⌘/Ctrl K)">
             <button id="newDocBtn" class="primary-btn" title="新建文档">＋</button>
+            <button id="newNovelBtn" class="toolbar-btn" title="新建小说">📚</button>
             <button id="newFolderBtn" class="toolbar-btn" title="新建文件夹">📁＋</button>
         </div>
         <div class="menu-section-title">目录</div>
@@ -280,26 +275,6 @@
             <button class="menu-toggle" id="menuToggle" title="显示/隐藏侧边栏">☰</button>
             <input type="text" id="titleInput" class="title-input" placeholder="无标题文档">
             <div class="toolbar-actions">
-                <div class="format-bar">
-                    <select id="blockFormat" class="format-switch" title="段落/标题">
-                        <option value="P">正文</option>
-                        <option value="H1">标题 1</option>
-                        <option value="H2">标题 2</option>
-                        <option value="H3">标题 3</option>
-                    </select>
-                    <button class="toolbar-btn" data-cmd="bold" title="加粗 (Ctrl+B)"><b>B</b></button>
-                    <button class="toolbar-btn" data-cmd="italic" title="斜体 (Ctrl+I)"><i>I</i></button>
-                    <button class="toolbar-btn" data-cmd="underline" title="下划线 (Ctrl+U)"><u>U</u></button>
-                    <div class="divider"></div>
-                    <button class="toolbar-btn" data-cmd="insertUnorderedList" title="无序列表">•▸</button>
-                    <button class="toolbar-btn" data-cmd="insertOrderedList" title="有序列表">1▸</button>
-                    <button class="toolbar-btn" id="quoteBtn" title="引用">❝ ❞</button>
-                    <div class="divider"></div>
-                    <button class="toolbar-btn" id="clearFormatBtn" title="清除格式">🧹</button>
-                    <div class="divider"></div>
-                    <button class="toolbar-btn" id="undoBtn" title="撤销 (Ctrl+Z)">↶</button>
-                    <button class="toolbar-btn" id="redoBtn" title="重做 (Ctrl+Y)">↷</button>
-                </div>
                 <div class="divider"></div>
                 <div class="format-bar">
                     <button class="toolbar-btn" id="tplPerson" title="插入人物卡">🧑‍🎤</button>
@@ -314,7 +289,7 @@
         </div>
 
         <div id="editor-wrapper">
-            <div id="editor" contenteditable="true"></div>
+            <textarea id="editor" spellcheck="false" placeholder="开始创作……"></textarea>
         </div>
 
         <div class="word-count">
@@ -377,11 +352,10 @@
     <!-- Mobile Toolbar -->
     <nav id="mobileBar">
         <div class="row">
-            <button class="m-btn" data-cmd="bold"><b>B</b></button>
-            <button class="m-btn" data-cmd="italic"><i>I</i></button>
-            <button class="m-btn" data-cmd="underline"><u>U</u></button>
-            <button class="m-btn" data-block="H2">H2</button>
-            <button class="m-btn" data-cmd="insertUnorderedList">•</button>
+            <button class="m-btn" id="mPerson">人物</button>
+            <button class="m-btn" id="mScene">场景</button>
+            <button class="m-btn" id="mWorld">世界</button>
+            <button class="m-btn" id="mNewDoc">新建</button>
             <button class="m-btn" id="mFocus">🎯</button>
             <button class="m-btn" id="mSettings">⚙️</button>
         </div>
@@ -434,8 +408,30 @@
         let isSaving = false;
         let lastCharCountForProgress = 0;
         let draggedDocId = null;
+        let draggedFolderId = null;
         let lastDeleted = null; // {doc}
         let moveTargetDocId = null;
+
+        // Ensure ordering fields (migration)
+        function ensureOrdering() {
+            const perParent = new Map();
+            for (const f of folders) {
+                const pid = f.parentId || null; if (!perParent.has(pid)) perParent.set(pid, []); perParent.get(pid).push(f);
+            }
+            for (const [pid, list] of perParent.entries()) {
+                list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || a.name.localeCompare(b.name));
+                list.forEach((f, i) => { if (typeof f.sort !== 'number') f.sort = i; });
+            }
+            const perDocParent = new Map();
+            for (const d of docs) {
+                const pid = d.folderId || null; if (!perDocParent.has(pid)) perDocParent.set(pid, []); perDocParent.get(pid).push(d);
+            }
+            for (const [pid, list] of perDocParent.entries()) {
+                list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || (b.updatedAt - a.updatedAt));
+                list.forEach((d, i) => { if (typeof d.sort !== 'number') d.sort = i; });
+            }
+            saveFolders(folders); saveDocs(docs);
+        }
 
         // Elements
         const sidebar = $('#sidebar');
@@ -463,11 +459,7 @@
         // Density setup
         function applyDensity(density) {
             document.body.dataset.density = density;
-            if (density === 'compact') {
-                document.documentElement.style.setProperty('--editor-width', '720px');
-            } else {
-                document.documentElement.style.setProperty('--editor-width', '780px');
-            }
+            document.documentElement.style.setProperty('--editor-width', density === 'compact' ? '720px' : '780px');
             selectDensityChip(density);
         }
         applyDensity(loadDensity());
@@ -476,22 +468,23 @@
         if (!docs.length) {
             const id = generateId('doc');
             const now = Date.now();
-            docs.push({ id, title: '我的写作笔记', content: '<p>这是一个纯粹专注的写作环境。</p><p>在这里，您可以自由地创作，不受干扰。</p><p>使用左侧的目录管理您的文档与文件夹。</p>', starred: false, createdAt: now, updatedAt: now, folderId: null });
+            docs.push({ id, title: '我的写作笔记', content: '这是一个纯粹专注的写作环境。\n\n在这里，您可以自由地创作，不受干扰。\n\n使用左侧的目录管理您的文档与文件夹。', starred: false, createdAt: now, updatedAt: now, folderId: null, sort: 0 });
             saveDocs(docs);
             currentDocId = id;
             setCurrentId(id);
         }
         if (!folders.length) {
             const fid = generateId('fld');
-            folders.push({ id: fid, name: '我的作品', parentId: null });
+            folders.push({ id: fid, name: '我的作品', parentId: null, sort: 0 });
             folderOpenState[fid] = true;
             saveFolders(folders);
             saveFolderState(folderOpenState);
         }
+        ensureOrdering();
 
         // Tree helpers
-        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId); }
-        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)); }
+        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId).sort((a,b) => a.sort - b.sort || a.name.localeCompare(b.name)); }
+        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)).sort((a,b) => a.sort - b.sort || (b.updatedAt - a.updatedAt)); }
         function isOpen(folderId) { return !!folderOpenState[folderId]; }
         function setOpen(folderId, open) { folderOpenState[folderId] = open; saveFolderState(folderOpenState); }
 
@@ -504,11 +497,11 @@
             rootDrop.textContent = '拖动文档到此处移动到根目录';
             rootDrop.addEventListener('dragover', (e) => { e.preventDefault(); rootDrop.classList.add('dragover'); }, { passive: false });
             rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('dragover'));
-            rootDrop.addEventListener('drop', (e) => { e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
+            rootDrop.addEventListener('drop', (e) => { e.preventDefault(); rootDrop.classList.remove('dragover'); if (draggedDocId) moveDocToFolder(draggedDocId, null); });
             treeEl.appendChild(rootDrop);
 
             // Root docs (no folder)
-            const rootDocs = getFolderDocs(null).sort(sortDoc);
+            const rootDocs = getFolderDocs(null);
             for (const d of rootDocs) {
                 if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
                 treeEl.appendChild(renderDocNode(d, 0));
@@ -518,6 +511,7 @@
             function renderFolder(folder, level) {
                 const row = createEl('div', 'folder-node');
                 row.dataset.folderId = folder.id;
+                row.draggable = true;
                 if (!isOpen(folder.id)) row.classList.add('collapsed');
                 const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
                 const caret = createEl('div', 'caret'); caret.textContent = isOpen(folder.id) ? '▾' : '▸';
@@ -525,30 +519,49 @@
                 const icon = createEl('div'); icon.textContent = '📁';
                 const title = createEl('div', 'folder-title'); title.textContent = folder.name;
                 const actions = createEl('div', 'node-actions');
-                const addBtn = createEl('button', 'icon-btn'); addBtn.title = '新建子文件夹'; addBtn.textContent = '＋';
-                addBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
-                const renameBtn = createEl('button', 'icon-btn'); renameBtn.title = '重命名'; renameBtn.textContent = '✎';
-                renameBtn.addEventListener('click', (e) => { e.stopPropagation(); inlineRenameFolder(folder.id, title); });
-                const delBtn = createEl('button', 'icon-btn'); delBtn.title = '删除文件夹'; delBtn.textContent = '🗑️';
-                delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(folder.id); });
+                const addBtn = createEl('button', 'icon-btn'); addBtn.title = '新建子文件夹'; addBtn.textContent = '＋'; addBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
+                const renameBtn = createEl('button', 'icon-btn'); renameBtn.title = '重命名'; renameBtn.textContent = '✎'; renameBtn.addEventListener('click', (e) => { e.stopPropagation(); inlineRenameFolder(folder.id, title); });
+                const delBtn = createEl('button', 'icon-btn'); delBtn.title = '删除文件夹'; delBtn.textContent = '🗑️'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(folder.id); });
                 actions.appendChild(addBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
 
                 row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
-                row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('drop-target'); }, { passive: false });
-                row.addEventListener('dragleave', () => row.classList.remove('drop-target'));
-                row.addEventListener('drop', (e) => { e.preventDefault(); row.classList.remove('drop-target'); moveDocToFolder(draggedDocId, folder.id); });
+
+                // Folder drag sorting (same parent only)
+                row.addEventListener('dragstart', (e) => { draggedFolderId = folder.id; e.dataTransfer.effectAllowed = 'move'; });
+                row.addEventListener('dragend', () => { draggedFolderId = null; row.classList.remove('drop-before','drop-after'); });
+                row.addEventListener('dragover', (e) => {
+                    if (!draggedFolderId || draggedFolderId === folder.id) return; 
+                    const dragged = folders.find(f => f.id === draggedFolderId);
+                    if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return; // only same parent
+                    e.preventDefault();
+                    const rect = row.getBoundingClientRect();
+                    const before = (e.clientY - rect.top) < rect.height / 2;
+                    row.classList.toggle('drop-before', before);
+                    row.classList.toggle('drop-after', !before);
+                }, { passive: false });
+                row.addEventListener('dragleave', () => row.classList.remove('drop-before','drop-after'));
+                row.addEventListener('drop', (e) => {
+                    if (!draggedFolderId || draggedFolderId === folder.id) return; 
+                    const dragged = folders.find(f => f.id === draggedFolderId);
+                    if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
+                    e.preventDefault();
+                    const rect = row.getBoundingClientRect();
+                    const before = (e.clientY - rect.top) < rect.height / 2;
+                    reorderFolders(dragged.parentId || null, draggedFolderId, folder.id, before ? 'before' : 'after');
+                    row.classList.remove('drop-before','drop-after');
+                });
 
                 const children = createEl('div', 'children');
                 children.style.display = isOpen(folder.id) ? '' : 'none';
 
                 // docs
-                const docsIn = getFolderDocs(folder.id).sort(sortDoc);
+                const docsIn = getFolderDocs(folder.id);
                 for (const d of docsIn) {
                     if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
                     children.appendChild(renderDocNode(d, level + 1));
                 }
                 // subfolders
-                const sub = getChildrenFolders(folder.id).sort((a,b) => a.name.localeCompare(b.name));
+                const sub = getChildrenFolders(folder.id);
                 for (const sf of sub) children.appendChild(renderFolder(sf, level + 1));
 
                 const container = createEl('div');
@@ -557,7 +570,7 @@
                 return container;
             }
 
-            const topFolders = getChildrenFolders(null).sort((a,b) => a.name.localeCompare(b.name));
+            const topFolders = getChildrenFolders(null);
             for (const f of topFolders) treeEl.appendChild(renderFolder(f, 0));
         }
 
@@ -570,22 +583,70 @@
             const icon = createEl('div'); icon.textContent = '📝';
             const title = createEl('div', 'doc-title'); title.textContent = doc.title || '无标题';
             const actions = createEl('div', 'node-actions');
-            const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏';
-            starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
-            const moveBtn = createEl('button', 'icon-btn'); moveBtn.textContent = '↪️'; moveBtn.title = '移动到';
-            moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveSheet(doc.id); });
-            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除文档';
-            delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
+            const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏'; starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
+            const moveBtn = createEl('button', 'icon-btn'); moveBtn.textContent = '↪️'; moveBtn.title = '移动到'; moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveSheet(doc.id); });
+            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除文档'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
             actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn);
 
             row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
             row.addEventListener('click', () => selectDoc(doc.id));
-            row.addEventListener('dragstart', () => { draggedDocId = doc.id; });
-            row.addEventListener('dragend', () => { draggedDocId = null; });
+
+            // Dragging
+            row.addEventListener('dragstart', (e) => { draggedDocId = doc.id; e.dataTransfer.effectAllowed = 'move'; });
+            row.addEventListener('dragend', () => { draggedDocId = null; row.classList.remove('drop-before','drop-after'); });
+            row.addEventListener('dragover', (e) => {
+                if (!draggedDocId || draggedDocId === doc.id) return; 
+                const dragged = docs.find(d => d.id === draggedDocId);
+                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return; // only within same parent for sort
+                e.preventDefault();
+                const rect = row.getBoundingClientRect();
+                const before = (e.clientY - rect.top) < rect.height / 2;
+                row.classList.toggle('drop-before', before);
+                row.classList.toggle('drop-after', !before);
+            }, { passive: false });
+            row.addEventListener('dragleave', () => row.classList.remove('drop-before','drop-after'));
+            row.addEventListener('drop', (e) => {
+                if (!draggedDocId || draggedDocId === doc.id) return; 
+                const dragged = docs.find(d => d.id === draggedDocId);
+                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return;
+                e.preventDefault();
+                const rect = row.getBoundingClientRect();
+                const before = (e.clientY - rect.top) < rect.height / 2;
+                reorderDocs(doc.folderId || null, draggedDocId, doc.id, before ? 'before' : 'after');
+                row.classList.remove('drop-before','drop-after');
+            });
             return row;
         }
 
-        function sortDoc(a, b) { return (b.starred - a.starred) || (b.updatedAt - a.updatedAt); }
+        function reorderDocs(parentId, draggedId, targetId, position) {
+            const list = docs.filter(d => (d.folderId || null) === (parentId || null)).sort((a,b) => a.sort - b.sort);
+            const orderMap = new Map(list.map((d,i)=>[d.id,i]));
+            const draggedIdx = orderMap.get(draggedId);
+            const targetIdx = orderMap.get(targetId);
+            if (draggedIdx == null || targetIdx == null) return;
+            list.splice(draggedIdx, 1);
+            const newIndex = position === 'before' ? (targetIdx) : (targetIdx + 1);
+            list.splice(newIndex, 0, docs.find(d=>d.id===draggedId));
+            list.forEach((d,i)=>{ d.sort = i; });
+            saveDocs(docs);
+            renderTree($('#searchInput').value);
+        }
+
+        function reorderFolders(parentId, draggedId, targetId, position) {
+            const list = folders.filter(f => (f.parentId || null) === (parentId || null)).sort((a,b) => a.sort - b.sort);
+            const orderMap = new Map(list.map((f,i)=>[f.id,i]));
+            const draggedIdx = orderMap.get(draggedId);
+            const targetIdx = orderMap.get(targetId);
+            if (draggedIdx == null || targetIdx == null) return;
+            list.splice(draggedIdx, 1);
+            const newIndex = position === 'before' ? (targetIdx) : (targetIdx + 1);
+            list.splice(newIndex, 0, folders.find(f=>f.id===draggedId));
+            list.forEach((f,i)=>{ f.sort = i; });
+            saveFolders(folders);
+            renderTree($('#searchInput').value);
+        }
+
+        function sortDoc(a, b) { return a.sort - b.sort || (b.updatedAt - a.updatedAt); }
 
         function selectDoc(id) {
             const doc = docs.find(x => x.id === id);
@@ -593,28 +654,47 @@
             currentDocId = id;
             setCurrentId(id);
             titleInput.value = doc.title || '';
-            editor.innerHTML = doc.content || '';
-            lastCharCountForProgress = measureCharCount(editor.innerText);
+            editor.value = doc.content || '';
+            lastCharCountForProgress = measureCharCount(editor.value);
             updateWordStats();
             renderTree($('#searchInput').value);
             markSaved(true);
         }
 
-        function createDoc(initialContent = '<p></p>', folderId = null) {
+        function createDoc(initialContent = '', folderId = null, title = '无标题文档') {
             const id = generateId('doc');
             const now = Date.now();
-            const newDoc = { id, title: '无标题文档', content: initialContent, starred: false, createdAt: now, updatedAt: now, folderId };
-            docs.unshift(newDoc);
+            const siblingCount = docs.filter(d => (d.folderId || null) === (folderId || null)).length;
+            const newDoc = { id, title, content: initialContent, starred: false, createdAt: now, updatedAt: now, folderId, sort: siblingCount };
+            docs.push(newDoc);
             saveDocs(docs);
             selectDoc(id);
             titleInput.focus();
         }
 
+        function createNovel() {
+            const fid = generateId('fld');
+            const parentId = null;
+            const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
+            const folder = { id: fid, name: '新小说', parentId, sort: siblingCount };
+            folders.push(folder);
+            folderOpenState[fid] = true;
+            saveFolders(folders); saveFolderState(folderOpenState);
+            // default docs: Outline + Chapter 1
+            createDoc('书名：\n主旨：\n人设：\n世界观：\n情节提要：\n', fid, '大纲');
+            createDoc('第1章\n\n', fid, '第1章');
+            showSnack('已创建小说“新小说”');
+            renderTree($('#searchInput').value);
+        }
+
         function moveDocToFolder(docId, folderId) {
             const doc = docs.find(d => d.id === docId);
             if (!doc) return;
-            doc.folderId = folderId || null;
+            const newParent = folderId || null;
+            doc.folderId = newParent;
             doc.updatedAt = Date.now();
+            // set to end of new parent order
+            doc.sort = docs.filter(d => (d.folderId || null) === newParent).length;
             saveDocs(docs);
             renderTree($('#searchInput').value);
             if (docId === currentDocId) showSnack('已移动到' + (folderId ? '选中文件夹' : '根目录'));
@@ -630,7 +710,7 @@
             }
             renderTree($('#searchInput').value);
             lastDeleted = { doc: removed };
-            showSnack('已删除文档', '撤销', () => { if (!lastDeleted) return; docs.unshift(lastDeleted.doc); saveDocs(docs); lastDeleted = null; renderTree($('#searchInput').value); });
+            showSnack('已删除文档', '撤销', () => { if (!lastDeleted) return; docs.push(lastDeleted.doc); saveDocs(docs); lastDeleted = null; renderTree($('#searchInput').value); });
         }
 
         function toggleStar(id) {
@@ -644,7 +724,8 @@
 
         function createFolder(parentId = null) {
             const id = generateId('fld');
-            const f = { id, name: '新建文件夹', parentId: parentId || null };
+            const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
+            const f = { id, name: '新建文件夹', parentId: parentId || null, sort: siblingCount };
             folders.push(f);
             folderOpenState[id] = true;
             saveFolders(folders); saveFolderState(folderOpenState);
@@ -668,8 +749,8 @@
             const folder = folders.find(f => f.id === folderId);
             if (!folder) return;
             const parentId = folder.parentId || null;
-            for (const d of docs) { if (d.folderId === folderId) d.folderId = parentId; }
-            for (const f of folders) { if (f.parentId === folderId) f.parentId = parentId; }
+            for (const d of docs) { if (d.folderId === folderId) { d.folderId = parentId; d.sort = docs.filter(x => (x.folderId || null) === parentId).length; } }
+            for (const f of folders) { if (f.parentId === folderId) { f.parentId = parentId; f.sort = folders.filter(x => (x.parentId || null) === parentId).length; } }
             folders = folders.filter(f => f.id !== folderId);
             saveDocs(docs); saveFolders(folders);
             showSnack('文件夹已删除（内容已上移）');
@@ -702,10 +783,10 @@
                 row.appendChild(indent); row.appendChild(icon); row.appendChild(name);
                 row.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, folder.id); closeMoveSheet(); });
                 sheetBody.appendChild(row);
-                const children = getChildrenFolders(folder.id).sort((a,b) => a.name.localeCompare(b.name));
+                const children = getChildrenFolders(folder.id);
                 for (const cf of children) renderFolderOption(cf, level + 1);
             }
-            const tops = getChildrenFolders(null).sort((a,b) => a.name.localeCompare(b.name));
+            const tops = getChildrenFolders(null);
             for (const f of tops) renderFolderOption(f, 0);
         }
 
@@ -720,21 +801,21 @@
             const doc = docs.find(d => d.id === currentDocId);
             if (!doc) return;
             doc.title = titleInput.value.trim() || '无标题文档';
-            doc.content = editor.innerHTML;
+            doc.content = editor.value;
             doc.updatedAt = Date.now();
             saveDocs(docs);
             markSaved(true);
             renderTree($('#searchInput').value);
-        }, 350);
+        }, 300);
 
         function saveNow() { markSaved(false); persist(); }
 
         // Word stats
         function measureCharCount(text) { if (!text) return 0; return text.replace(/\s+/g, '').length; }
         const updateWordStats = throttleRaf(function(){
-            const text = editor.innerText || '';
+            const text = editor.value || '';
             const chars = measureCharCount(text);
-            const paras = (editor.innerHTML.match(/<p[\s>]|<h[1-6][\s>]|<li[\s>]|<blockquote[\s>]/gi) || []).length || (text ? text.split(/\n{2,}/).length : 0);
+            const paras = text.trim() ? text.split(/\n{2,}/).length : 0;
             charCountEl.textContent = chars;
             paraCountEl.textContent = paras;
             updateDailyProgress(chars);
@@ -759,42 +840,26 @@
             goalProgress.style.width = (pct * 100).toFixed(1) + '%';
         }
 
-        // Formatting
-        function exec(cmd, val = null){ document.execCommand(cmd, false, val); editor.focus(); }
-        function setBlock(tag){ document.execCommand('formatBlock', false, tag); editor.focus(); }
-
-        // Templates
+        // Plain text templates
         const TEMPLATES = {
-            person: `<h2>人物卡</h2><p><strong>姓名：</strong></p><p><strong>年龄：</strong></p><p><strong>外貌特征：</strong></p><p><strong>性格标签：</strong></p><p><strong>背景故事：</strong></p><p><strong>目标/动机：</strong></p><p><strong>人际关系：</strong></p>` ,
-            scene: `<h2>场景卡</h2><p><strong>地点：</strong></p><p><strong>时间：</strong></p><p><strong>天气/氛围：</strong></p><p><strong>登场人物：</strong></p><p><strong>冲突点：</strong></p><p><strong>细节道具：</strong></p><p><strong>节奏/张力：</strong></p>`,
-            world: `<h2>世界观</h2><p><strong>时代背景：</strong></p><p><strong>地理设定：</strong></p><p><strong>社会结构：</strong></p><p><strong>科技/魔法体系：</strong></p><p><strong>宗教/文化：</strong></p><p><strong>禁忌与规则：</strong></p><p><strong>核心矛盾：</strong></p>`
+            person: "人物卡\n——\n姓名：\n年龄：\n外貌特征：\n性格标签：\n背景故事：\n目标/动机：\n人际关系：\n",
+            scene: "场景卡\n——\n地点：\n时间：\n天气/氛围：\n登场人物：\n冲突点：\n细节道具：\n节奏/张力：\n",
+            world: "世界观\n——\n时代背景：\n地理设定：\n社会结构：\n科技/魔法体系：\n宗教/文化：\n禁忌与规则：\n核心矛盾：\n"
         };
-        function insertTemplate(name){ exec('insertHTML', TEMPLATES[name]); saveNow(); }
+        function insertAtCursor(text){
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const val = editor.value;
+            editor.value = val.slice(0, start) + text + val.slice(end);
+            const caret = start + text.length;
+            editor.selectionStart = editor.selectionEnd = caret;
+            editor.focus();
+            saveNow();
+            updateWordStats();
+        }
+        function insertTemplate(name){ insertAtCursor('\n' + TEMPLATES[name] + '\n'); }
 
         // Export / Import
-        function htmlToText(html){ const tmp = document.createElement('div'); tmp.innerHTML = html; const walker = document.createTreeWalker(tmp, NodeFilter.SHOW_TEXT, null); let out = ''; let node; while ((node = walker.nextNode())) { out += node.nodeValue; } out = out.replace(/\n{3,}/g, '\n\n'); return out.trim(); }
-        function htmlToMarkdown(html){
-            let md = html
-                .replace(/<\/?strong>/gi, '**')
-                .replace(/<\/?b>/gi, '**')
-                .replace(/<\/?em>/gi, '*')
-                .replace(/<\/?i>/gi, '*')
-                .replace(/<u>(.*?)<\/u>/gi, '$1')
-                .replace(/<br\s*\/?>(?=\s*<)/gi, '\n')
-                .replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n')
-                .replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n')
-                .replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n')
-                .replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (m, p1) => p1.split(/\n/).map(l => '> ' + l).join('\n') + '\n\n')
-                .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, '- $1\n')
-                .replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, '$1\n')
-                .replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, '$1\n')
-                .replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n')
-                .replace(/<br\s*\/?>(?!\n)/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
-            return md;
-        }
         function download(name, content, type){ const blob = new Blob([content], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
 
         // Snackbar
@@ -821,21 +886,12 @@
 
         // Bind toolbar
         function bindToolbar() {
-            document.querySelectorAll('.toolbar-btn[data-cmd]').forEach(btn => {
-                btn.addEventListener('click', () => { const cmd = btn.getAttribute('data-cmd'); exec(cmd); saveNow(); });
-            });
-            $('#quoteBtn').addEventListener('click', () => { setBlock('BLOCKQUOTE'); saveNow(); });
-            $('#clearFormatBtn').addEventListener('click', () => { exec('removeFormat'); saveNow(); });
-            $('#undoBtn').addEventListener('click', () => exec('undo'));
-            $('#redoBtn').addEventListener('click', () => exec('redo'));
-            $('#blockFormat').addEventListener('change', (e) => { setBlock(e.target.value); saveNow(); });
-
             $('#tplPerson').addEventListener('click', () => insertTemplate('person'));
             $('#tplScene').addEventListener('click', () => insertTemplate('scene'));
             $('#tplWorld').addEventListener('click', () => insertTemplate('world'));
 
-            $('#exportTxt').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.txt', htmlToText(doc.content || ''), 'text/plain;charset=utf-8'); });
-            $('#exportMd').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.md', htmlToMarkdown(doc.content || ''), 'text/markdown;charset=utf-8'); });
+            $('#exportTxt').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.txt', (doc.content || ''), 'text/plain;charset=utf-8'); });
+            $('#exportMd').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.md', (doc.content || ''), 'text/markdown;charset=utf-8'); });
         }
 
         // Global bindings
@@ -850,16 +906,17 @@
             // Focus mode
             $('#focusToggle').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); showSnack(document.body.classList.contains('focus-mode') ? '已进入专注模式' : '已退出专注模式'); });
 
-            // New doc/folder
+            // New doc/folder/novel
             $('#newDocBtn').addEventListener('click', () => createDoc());
             $('#newFolderBtn').addEventListener('click', () => createFolder(null));
+            $('#newNovelBtn').addEventListener('click', createNovel);
 
             // Search
             $('#searchInput').addEventListener('input', debounce((e) => renderTree(e.target.value), 120));
 
             // Import
             $('#importBtn').addEventListener('click', () => $('#importFile').click());
-            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc('<p>' + text.replace(/[\r\n]+/g, '</p><p>') + '</p>'); e.target.value = ''; showSnack('已导入：' + file.name); });
+            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc(text, null, file.name.replace(/\.[^.]+$/, '')); e.target.value = ''; showSnack('已导入：' + file.name); });
 
             // Title / Editor
             titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
@@ -874,13 +931,6 @@
             document.addEventListener('keydown', (e) => {
                 const mod = e.ctrlKey || e.metaKey;
                 if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); }
-                if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); exec('bold'); saveNow(); }
-                if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); exec('italic'); saveNow(); }
-                if (mod && e.key.toLowerCase() === 'u') { e.preventDefault(); exec('underline'); saveNow(); }
-                if (mod && e.key.toLowerCase() === '1') { e.preventDefault(); setBlock('H1'); saveNow(); }
-                if (mod && e.key.toLowerCase() === '2') { e.preventDefault(); setBlock('H2'); saveNow(); }
-                if (mod && e.key.toLowerCase() === '3') { e.preventDefault(); setBlock('H3'); saveNow(); }
-                if (mod && e.shiftKey && e.key.toLowerCase() === 'f') { e.preventDefault(); document.body.classList.toggle('focus-mode'); }
                 if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); }
             }, { passive: false });
 
@@ -900,8 +950,10 @@
             goalInput.addEventListener('change', () => { const n = parseInt(goalInput.value || '0', 10); if (Number.isFinite(n) && n >= 0) { saveGoal(n); updateWordStats(); showSnack('已更新今日目标：' + n); } });
 
             // Mobile toolbar
-            $all('#mobileBar .m-btn[data-cmd]').forEach(btn => btn.addEventListener('click', () => { const cmd = btn.getAttribute('data-cmd'); exec(cmd); saveNow(); }));
-            $all('#mobileBar .m-btn[data-block]').forEach(btn => btn.addEventListener('click', () => { const tag = btn.getAttribute('data-block'); setBlock(tag); saveNow(); }));
+            $('#mPerson').addEventListener('click', () => insertTemplate('person'));
+            $('#mScene').addEventListener('click', () => insertTemplate('scene'));
+            $('#mWorld').addEventListener('click', () => insertTemplate('world'));
+            $('#mNewDoc').addEventListener('click', () => createDoc());
             $('#mFocus').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); });
             $('#mSettings').addEventListener('click', openDrawer);
         }
