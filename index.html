@@ -136,8 +136,11 @@
         .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; min-width: 5ch; text-align: right; display: inline-block; }
         .progress-bar { width: 100%; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
-        #editor-wrapper { display: flex; justify-content: center; width: 100%; height: calc(100svh - var(--toolbar-height) - var(--stats-height)); overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-        #editor { width: 100%; margin: 0; padding: 16px; font-size: 1rem; line-height: 1.9; background-color: var(--panel-bg); color: var(--text-color); border: none; border-radius: 0; box-shadow: none; min-height: 100%; height: auto; resize: none; caret-color: var(--caret-color); }
+        #editor-wrapper { position: relative; width: 100%; height: calc(100svh - var(--toolbar-height) - var(--stats-height)); background: var(--panel-bg); overflow: hidden; }
+        #hl { position: absolute; inset: 0; margin: 0; padding: 16px; font-size: 1rem; line-height: 1.9; white-space: pre-wrap; word-wrap: break-word; color: var(--text-color); pointer-events: none; }
+        #hl .hl-pair { color: var(--pair-color); }
+        #hl .hl-name { font-weight: 600; }
+        #editor { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 16px; font-size: 1rem; line-height: 1.9; background: transparent; color: transparent; border: none; border-radius: 0; box-shadow: none; resize: none; caret-color: var(--caret-color); overflow: auto; }
         #editor:focus { outline: none; }
 
         /* Overlays */
@@ -235,7 +238,8 @@
             <div>目标：<span id="goalNum" class="num">1000</span></div>
         </div>
 
-        <div id="editor-wrapper" class="pad-bottom">
+        <div id="editor-wrapper">
+            <pre id="hl"></pre>
             <textarea id="editor" spellcheck="false" placeholder="开始创作……"></textarea>
         </div>
     </div>
@@ -436,7 +440,7 @@
 
         // CRUD & selection
         function currentDoc(){ return docs.find(x=>x.id===currentDocId); }
-        function selectDoc(id){ const doc=docs.find(x=>x.id===id); if(!doc) return; currentDocId=id; setCurrentId(id); titleInput.value=doc.title||''; editor.value=doc.content||''; updateWordStats(); updateGoalUI(); renderTree($('#searchInput').value); applyDynamicColors(); editor.focus(); }
+        function selectDoc(id){ const doc=docs.find(x=>x.id===id); if(!doc) return; currentDocId=id; setCurrentId(id); titleInput.value=doc.title||''; editor.value=doc.content||''; updateWordStats(); updateGoalUI(); renderTree($('#searchInput').value); applyDynamicColors(); updateHighlight(); syncHighlightScroll(); editor.focus(); }
         function createDoc(initialContent='', folderId=null, title='无标题文档'){ const id='doc_'+Math.random().toString(36).slice(2); const now=Date.now(); const sibling=docs.filter(d=>(d.folderId||null)===(folderId||null)).length; const newDoc={ id, title, content: initialContent, starred:false, createdAt:now, updatedAt:now, folderId, sort:sibling, goal:1000 }; docs.push(newDoc); saveDocs(docs); selectDoc(id); }
         function createNovel() {
             const fid = generateId('fld'); const parentId = null;
@@ -458,10 +462,7 @@
 
         // Simple inline preview coloring using background highlights via overlay (textarea has no rich text; we simulate via CSS custom highlight using selection):
         // Implement minimal live hint by setting caret color and skipping heavy rendering to keep performance on mobile.
-        function applyDynamicColors(){
-            // Set caret color influenced by theme; content coloring is out-of-scope for plain textarea without heavy overlay. We honor pair color via CSS variable for potential future overlay.
-            document.documentElement.style.setProperty('--pair-color', loadPairColor());
-        }
+        function applyDynamicColors(){ document.documentElement.style.setProperty('--pair-color', loadPairColor()); updateHighlight(); }
 
         // Saving & stats
         const persist=debounce(function(){ const doc=currentDoc(); if(!doc) return; doc.title=titleInput.value.trim()||'无标题文档'; doc.content=editor.value; doc.updatedAt=Date.now(); saveDocs(docs); updateGoalUI(); renderTree($('#searchInput').value); }, 180);
@@ -474,6 +475,27 @@
         function insertPair(left,right){ const start=editor.selectionStart, end=editor.selectionEnd, val=editor.value; const inside=left+right; editor.value=val.slice(0,start)+inside+val.slice(end); editor.selectionStart=editor.selectionEnd=start+1; setTimeout(()=> editor.focus({ preventScroll: true }), 0); saveNow(); updateWordStats(); }
         function insertSymbolToken(tok){ if(typeof tok==='string' && tok.length===2){ const pairs=buildPairs(); for(const [L,R] of pairs){ if(tok===L+R){ insertPair(L,R); return; } } }
             insertAtCursor(tok); }
+
+        // Highlight overlay
+        const hl = document.getElementById('hl');
+        function escapeChar(c){ if(c==='&') return '&amp;'; if(c==='<') return '&lt;'; if(c==='>') return '&gt;'; return c; }
+        function updateHighlight(){ const text = editor.value || ''; const length = text.length; const opens = new Map(); const closes = new Map(); function addRange(s,e,openTag){ if(s<0||e<=s||e>length) return; if(!opens.has(s)) opens.set(s,[]); if(!closes.has(e)) closes.set(e,[]); opens.get(s).push(openTag); closes.get(e).push('</span>'); }
+            // Pair content ranges
+            const pairs = buildPairs();
+            for(const [L,R] of pairs){ let idx=0; while(true){ const start = text.indexOf(L, idx); if(start===-1) break; const end = text.indexOf(R, start+L.length); if(end===-1) break; addRange(start+L.length, end, '<span class="hl-pair">'); idx = end + R.length; } }
+            // Name ranges from factions
+            const factions = loadFactions();
+            for(const f of factions){ if(!f||!Array.isArray(f.names)) continue; const col = f.color || '#10b981'; for(const nm of f.names){ if(!nm) continue; const re = new RegExp(nm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g'); let m; while((m=re.exec(text))){ const s=m.index, e=s+nm.length; addRange(s,e, `<span class=\"hl-name\" style=\"color:${col}\">`); if(m.index===re.lastIndex) re.lastIndex++; } } }
+            // Build html
+            let out=''; for(let i=0;i<length;i++){ const ctags = closes.get(i); if(ctags){ // close in reverse for nesting
+                    for(let k=ctags.length-1;k>=0;k--) out+=ctags[k]; }
+                const otags = opens.get(i); if(otags){ for(const t of otags) out+=t; }
+                out += escapeChar(text[i]); }
+            const endTags = closes.get(length); if(endTags){ for(let k=endTags.length-1;k>=0;k--) out+=endTags[k]; }
+            hl.innerHTML = out; }
+        function syncHighlightScroll(){ const st = editor.scrollTop; const sl = editor.scrollLeft; hl.style.transform = `translate(${-sl}px, ${-st}px)`; }
+        editor.addEventListener('input', ()=>{ updateHighlight(); updateWordStats(); persist(); });
+        editor.addEventListener('scroll', syncHighlightScroll);
 
         // Jump-out anywhere inside pair on Enter
         function isInsidePair(pos, left, right, text){ const l=text.lastIndexOf(left, pos-1); if(l<0) return false; const r=text.indexOf(right, pos); if(r<0) return false; return l < pos && pos <= r; }
@@ -502,7 +524,7 @@
             // Sidebar & theme
             $('#menuToggle').addEventListener('click', ()=>{ sidebar.classList.toggle('show'); overlay.style.display=sidebar.classList.contains('show')?'block':'none'; });
             overlay.addEventListener('click', ()=>{ sidebar.classList.remove('show'); overlay.style.display='none'; });
-            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); requestAnimationFrame(showBarsIfIME); });
+            $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); applyDynamicColors(); updateHighlight(); });
 
             // Tools
             $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
@@ -519,7 +541,7 @@
             // Settings
             $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
             $all('#themeChips .chip').forEach(ch=> ch.addEventListener('click', ()=>{ const theme=ch.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：'+ch.textContent); }));
-            $('#saveSettings').addEventListener('click', saveSettings);
+            $('#saveSettings').addEventListener('click', ()=>{ saveSettings(); applyDynamicColors(); updateHighlight(); });
 
             // Footer & import
             $('#newDocBtn').addEventListener('click', ()=> createDoc());
@@ -533,7 +555,6 @@
 
             // Editor
             titleInput.addEventListener('input', ()=>{ persist(); renderTree($('#searchInput').value); });
-            editor.addEventListener('input', ()=>{ updateWordStats(); persist(); });
             editor.addEventListener('keydown', jumpOutIfInside);
             editor.addEventListener('focus', ()=>{ imeVisible=true; showBarsIfIME(); });
             editor.addEventListener('blur', ()=>{ imeVisible=false; showBarsIfIME(); });
@@ -546,7 +567,7 @@
         }
 
         // Boot
-        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id);
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateHighlight(); syncHighlightScroll();
     </script>
 </body>
 </html>
