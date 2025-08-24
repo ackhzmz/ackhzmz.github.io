@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>纯纯写作 · 小说创作工作台</title>
+    <title>纯纯写作 · 小说创作工作台（移动端）</title>
     <style>
         :root {
-            --sidebar-width: 300px;
+            --sidebar-width: 86vw;
             --primary-color: #4a86e8;
             --text-color: #222;
             --muted-text: #666;
@@ -19,11 +19,12 @@
             --danger: #e74c3c;
             --warning: #f39c12;
             --link: #2563eb;
-            --editor-width: 780px;
+            --editor-width: 100%;
             --tree-indent: 18px;
             --hover-bg: rgba(127,127,127,0.06);
             --active-bg: rgba(74,134,232,0.12);
-            --mobile-bar-height: 56px;
+            --mobile-bar-height: 48px;
+            --mobile-rows: 2;
         }
 
         [data-theme="dark"] {
@@ -43,113 +44,40 @@
             --active-bg: rgba(110,168,254,0.15);
         }
 
-        [data-theme="sepia"] {
-            --primary-color: #8b5e34;
-            --text-color: #3e2c1c;
-            --muted-text: #7b6a58;
-            --bg-color: #f3ead7;
-            --panel-bg: #faf3e3;
-            --border-color: #e1d7c6;
-            --accent: #9c6f3d;
-            --warning: #c48f3c;
-            --link: #7a4e2b;
-            --hover-bg: rgba(139,94,52,0.07);
-            --active-bg: rgba(139,94,52,0.12);
-        }
-
-        [data-theme="solar"] {
-            --primary-color: #1f6feb;
-            --text-color: #24292f;
-            --muted-text: #57606a;
-            --bg-color: #f6f8fa;
-            --panel-bg: #ffffff;
-            --border-color: #d0d7de;
-            --accent: #2da44e;
-            --warning: #bf8700;
-            --link: #0969da;
-            --hover-bg: rgba(31,111,235,0.06);
-            --active-bg: rgba(31,111,235,0.12);
-        }
-
-        [data-theme="night"] {
-            --primary-color: #7aa2f7;
-            --text-color: #c0caf5;
-            --muted-text: #a9b1d6;
-            --bg-color: #0b1020;
-            --panel-bg: #101425;
-            --border-color: #1f2540;
-            --accent: #2ac3de;
-            --warning: #ffc777;
-            --link: #7dcfff;
-            --hover-bg: rgba(255,255,255,0.04);
-            --active-bg: rgba(122,162,247,0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
         html, body { height: 100%; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            overflow: hidden;
-        }
+        /* Sidebar - mobile slide in */
+        #sidebar { width: var(--sidebar-width); max-width: 100vw; height: 100%; background-color: var(--panel-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: transform 0.26s ease; z-index: 40; box-shadow: var(--shadow-sm); position: fixed; left: 0; top: 0; transform: translateX(-100%); overflow: hidden; }
+        #sidebar.show { transform: translateX(0); }
 
-        /* Sidebar */
-        #sidebar {
-            width: var(--sidebar-width);
-            height: 100%;
-            background-color: var(--panel-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.28s ease;
-            z-index: 40;
-            box-shadow: var(--shadow-sm);
-        }
+        .sidebar-header { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
+        .logo { width: 24px; height: 24px; border-radius: 6px; background: linear-gradient(135deg, var(--primary-color), #7cc5ff); box-shadow: var(--shadow-sm); }
+        .sidebar-title { font-size: 1rem; font-weight: 700; letter-spacing: 0.4px; color: var(--primary-color); }
+        .sidebar-actions { margin-left: auto; display: flex; gap: 6px; }
+        .icon-btn { background: none; border: 1px solid var(--border-color); color: var(--muted-text); cursor: pointer; border-radius: 8px; padding: 6px 8px; transition: all 0.15s ease; }
+        .icon-btn:hover { background-color: var(--hover-bg); }
 
-        .sidebar-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, var(--primary-color), #7cc5ff); box-shadow: var(--shadow-sm); }
-        .sidebar-title { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.4px; color: var(--primary-color); }
-
-        .sidebar-actions { margin-left: auto; display: flex; gap: 8px; }
-        .icon-btn { background: none; border: 1px solid transparent; color: var(--muted-text); cursor: pointer; border-radius: 8px; padding: 6px 8px; transition: all 0.15s ease; }
-        .icon-btn:hover { background-color: var(--hover-bg); border-color: var(--border-color); }
-
-        .sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; }
-        .search-input { flex: 1; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; padding: 8px 10px; color: var(--text-color); }
+        .sidebar-search { padding: 8px 10px; border-bottom: 1px solid var(--border-color); display: flex; gap: 6px; }
+        .search-input { flex: 1; border: 1px solid var(--border-color); background: transparent; border-radius: 8px; padding: 8px 10px; color: var(--text-color); font-size: 14px; }
         .search-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
 
-        .sidebar-menu { padding: 6px 0 8px 0; overflow: hidden auto; flex: 1; }
-        .menu-section-title { font-size: 12px; color: var(--muted-text); padding: 8px 16px; text-transform: uppercase; letter-spacing: 1.2px; }
+        .menu-section-title { font-size: 12px; color: var(--muted-text); padding: 8px 12px; text-transform: uppercase; letter-spacing: 1.2px; }
 
-        /* Tree */
-        .tree { padding: 6px 6px 16px 6px; }
-        .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; }
+        #docList { flex: 1; overflow: auto; }
+        .tree { padding: 6px 6px calc(16px + env(safe-area-inset-bottom)); }
+        .tree-root-drop { margin: 0 10px 8px 10px; padding: 6px 8px; border-radius: 6px; color: var(--muted-text); border: 1px dashed var(--border-color); font-size: 12px; position: sticky; top: 0; background: var(--panel-bg); z-index: 1; }
         .tree-root-drop.dragover { background: var(--active-bg); }
 
-        .folder-node, .doc-node { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; }
+        .folder-node, .doc-node { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 10px; border-radius: 8px; margin: 2px 6px; overflow: hidden; }
         .folder-node:hover, .doc-node:hover { background: var(--hover-bg); }
         .doc-node.active { background: var(--active-bg); }
         .indent { width: var(--tree-indent); flex: 0 0 var(--tree-indent); height: 1px; }
         .caret { width: 16px; text-align: center; cursor: pointer; color: var(--muted-text); }
         .folder-title { font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .doc-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .node-actions { display: flex; gap: 6px; }
+        .node-actions { display: flex; gap: 4px; }
         .node-actions .icon-btn { padding: 4px 6px; border-radius: 6px; }
         .children { margin-left: calc(var(--tree-indent) + 8px); }
         .drop-target { outline: 2px dashed var(--primary-color); }
@@ -157,56 +85,48 @@
         .drop-before::before { top: -1px; }
         .drop-after::after { bottom: -1px; }
 
-        .sidebar-footer { border-top: 1px solid var(--border-color); padding: 10px 12px; display: flex; gap: 10px; }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding: 8px 10px; display: flex; gap: 10px; }
         .primary-btn { background: var(--primary-color); color: #fff; border: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; box-shadow: var(--shadow-sm); }
         .primary-btn:hover { filter: brightness(1.05); }
 
         /* Main */
-        #main-container { flex: 1; display: flex; flex-direction: column; position: relative; }
+        #main-container { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
 
-        .toolbar { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 10px; padding: 10px 14px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
-        .menu-toggle { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
-
-        .title-input { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 1rem; font-weight: 600; }
+        .toolbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
+        .menu-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
+        .title-input { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 0.95rem; font-weight: 600; }
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
-
-        .toolbar-actions { display: flex; gap: 8px; align-items: center; }
-        .toolbar-btn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; cursor: pointer; color: var(--muted-text); }
-        .toolbar-btn:hover { background: var(--hover-bg); }
+        #toolsBtn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; color: var(--muted-text); }
 
         #editor-wrapper { display: flex; justify-content: center; width: 100%; }
-        #editor { width: min(100%, var(--editor-width)); margin: 24px 16px; padding: 18px; font-size: 1.02rem; line-height: 1.7; background-color: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 58vh; resize: vertical; }
+        #editor { width: min(100%, var(--editor-width)); margin: 8px 10px; padding: 14px; font-size: 1rem; line-height: 1.7; background-color: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 52vh; resize: vertical; }
         #editor:focus { outline: 3px solid rgba(74,134,232,0.15); border-color: rgba(74,134,232,0.4); }
 
-        .word-count { padding: 10px 14px; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); font-size: 0.92rem; color: var(--muted-text); display: flex; gap: 14px; align-items: center; }
-        .goal { display: flex; align-items: center; gap: 8px; }
-        .progress-bar { width: 180px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
+        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: flex; gap: 10px; align-items: center; }
+        .goal { display: flex; align-items: center; gap: 6px; }
+        .progress-bar { width: 120px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
         .save-indicator { margin-left: auto; font-size: 12px; color: var(--muted-text); }
 
         /* Overlays */
-        #sidebar-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.35); z-index: 20; display: none; }
+        #sidebar-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.35); z-index: 20; display: none; }
         #drawerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
+        #toolsOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
 
-        /* Focus mode */
-        body.focus-mode #sidebar { display: none; }
-        body.focus-mode .toolbar { opacity: 0.1; pointer-events: none; }
-        body.focus-mode #editor { margin-top: 6vh; min-height: 76vh; }
-
-        /* Settings Drawer */
-        #settingsDrawer { position: fixed; top: 0; right: 0; height: 100%; width: 340px; background: var(--panel-bg); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md); transform: translateX(100%); transition: transform 0.25s ease; z-index: 70; display: flex; flex-direction: column; }
-        #settingsDrawer.show { transform: translateX(0); }
-        .drawer-header { padding: 14px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
-        .drawer-body { padding: 12px 16px; overflow: auto; }
-        .form-group { margin-bottom: 14px; }
+        /* Drawers */
+        #settingsDrawer, #toolsDrawer { position: fixed; top: 0; right: 0; height: 100%; width: 92vw; max-width: 380px; background: var(--panel-bg); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md); transform: translateX(100%); transition: transform 0.25s ease; z-index: 70; display: flex; flex-direction: column; }
+        #settingsDrawer.show, #toolsDrawer.show { transform: translateX(0); }
+        .drawer-header { padding: 12px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+        .drawer-body { padding: 10px 14px; overflow: auto; }
+        .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted-text); }
         .radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip { border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 999px; cursor: pointer; background: transparent; color: var(--text-color); }
         .chip.active { background: var(--active-bg); border-color: var(--primary-color); }
-        .num-input { width: 120px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 6px 8px; border-radius: 8px; }
+        .num-input, .text-input { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 8px 10px; border-radius: 8px; }
 
         /* Snackbar */
-        #snackbar { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 10px 14px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
+        #snackbar { position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 8px 12px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
         #snackbar.show { display: inline-flex; animation: fadeup 180ms ease; }
         #snackbar .snack-action { color: var(--primary-color); cursor: pointer; }
         @keyframes fadeup { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -216,30 +136,22 @@
         #moveSheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-md); transform: translateY(100%); transition: transform 0.25s ease; z-index: 70; }
         #moveSheet.show { transform: translateY(0); }
         .sheet-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
-        .sheet-body { max-height: 48vh; overflow: auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+        .sheet-body { max-height: 52vh; overflow: auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
         .sheet-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; margin: 4px 8px; cursor: pointer; }
         .sheet-row:hover { background: var(--hover-bg); }
         .sheet-indent { width: 14px; }
 
-        /* Mobile Toolbar */
-        #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
-        #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 6px; }
-        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; }
+        /* Mobile Bottom Bars: shortcuts + symbols */
+        #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: block; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
+        #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
+        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; padding: 6px 10px; white-space: nowrap; }
         #mobileBar .m-btn:active { background: var(--hover-bg); }
+        .pad-bottom { padding-bottom: calc(16px + var(--mobile-bar-height) * var(--mobile-rows) + env(safe-area-inset-bottom)); }
 
-        /* Responsive */
-        @media (max-width: 1024px) { :root { --sidebar-width: 260px; --editor-width: 680px; } }
-        @media (max-width: 768px) {
-            #sidebar { position: fixed; transform: translateX(-100%); }
-            #sidebar.show { transform: translateX(0); }
-            #sidebar-overlay { display: block; opacity: 0; transition: opacity 0.28s ease; pointer-events: none; }
-            #sidebar.show + #main-container #sidebar-overlay { opacity: 1; pointer-events: auto; }
-            :root { --editor-width: 100%; }
-            .toolbar { grid-template-columns: auto 1fr auto; gap: 6px; }
-            #settingsDrawer { width: 92vw; }
-            #mobileBar { display: block; }
-            #editor { padding-bottom: calc(18px + var(--mobile-bar-height) + env(safe-area-inset-bottom)); }
-        }
+        /* Focus mode */
+        body.focus-mode #sidebar { display: none; }
+        body.focus-mode .toolbar { opacity: 0.1; pointer-events: none; }
+        body.focus-mode #editor { margin-top: 6vh; min-height: 60vh; }
     </style>
 </head>
 <body>
@@ -248,23 +160,22 @@
             <div class="logo"></div>
             <div class="sidebar-title">纯纯写作</div>
             <div class="sidebar-actions">
-                <button id="settingsBtn" class="icon-btn" title="设置">⚙️</button>
                 <button id="themeToggle" class="icon-btn" title="切换明暗">🌗</button>
-                <button id="focusToggle" class="icon-btn" title="专注模式">🎯</button>
+                <button id="settingsBtn" class="icon-btn" title="设置">⚙️</button>
             </div>
         </div>
         <div class="sidebar-search">
             <input id="searchInput" class="search-input" placeholder="搜索文档 (⌘/Ctrl K)">
             <button id="newDocBtn" class="primary-btn" title="新建文档">＋</button>
-            <button id="newNovelBtn" class="toolbar-btn" title="新建小说">📚</button>
-            <button id="newFolderBtn" class="toolbar-btn" title="新建文件夹">📁＋</button>
         </div>
         <div class="menu-section-title">目录</div>
-        <div id="docList" class="doc-list">
+        <div id="docList">
             <div id="tree" class="tree"></div>
         </div>
         <div class="sidebar-footer">
-            <button id="importBtn" class="toolbar-btn" title="导入 .txt">📥 导入</button>
+            <button id="newNovelBtn" class="toolbar-btn icon-btn" title="新建小说">📚</button>
+            <button id="newFolderBtn" class="toolbar-btn icon-btn" title="新建文件夹">📁＋</button>
+            <button id="importBtn" class="toolbar-btn icon-btn" title="导入 .txt">📥</button>
             <input id="importFile" type="file" accept=".txt,.md,text/plain" style="display:none">
         </div>
     </aside>
@@ -272,23 +183,12 @@
     <div id="main-container">
         <div id="sidebar-overlay"></div>
         <div class="toolbar">
-            <button class="menu-toggle" id="menuToggle" title="显示/隐藏侧边栏">☰</button>
-            <input type="text" id="titleInput" class="title-input" placeholder="无标题文档">
-            <div class="toolbar-actions">
-                <div class="divider"></div>
-                <div class="format-bar">
-                    <button class="toolbar-btn" id="tplPerson" title="插入人物卡">🧑‍🎤</button>
-                    <button class="toolbar-btn" id="tplScene" title="插入场景卡">🏞️</button>
-                    <button class="toolbar-btn" id="tplWorld" title="插入世界观">🌍</button>
-                </div>
-                <div class="divider"></div>
-                <button class="toolbar-btn" id="exportTxt" title="导出 .txt">📤 TXT</button>
-                <button class="toolbar-btn" id="exportMd" title="导出 .md">📤 MD</button>
-                <div class="save-indicator" id="saveIndicator">已保存</div>
-            </div>
+            <button class="menu-toggle" id="menuToggle" title="目录">☰</button>
+            <input type="text" id="titleInput" class="title-input" placeholder="标题">
+            <button id="toolsBtn" title="工具" class="icon-btn">⋯</button>
         </div>
 
-        <div id="editor-wrapper">
+        <div id="editor-wrapper" class="pad-bottom">
             <textarea id="editor" spellcheck="false" placeholder="开始创作……"></textarea>
         </div>
 
@@ -296,11 +196,11 @@
             <div>字数：<span id="charCount">0</span></div>
             <div>段落：<span id="paraCount">0</span></div>
             <div class="goal">
-                今日目标：<span id="goalNum">1000</span>
+                目标：<span id="goalNum">1000</span>
                 <div class="progress-bar"><div id="goalProgress" class="progress"></div></div>
                 <span id="goalNow">0</span>
-                <button id="setGoalBtn" class="toolbar-btn" title="设置目标">⚙️</button>
             </div>
+            <div class="save-indicator" id="saveIndicator">已保存</div>
         </div>
     </div>
 
@@ -308,7 +208,7 @@
     <div id="drawerOverlay"></div>
     <aside id="settingsDrawer">
         <div class="drawer-header">
-            <span>全局设置</span>
+            <span>设置</span>
             <button id="closeDrawer" class="icon-btn">✖</button>
         </div>
         <div class="drawer-body">
@@ -317,9 +217,6 @@
                 <div class="radio-row" id="themeChips">
                     <button class="chip" data-theme="light">明亮</button>
                     <button class="chip" data-theme="dark">暗黑</button>
-                    <button class="chip" data-theme="sepia">仿古</button>
-                    <button class="chip" data-theme="solar">清朗</button>
-                    <button class="chip" data-theme="night">夜蓝</button>
                 </div>
             </div>
             <div class="form-group">
@@ -327,10 +224,47 @@
                 <input id="goalInput" class="num-input" type="number" min="0" step="100" placeholder="1000">
             </div>
             <div class="form-group">
-                <label>界面密度</label>
-                <div class="radio-row" id="densityChips">
-                    <button class="chip" data-density="comfortable">舒适</button>
-                    <button class="chip" data-density="compact">紧凑</button>
+                <label>符号栏（用空格分隔）</label>
+                <input id="symbolsInput" class="text-input" placeholder="，。、「」（）—…！？：；“”">
+            </div>
+            <div class="form-group">
+                <label>快捷栏</label>
+                <div id="shortcutChecks" class="radio-row"></div>
+            </div>
+            <button id="saveBarPrefs" class="primary-btn">保存</button>
+        </div>
+    </aside>
+
+    <!-- Tools Drawer -->
+    <div id="toolsOverlay"></div>
+    <aside id="toolsDrawer">
+        <div class="drawer-header">
+            <span>工具</span>
+            <button id="closeTools" class="icon-btn">✖</button>
+        </div>
+        <div class="drawer-body">
+            <div class="form-group">
+                <label>常用</label>
+                <div class="radio-row">
+                    <button id="toolNewDoc" class="chip">新建文档</button>
+                    <button id="toolNewFolder" class="chip">新建文件夹</button>
+                    <button id="toolNewNovel" class="chip">新建小说</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>模板</label>
+                <div class="radio-row">
+                    <button id="toolTplPerson" class="chip">人物卡</button>
+                    <button id="toolTplScene" class="chip">场景卡</button>
+                    <button id="toolTplWorld" class="chip">世界观</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>导入导出</label>
+                <div class="radio-row">
+                    <button id="toolExportTxt" class="chip">导出 TXT</button>
+                    <button id="toolExportMd" class="chip">导出 MD</button>
+                    <button id="toolImport" class="chip">导入文本</button>
                 </div>
             </div>
         </div>
@@ -349,16 +283,10 @@
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
 
-    <!-- Mobile Toolbar -->
+    <!-- Mobile Bottom Bars -->
     <nav id="mobileBar">
-        <div class="row">
-            <button class="m-btn" id="mPerson">人物</button>
-            <button class="m-btn" id="mScene">场景</button>
-            <button class="m-btn" id="mWorld">世界</button>
-            <button class="m-btn" id="mNewDoc">新建</button>
-            <button class="m-btn" id="mFocus">🎯</button>
-            <button class="m-btn" id="mSettings">⚙️</button>
-        </div>
+        <div class="row" id="shortcutBar"></div>
+        <div class="row" id="symbolBar"></div>
     </nav>
 
     <script>
@@ -380,7 +308,8 @@
             THEME: 'theme',
             GOAL: 'dailyGoal',
             PROGRESS: 'dailyProgress',
-            DENSITY: 'uiDensity'
+            SYMBOLS: 'customSymbols',
+            SHORTCUTS: 'customShortcuts'
         };
         function loadDocs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS) || '[]'); } catch { return []; } }
         function saveDocs(v) { localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(v)); }
@@ -397,41 +326,21 @@
         function saveGoal(n) { localStorage.setItem(STORAGE_KEYS.GOAL, String(n)); }
         function loadProgressMap() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS) || '{}'); } catch { return {}; } }
         function saveProgressMap(map) { localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(map)); }
-        function loadDensity() { return localStorage.getItem(STORAGE_KEYS.DENSITY) || 'comfortable'; }
-        function saveDensity(v) { localStorage.setItem(STORAGE_KEYS.DENSITY, v); }
+        function loadSymbols() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SYMBOLS) || '[]'); } catch { return []; } }
+        function saveSymbols(arr) { localStorage.setItem(STORAGE_KEYS.SYMBOLS, JSON.stringify(arr)); }
+        function loadShortcuts() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SHORTCUTS) || '[]'); } catch { return []; } }
+        function saveShortcuts(arr) { localStorage.setItem(STORAGE_KEYS.SHORTCUTS, JSON.stringify(arr)); }
 
         // App state
         let docs = loadDocs();
         let folders = loadFolders();
         let folderOpenState = loadFolderState();
         let currentDocId = getCurrentId();
-        let isSaving = false;
         let lastCharCountForProgress = 0;
         let draggedDocId = null;
         let draggedFolderId = null;
         let lastDeleted = null; // {doc}
         let moveTargetDocId = null;
-
-        // Ensure ordering fields (migration)
-        function ensureOrdering() {
-            const perParent = new Map();
-            for (const f of folders) {
-                const pid = f.parentId || null; if (!perParent.has(pid)) perParent.set(pid, []); perParent.get(pid).push(f);
-            }
-            for (const [pid, list] of perParent.entries()) {
-                list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || a.name.localeCompare(b.name));
-                list.forEach((f, i) => { if (typeof f.sort !== 'number') f.sort = i; });
-            }
-            const perDocParent = new Map();
-            for (const d of docs) {
-                const pid = d.folderId || null; if (!perDocParent.has(pid)) perDocParent.set(pid, []); perDocParent.get(pid).push(d);
-            }
-            for (const [pid, list] of perDocParent.entries()) {
-                list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || (b.updatedAt - a.updatedAt));
-                list.forEach((d, i) => { if (typeof d.sort !== 'number') d.sort = i; });
-            }
-            saveFolders(folders); saveDocs(docs);
-        }
 
         // Elements
         const sidebar = $('#sidebar');
@@ -447,24 +356,20 @@
         const goalProgress = $('#goalProgress');
         const drawer = $('#settingsDrawer');
         const drawerOverlay = $('#drawerOverlay');
+        const toolsDrawer = $('#toolsDrawer');
+        const toolsOverlay = $('#toolsOverlay');
         const goalInput = $('#goalInput');
         const sheet = $('#moveSheet');
         const sheetOverlay = $('#sheetOverlay');
         const sheetBody = $('#moveSheetBody');
+        const shortcutBar = $('#shortcutBar');
+        const symbolBar = $('#symbolBar');
 
-        // Theme setup
+        // Theme
         function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
         applyTheme(loadTheme());
 
-        // Density setup
-        function applyDensity(density) {
-            document.body.dataset.density = density;
-            document.documentElement.style.setProperty('--editor-width', density === 'compact' ? '720px' : '780px');
-            selectDensityChip(density);
-        }
-        applyDensity(loadDensity());
-
-        // Initialize folders/docs if empty
+        // Initialize default data
         if (!docs.length) {
             const id = generateId('doc');
             const now = Date.now();
@@ -480,98 +385,103 @@
             saveFolders(folders);
             saveFolderState(folderOpenState);
         }
+        // Ensure sort fields exist
+        function ensureOrdering() {
+            const perParent = new Map();
+            for (const f of folders) { const pid = f.parentId || null; if (!perParent.has(pid)) perParent.set(pid, []); perParent.get(pid).push(f); }
+            for (const [pid, list] of perParent.entries()) { list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || a.name.localeCompare(b.name)); list.forEach((f,i)=>{ if (typeof f.sort !== 'number') f.sort = i; }); }
+            const perDocParent = new Map();
+            for (const d of docs) { const pid = d.folderId || null; if (!perDocParent.has(pid)) perDocParent.set(pid, []); perDocParent.get(pid).push(d); }
+            for (const [pid, list] of perDocParent.entries()) { list.sort((a,b) => (typeof a.sort === 'number') - (typeof b.sort === 'number') || (b.updatedAt - a.updatedAt)); list.forEach((d,i)=>{ if (typeof d.sort !== 'number') d.sort = i; }); }
+            saveFolders(folders); saveDocs(docs);
+        }
         ensureOrdering();
 
-        // Tree helpers
-        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId).sort((a,b) => a.sort - b.sort || a.name.localeCompare(b.name)); }
-        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)).sort((a,b) => a.sort - b.sort || (b.updatedAt - a.updatedAt)); }
+        // Helpers
+        function getChildrenFolders(parentId) { return folders.filter(f => f.parentId === parentId).sort((a,b)=>a.sort - b.sort || a.name.localeCompare(b.name)); }
+        function getFolderDocs(folderId) { return docs.filter(d => (d.folderId || null) === (folderId || null)).sort((a,b)=>a.sort - b.sort || (b.updatedAt - a.updatedAt)); }
         function isOpen(folderId) { return !!folderOpenState[folderId]; }
         function setOpen(folderId, open) { folderOpenState[folderId] = open; saveFolderState(folderOpenState); }
 
+        // Render tree
         function renderTree(filter = '') {
             const keyword = filter.trim().toLowerCase();
             treeEl.innerHTML = '';
 
-            // Root drop target
             const rootDrop = createEl('div', 'tree-root-drop');
             rootDrop.textContent = '拖动文档到此处移动到根目录';
-            rootDrop.addEventListener('dragover', (e) => { e.preventDefault(); rootDrop.classList.add('dragover'); }, { passive: false });
+            rootDrop.addEventListener('dragover', (e) => { if (!draggedDocId) return; e.preventDefault(); rootDrop.classList.add('dragover'); }, { passive: false });
             rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('dragover'));
-            rootDrop.addEventListener('drop', (e) => { e.preventDefault(); rootDrop.classList.remove('dragover'); if (draggedDocId) moveDocToFolder(draggedDocId, null); });
+            rootDrop.addEventListener('drop', (e) => { if (!draggedDocId) return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
             treeEl.appendChild(rootDrop);
 
-            // Root docs (no folder)
-            const rootDocs = getFolderDocs(null);
-            for (const d of rootDocs) {
+            // Root docs
+            for (const d of getFolderDocs(null)) {
                 if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
                 treeEl.appendChild(renderDocNode(d, 0));
             }
 
-            // Recursive folders
             function renderFolder(folder, level) {
                 const row = createEl('div', 'folder-node');
                 row.dataset.folderId = folder.id;
                 row.draggable = true;
-                if (!isOpen(folder.id)) row.classList.add('collapsed');
                 const indent = createEl('div', 'indent'); indent.style.marginLeft = (level * 14) + 'px';
                 const caret = createEl('div', 'caret'); caret.textContent = isOpen(folder.id) ? '▾' : '▸';
                 caret.addEventListener('click', () => { const open = !isOpen(folder.id); setOpen(folder.id, open); caret.textContent = open ? '▾' : '▸'; children.style.display = open ? '' : 'none'; });
                 const icon = createEl('div'); icon.textContent = '📁';
                 const title = createEl('div', 'folder-title'); title.textContent = folder.name;
                 const actions = createEl('div', 'node-actions');
-                const addBtn = createEl('button', 'icon-btn'); addBtn.title = '新建子文件夹'; addBtn.textContent = '＋'; addBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
+                const addDocBtn = createEl('button', 'icon-btn'); addDocBtn.title = '新建文档'; addDocBtn.textContent = '📝＋'; addDocBtn.addEventListener('click', (e) => { e.stopPropagation(); createDoc('', folder.id, '新文档'); });
+                const addFolderBtn = createEl('button', 'icon-btn'); addFolderBtn.title = '新建子文件夹'; addFolderBtn.textContent = '＋'; addFolderBtn.addEventListener('click', (e) => { e.stopPropagation(); createFolder(folder.id); });
                 const renameBtn = createEl('button', 'icon-btn'); renameBtn.title = '重命名'; renameBtn.textContent = '✎'; renameBtn.addEventListener('click', (e) => { e.stopPropagation(); inlineRenameFolder(folder.id, title); });
-                const delBtn = createEl('button', 'icon-btn'); delBtn.title = '删除文件夹'; delBtn.textContent = '🗑️'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(folder.id); });
-                actions.appendChild(addBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
+                actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn);
 
                 row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
 
-                // Folder drag sorting (same parent only)
-                row.addEventListener('dragstart', (e) => { draggedFolderId = folder.id; e.dataTransfer.effectAllowed = 'move'; });
-                row.addEventListener('dragend', () => { draggedFolderId = null; row.classList.remove('drop-before','drop-after'); });
+                // Dragover: doc move OR folder sort
                 row.addEventListener('dragover', (e) => {
-                    if (!draggedFolderId || draggedFolderId === folder.id) return; 
-                    const dragged = folders.find(f => f.id === draggedFolderId);
-                    if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return; // only same parent
-                    e.preventDefault();
-                    const rect = row.getBoundingClientRect();
-                    const before = (e.clientY - rect.top) < rect.height / 2;
-                    row.classList.toggle('drop-before', before);
-                    row.classList.toggle('drop-after', !before);
+                    if (draggedDocId) { e.preventDefault(); row.classList.add('drop-target'); return; }
+                    if (draggedFolderId && draggedFolderId !== folder.id) {
+                        const dragged = folders.find(f => f.id === draggedFolderId);
+                        if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
+                        e.preventDefault();
+                        const rect = row.getBoundingClientRect();
+                        const before = (e.clientY - rect.top) < rect.height / 2;
+                        row.classList.toggle('drop-before', before);
+                        row.classList.toggle('drop-after', !before);
+                    }
                 }, { passive: false });
-                row.addEventListener('dragleave', () => row.classList.remove('drop-before','drop-after'));
+                row.addEventListener('dragleave', () => { row.classList.remove('drop-target','drop-before','drop-after'); });
                 row.addEventListener('drop', (e) => {
-                    if (!draggedFolderId || draggedFolderId === folder.id) return; 
-                    const dragged = folders.find(f => f.id === draggedFolderId);
-                    if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
                     e.preventDefault();
-                    const rect = row.getBoundingClientRect();
-                    const before = (e.clientY - rect.top) < rect.height / 2;
-                    reorderFolders(dragged.parentId || null, draggedFolderId, folder.id, before ? 'before' : 'after');
+                    if (draggedDocId) { moveDocToFolder(draggedDocId, folder.id); row.classList.remove('drop-target'); return; }
+                    if (draggedFolderId && draggedFolderId !== folder.id) {
+                        const dragged = folders.find(f => f.id === draggedFolderId);
+                        if (!dragged || (dragged.parentId || null) !== (folder.parentId || null)) return;
+                        const rect = row.getBoundingClientRect();
+                        const before = (e.clientY - rect.top) < rect.height / 2;
+                        reorderFolders(dragged.parentId || null, draggedFolderId, folder.id, before ? 'before' : 'after');
+                    }
                     row.classList.remove('drop-before','drop-after');
                 });
+                row.addEventListener('dragstart', (e) => { draggedFolderId = folder.id; e.dataTransfer.effectAllowed = 'move'; });
+                row.addEventListener('dragend', () => { draggedFolderId = null; });
 
                 const children = createEl('div', 'children');
                 children.style.display = isOpen(folder.id) ? '' : 'none';
 
-                // docs
-                const docsIn = getFolderDocs(folder.id);
-                for (const d of docsIn) {
+                for (const d of getFolderDocs(folder.id)) {
                     if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
                     children.appendChild(renderDocNode(d, level + 1));
                 }
-                // subfolders
-                const sub = getChildrenFolders(folder.id);
-                for (const sf of sub) children.appendChild(renderFolder(sf, level + 1));
+                for (const sf of getChildrenFolders(folder.id)) children.appendChild(renderFolder(sf, level + 1));
 
                 const container = createEl('div');
-                container.appendChild(row);
-                container.appendChild(children);
+                container.appendChild(row); container.appendChild(children);
                 return container;
             }
 
-            const topFolders = getChildrenFolders(null);
-            for (const f of topFolders) treeEl.appendChild(renderFolder(f, 0));
+            for (const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f, 0));
         }
 
         function renderDocNode(doc, level) {
@@ -585,19 +495,18 @@
             const actions = createEl('div', 'node-actions');
             const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏'; starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
             const moveBtn = createEl('button', 'icon-btn'); moveBtn.textContent = '↪️'; moveBtn.title = '移动到'; moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveSheet(doc.id); });
-            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除文档'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
+            const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除'; delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
             actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn);
 
             row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
             row.addEventListener('click', () => selectDoc(doc.id));
 
-            // Dragging
             row.addEventListener('dragstart', (e) => { draggedDocId = doc.id; e.dataTransfer.effectAllowed = 'move'; });
             row.addEventListener('dragend', () => { draggedDocId = null; row.classList.remove('drop-before','drop-after'); });
             row.addEventListener('dragover', (e) => {
-                if (!draggedDocId || draggedDocId === doc.id) return; 
+                if (!draggedDocId || draggedDocId === doc.id) return;
                 const dragged = docs.find(d => d.id === draggedDocId);
-                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return; // only within same parent for sort
+                if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return;
                 e.preventDefault();
                 const rect = row.getBoundingClientRect();
                 const before = (e.clientY - rect.top) < rect.height / 2;
@@ -606,364 +515,212 @@
             }, { passive: false });
             row.addEventListener('dragleave', () => row.classList.remove('drop-before','drop-after'));
             row.addEventListener('drop', (e) => {
-                if (!draggedDocId || draggedDocId === doc.id) return; 
+                if (!draggedDocId || draggedDocId === doc.id) return;
                 const dragged = docs.find(d => d.id === draggedDocId);
                 if (!dragged || (dragged.folderId || null) !== (doc.folderId || null)) return;
                 e.preventDefault();
                 const rect = row.getBoundingClientRect();
                 const before = (e.clientY - rect.top) < rect.height / 2;
                 reorderDocs(doc.folderId || null, draggedDocId, doc.id, before ? 'before' : 'after');
-                row.classList.remove('drop-before','drop-after');
             });
             return row;
         }
 
         function reorderDocs(parentId, draggedId, targetId, position) {
-            const list = docs.filter(d => (d.folderId || null) === (parentId || null)).sort((a,b) => a.sort - b.sort);
+            const list = docs.filter(d => (d.folderId || null) === (parentId || null)).sort((a,b)=>a.sort - b.sort);
             const orderMap = new Map(list.map((d,i)=>[d.id,i]));
             const draggedIdx = orderMap.get(draggedId);
             const targetIdx = orderMap.get(targetId);
             if (draggedIdx == null || targetIdx == null) return;
             list.splice(draggedIdx, 1);
-            const newIndex = position === 'before' ? (targetIdx) : (targetIdx + 1);
+            const newIndex = position === 'before' ? targetIdx : targetIdx + 1;
             list.splice(newIndex, 0, docs.find(d=>d.id===draggedId));
             list.forEach((d,i)=>{ d.sort = i; });
             saveDocs(docs);
             renderTree($('#searchInput').value);
         }
-
         function reorderFolders(parentId, draggedId, targetId, position) {
-            const list = folders.filter(f => (f.parentId || null) === (parentId || null)).sort((a,b) => a.sort - b.sort);
+            const list = folders.filter(f => (f.parentId || null) === (parentId || null)).sort((a,b)=>a.sort - b.sort);
             const orderMap = new Map(list.map((f,i)=>[f.id,i]));
             const draggedIdx = orderMap.get(draggedId);
             const targetIdx = orderMap.get(targetId);
             if (draggedIdx == null || targetIdx == null) return;
             list.splice(draggedIdx, 1);
-            const newIndex = position === 'before' ? (targetIdx) : (targetIdx + 1);
+            const newIndex = position === 'before' ? targetIdx : targetIdx + 1;
             list.splice(newIndex, 0, folders.find(f=>f.id===draggedId));
             list.forEach((f,i)=>{ f.sort = i; });
             saveFolders(folders);
             renderTree($('#searchInput').value);
         }
 
-        function sortDoc(a, b) { return a.sort - b.sort || (b.updatedAt - a.updatedAt); }
-
+        // CRUD
         function selectDoc(id) {
-            const doc = docs.find(x => x.id === id);
-            if (!doc) return;
-            currentDocId = id;
-            setCurrentId(id);
+            const doc = docs.find(x => x.id === id); if (!doc) return;
+            currentDocId = id; setCurrentId(id);
             titleInput.value = doc.title || '';
             editor.value = doc.content || '';
             lastCharCountForProgress = measureCharCount(editor.value);
             updateWordStats();
             renderTree($('#searchInput').value);
             markSaved(true);
+            editor.focus();
         }
-
         function createDoc(initialContent = '', folderId = null, title = '无标题文档') {
-            const id = generateId('doc');
-            const now = Date.now();
+            const id = generateId('doc'); const now = Date.now();
             const siblingCount = docs.filter(d => (d.folderId || null) === (folderId || null)).length;
             const newDoc = { id, title, content: initialContent, starred: false, createdAt: now, updatedAt: now, folderId, sort: siblingCount };
-            docs.push(newDoc);
-            saveDocs(docs);
-            selectDoc(id);
-            titleInput.focus();
+            docs.push(newDoc); saveDocs(docs); selectDoc(id);
         }
-
         function createNovel() {
-            const fid = generateId('fld');
-            const parentId = null;
+            const fid = generateId('fld'); const parentId = null;
             const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
             const folder = { id: fid, name: '新小说', parentId, sort: siblingCount };
-            folders.push(folder);
-            folderOpenState[fid] = true;
-            saveFolders(folders); saveFolderState(folderOpenState);
-            // default docs: Outline + Chapter 1
+            folders.push(folder); folderOpenState[fid] = true; saveFolders(folders); saveFolderState(folderOpenState);
             createDoc('书名：\n主旨：\n人设：\n世界观：\n情节提要：\n', fid, '大纲');
             createDoc('第1章\n\n', fid, '第1章');
-            showSnack('已创建小说“新小说”');
-            renderTree($('#searchInput').value);
+            showSnack('已创建小说“新小说”'); renderTree($('#searchInput').value);
         }
-
         function moveDocToFolder(docId, folderId) {
-            const doc = docs.find(d => d.id === docId);
-            if (!doc) return;
-            const newParent = folderId || null;
-            doc.folderId = newParent;
-            doc.updatedAt = Date.now();
-            // set to end of new parent order
+            const doc = docs.find(d => d.id === docId); if (!doc) return;
+            const newParent = folderId || null; doc.folderId = newParent; doc.updatedAt = Date.now();
             doc.sort = docs.filter(d => (d.folderId || null) === newParent).length;
-            saveDocs(docs);
-            renderTree($('#searchInput').value);
+            saveDocs(docs); renderTree($('#searchInput').value);
             if (docId === currentDocId) showSnack('已移动到' + (folderId ? '选中文件夹' : '根目录'));
         }
-
         function softDeleteDoc(id) {
-            const idx = docs.findIndex(d => d.id === id);
-            if (idx === -1) return;
-            const removed = docs.splice(idx, 1)[0];
-            saveDocs(docs);
-            if (currentDocId === id) {
-                if (docs.length) selectDoc(docs[0].id); else { createDoc(); }
-            }
+            const idx = docs.findIndex(d => d.id === id); if (idx === -1) return;
+            const removed = docs.splice(idx, 1)[0]; saveDocs(docs);
+            if (currentDocId === id) { if (docs.length) selectDoc(docs[0].id); else { createDoc(); } }
             renderTree($('#searchInput').value);
             lastDeleted = { doc: removed };
             showSnack('已删除文档', '撤销', () => { if (!lastDeleted) return; docs.push(lastDeleted.doc); saveDocs(docs); lastDeleted = null; renderTree($('#searchInput').value); });
         }
-
-        function toggleStar(id) {
-            const doc = docs.find(d => d.id === id);
-            if (!doc) return;
-            doc.starred = !doc.starred;
-            doc.updatedAt = Date.now();
-            saveDocs(docs);
-            renderTree($('#searchInput').value);
-        }
-
+        function toggleStar(id) { const doc = docs.find(d => d.id === id); if (!doc) return; doc.starred = !doc.starred; doc.updatedAt = Date.now(); saveDocs(docs); renderTree($('#searchInput').value); }
         function createFolder(parentId = null) {
-            const id = generateId('fld');
-            const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
+            const id = generateId('fld'); const siblingCount = folders.filter(f => (f.parentId || null) === (parentId || null)).length;
             const f = { id, name: '新建文件夹', parentId: parentId || null, sort: siblingCount };
-            folders.push(f);
-            folderOpenState[id] = true;
-            saveFolders(folders); saveFolderState(folderOpenState);
-            renderTree($('#searchInput').value);
+            folders.push(f); folderOpenState[id] = true; saveFolders(folders); saveFolderState(folderOpenState); renderTree($('#searchInput').value);
         }
-
         function inlineRenameFolder(folderId, titleEl) {
-            const folder = folders.find(f => f.id === folderId);
-            if (!folder) return;
-            const old = folder.name;
-            const input = document.createElement('input');
-            input.type = 'text'; input.value = old; input.style.width = '100%';
-            titleEl.replaceWith(input);
-            input.focus(); input.select();
+            const folder = folders.find(f => f.id === folderId); if (!folder) return;
+            const old = folder.name; const input = document.createElement('input'); input.type = 'text'; input.value = old; input.className = 'text-input';
+            titleEl.replaceWith(input); input.focus(); input.select();
             const commit = () => { folder.name = input.value.trim() || old; saveFolders(folders); renderTree($('#searchInput').value); };
-            input.addEventListener('blur', commit);
-            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { folder.name = old; input.blur(); } });
+            input.addEventListener('blur', commit); input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { folder.name = old; input.blur(); } });
         }
-
         function deleteFolder(folderId) {
-            const folder = folders.find(f => f.id === folderId);
-            if (!folder) return;
-            const parentId = folder.parentId || null;
+            const folder = folders.find(f => f.id === folderId); if (!folder) return; const parentId = folder.parentId || null;
             for (const d of docs) { if (d.folderId === folderId) { d.folderId = parentId; d.sort = docs.filter(x => (x.folderId || null) === parentId).length; } }
             for (const f of folders) { if (f.parentId === folderId) { f.parentId = parentId; f.sort = folders.filter(x => (x.parentId || null) === parentId).length; } }
-            folders = folders.filter(f => f.id !== folderId);
-            saveDocs(docs); saveFolders(folders);
-            showSnack('文件夹已删除（内容已上移）');
-            renderTree($('#searchInput').value);
+            folders = folders.filter(f => f.id !== folderId); saveDocs(docs); saveFolders(folders);
+            showSnack('文件夹已删除（内容已上移）'); renderTree($('#searchInput').value);
         }
 
         // Move-To sheet
-        function openMoveSheet(docId) {
-            moveTargetDocId = docId;
-            renderMoveSheet();
-            sheet.classList.add('show');
-            sheetOverlay.style.display = 'block';
-        }
-        function closeMoveSheet() {
-            sheet.classList.remove('show');
-            sheetOverlay.style.display = 'none';
-            moveTargetDocId = null;
-        }
+        function openMoveSheet(docId) { moveTargetDocId = docId; renderMoveSheet(); sheet.classList.add('show'); sheetOverlay.style.display = 'block'; }
+        function closeMoveSheet() { sheet.classList.remove('show'); sheetOverlay.style.display = 'none'; moveTargetDocId = null; }
         function renderMoveSheet() {
             sheetBody.innerHTML = '';
-            const rootRow = createEl('div', 'sheet-row');
-            rootRow.innerHTML = '<span>📄</span><span>根目录</span>';
-            rootRow.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, null); closeMoveSheet(); });
-            sheetBody.appendChild(rootRow);
+            const rootRow = createEl('div', 'sheet-row'); rootRow.innerHTML = '<span>📄</span><span>根目录</span>';
+            rootRow.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, null); closeMoveSheet(); }); sheetBody.appendChild(rootRow);
             function renderFolderOption(folder, level) {
-                const row = createEl('div', 'sheet-row');
-                const indent = createEl('div', 'sheet-indent'); indent.style.marginLeft = (level * 14) + 'px';
-                const icon = createEl('span'); icon.textContent = '📁';
-                const name = createEl('span'); name.textContent = folder.name;
+                const row = createEl('div', 'sheet-row'); const indent = createEl('div', 'sheet-indent'); indent.style.marginLeft = (level * 14) + 'px';
+                const icon = createEl('span'); icon.textContent = '📁'; const name = createEl('span'); name.textContent = folder.name;
                 row.appendChild(indent); row.appendChild(icon); row.appendChild(name);
                 row.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, folder.id); closeMoveSheet(); });
                 sheetBody.appendChild(row);
-                const children = getChildrenFolders(folder.id);
-                for (const cf of children) renderFolderOption(cf, level + 1);
+                for (const cf of getChildrenFolders(folder.id)) renderFolderOption(cf, level + 1);
             }
-            const tops = getChildrenFolders(null);
-            for (const f of tops) renderFolderOption(f, 0);
+            for (const f of getChildrenFolders(null)) renderFolderOption(f, 0);
         }
 
-        // Saving
-        function markSaved(saved) {
-            isSaving = !saved;
-            saveIndicator.textContent = saved ? '已保存' : '保存中…';
-            saveIndicator.style.color = saved ? 'var(--muted-text)' : 'var(--primary-color)';
-        }
-
-        const persist = debounce(function persistNow(){
-            const doc = docs.find(d => d.id === currentDocId);
-            if (!doc) return;
-            doc.title = titleInput.value.trim() || '无标题文档';
-            doc.content = editor.value;
-            doc.updatedAt = Date.now();
-            saveDocs(docs);
-            markSaved(true);
-            renderTree($('#searchInput').value);
-        }, 300);
-
+        // Saving & stats
+        function markSaved(saved) { saveIndicator.textContent = saved ? '已保存' : '保存中…'; saveIndicator.style.color = saved ? 'var(--muted-text)' : 'var(--primary-color)'; }
+        const persist = debounce(function(){ const doc = docs.find(d => d.id === currentDocId); if (!doc) return; doc.title = titleInput.value.trim() || '无标题文档'; doc.content = editor.value; doc.updatedAt = Date.now(); saveDocs(docs); markSaved(true); renderTree($('#searchInput').value); }, 250);
         function saveNow() { markSaved(false); persist(); }
-
-        // Word stats
         function measureCharCount(text) { if (!text) return 0; return text.replace(/\s+/g, '').length; }
-        const updateWordStats = throttleRaf(function(){
-            const text = editor.value || '';
-            const chars = measureCharCount(text);
-            const paras = text.trim() ? text.split(/\n{2,}/).length : 0;
-            charCountEl.textContent = chars;
-            paraCountEl.textContent = paras;
-            updateDailyProgress(chars);
-        });
+        const updateWordStats = throttleRaf(function(){ const text = editor.value || ''; const chars = measureCharCount(text); const paras = text.trim() ? text.split(/\n{2,}/).length : 0; charCountEl.textContent = chars; paraCountEl.textContent = paras; updateDailyProgress(chars); });
+        function updateDailyProgress(currentChars){ const key = todayKey(); const map = loadProgressMap(); const delta = Math.max(0, currentChars - lastCharCountForProgress); if (delta > 0) { map[key] = (map[key] || 0) + delta; saveProgressMap(map); lastCharCountForProgress = currentChars; } const goal = loadGoal(); goalNum.textContent = goal; const now = (loadProgressMap()[key] || 0); goalNow.textContent = now; const pct = goal === 0 ? 1 : clamp(now / goal, 0, 1); goalProgress.style.width = (pct * 100).toFixed(1) + '%'; }
 
-        // Daily goal
-        function updateDailyProgress(currentChars){
-            const key = todayKey();
-            const map = loadProgressMap();
-            const before = lastCharCountForProgress;
-            const delta = Math.max(0, currentChars - before);
-            if (delta > 0) {
-                map[key] = (map[key] || 0) + delta;
-                saveProgressMap(map);
-                lastCharCountForProgress = currentChars;
-            }
-            const goal = loadGoal();
-            goalNum.textContent = goal;
-            const now = (loadProgressMap()[key] || 0);
-            goalNow.textContent = now;
-            const pct = goal === 0 ? 1 : clamp(now / goal, 0, 1);
-            goalProgress.style.width = (pct * 100).toFixed(1) + '%';
-        }
-
-        // Plain text templates
-        const TEMPLATES = {
-            person: "人物卡\n——\n姓名：\n年龄：\n外貌特征：\n性格标签：\n背景故事：\n目标/动机：\n人际关系：\n",
-            scene: "场景卡\n——\n地点：\n时间：\n天气/氛围：\n登场人物：\n冲突点：\n细节道具：\n节奏/张力：\n",
-            world: "世界观\n——\n时代背景：\n地理设定：\n社会结构：\n科技/魔法体系：\n宗教/文化：\n禁忌与规则：\n核心矛盾：\n"
-        };
-        function insertAtCursor(text){
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const val = editor.value;
-            editor.value = val.slice(0, start) + text + val.slice(end);
-            const caret = start + text.length;
-            editor.selectionStart = editor.selectionEnd = caret;
-            editor.focus();
-            saveNow();
-            updateWordStats();
-        }
+        // Templates (plain text)
+        const TEMPLATES = { person: "人物卡\n——\n姓名：\n年龄：\n外貌特征：\n性格标签：\n背景故事：\n目标/动机：\n人际关系：\n", scene: "场景卡\n——\n地点：\n时间：\n天气/氛围：\n登场人物：\n冲突点：\n细节道具：\n节奏/张力：\n", world: "世界观\n——\n时代背景：\n地理设定：\n社会结构：\n科技/魔法体系：\n宗教/文化：\n禁忌与规则：\n核心矛盾：\n" };
+        function insertAtCursor(text){ const start = editor.selectionStart; const end = editor.selectionEnd; const val = editor.value; editor.value = val.slice(0, start) + text + val.slice(end); const caret = start + text.length; editor.selectionStart = editor.selectionEnd = caret; editor.focus(); saveNow(); updateWordStats(); }
         function insertTemplate(name){ insertAtCursor('\n' + TEMPLATES[name] + '\n'); }
 
         // Export / Import
         function download(name, content, type){ const blob = new Blob([content], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
 
         // Snackbar
-        let snackTimer = null;
-        function showSnack(msg, actionText, action) {
-            $('#snackMsg').textContent = msg;
-            const act = $('#snackAction');
-            if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; }
-            const el = $('#snackbar'); el.classList.add('show');
-            clearTimeout(snackTimer);
-            snackTimer = setTimeout(hideSnack, 3000);
-        }
+        let snackTimer = null; function showSnack(msg, actionText, action) { $('#snackMsg').textContent = msg; const act = $('#snackAction'); if (actionText && action) { act.textContent = actionText; act.style.display = 'inline'; act.onclick = () => { hideSnack(); action(); }; } else { act.textContent = ''; act.style.display = 'none'; act.onclick = null; } const el = $('#snackbar'); el.classList.add('show'); clearTimeout(snackTimer); snackTimer = setTimeout(hideSnack, 2500); }
         function hideSnack(){ $('#snackbar').classList.remove('show'); }
 
-        // Settings Drawer
-        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); selectDensityChip(loadDensity()); }
+        // Drawers
+        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); loadBarPrefsIntoUI(); }
         function closeDrawer() { drawer.classList.remove('show'); drawerOverlay.style.display = 'none'; }
         function selectThemeChip(theme) { $all('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme)); }
-        function selectDensityChip(d) { $all('#densityChips .chip').forEach(c => c.classList.toggle('active', c.dataset.density === d)); }
 
-        // Move sheet bindings
-        $('#closeMoveSheet').addEventListener('click', closeMoveSheet);
-        sheetOverlay.addEventListener('click', closeMoveSheet);
+        function openTools() { toolsDrawer.classList.add('show'); toolsOverlay.style.display = 'block'; }
+        function closeTools() { toolsDrawer.classList.remove('show'); toolsOverlay.style.display = 'none'; }
 
-        // Bind toolbar
-        function bindToolbar() {
-            $('#tplPerson').addEventListener('click', () => insertTemplate('person'));
-            $('#tplScene').addEventListener('click', () => insertTemplate('scene'));
-            $('#tplWorld').addEventListener('click', () => insertTemplate('world'));
+        // Custom bottom bars
+        const DEFAULT_SYMBOLS = ['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”'];
+        const DEFAULT_SHORTCUTS = ['person','scene','world','newdoc','focus','settings'];
+        function getSymbols(){ const a = loadSymbols(); return a.length ? a : DEFAULT_SYMBOLS; }
+        function getShortcuts(){ const a = loadShortcuts(); return a.length ? a : DEFAULT_SHORTCUTS; }
+        function renderSymbolBar(){ symbolBar.innerHTML=''; for (const sym of getSymbols()){ const b = createEl('button','m-btn'); b.textContent = sym; b.addEventListener('click',()=> insertAtCursor(sym)); symbolBar.appendChild(b); } }
+        function renderShortcutBar(){ shortcutBar.innerHTML=''; const map = { person: ['人物', ()=>insertTemplate('person')], scene: ['场景', ()=>insertTemplate('scene')], world: ['世界', ()=>insertTemplate('world')], newdoc: ['新建', ()=>createDoc()], novel: ['小说', ()=>createNovel()], focus: ['专注', ()=>document.body.classList.toggle('focus-mode')], settings: ['设置', ()=>openDrawer()] };
+            for (const k of getShortcuts()){ if (!map[k]) continue; const [label, fn] = map[k]; const b = createEl('button','m-btn'); b.textContent = label; b.addEventListener('click', fn); shortcutBar.appendChild(b); } }
+        function loadBarPrefsIntoUI(){ $('#symbolsInput').value = getSymbols().join(' '); const checks = $('#shortcutChecks'); checks.innerHTML=''; const OPTIONS = [['person','人物'],['scene','场景'],['world','世界'],['newdoc','新建'],['novel','小说'],['focus','专注'],['settings','设置']]; const cur = new Set(getShortcuts()); for (const [key,label] of OPTIONS){ const chip = createEl('button','chip'); chip.textContent = label; chip.dataset.action = key; chip.classList.toggle('active', cur.has(key)); chip.addEventListener('click', ()=>{ chip.classList.toggle('active'); }); checks.appendChild(chip); } }
+        function saveBarPrefs(){ const syms = $('#symbolsInput').value.trim().split(/\s+/).filter(Boolean); saveSymbols(syms.slice(0,24)); const sel = Array.from($('#shortcutChecks').querySelectorAll('.chip.active')).map(c=>c.dataset.action); saveShortcuts(sel.slice(0,10)); renderSymbolBar(); renderShortcutBar(); showSnack('已保存自定义栏'); }
 
-            $('#exportTxt').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.txt', (doc.content || ''), 'text/plain;charset=utf-8'); });
-            $('#exportMd').addEventListener('click', () => { const doc = docs.find(d => d.id === currentDocId); if (!doc) return; download((doc.title || '导出') + '.md', (doc.content || ''), 'text/markdown;charset=utf-8'); });
-        }
-
-        // Global bindings
-        function bindGlobal() {
+        // Bindings
+        function bindGlobal(){
             // Sidebar
-            $('#menuToggle').addEventListener('click', () => sidebar.classList.toggle('show'));
-            overlay.addEventListener('click', () => sidebar.classList.remove('show'));
-
-            // Theme quick toggle (light/dark)
+            $('#menuToggle').addEventListener('click', () => { sidebar.classList.toggle('show'); overlay.style.display = sidebar.classList.contains('show') ? 'block' : 'none'; });
+            overlay.addEventListener('click', () => { sidebar.classList.remove('show'); overlay.style.display = 'none'; });
             $('#themeToggle').addEventListener('click', () => { const cur = loadTheme(); const next = (cur === 'dark') ? 'light' : 'dark'; saveTheme(next); applyTheme(next); showSnack('主题：' + (next === 'dark' ? '暗黑' : '明亮')); });
 
-            // Focus mode
-            $('#focusToggle').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); showSnack(document.body.classList.contains('focus-mode') ? '已进入专注模式' : '已退出专注模式'); });
+            // Tools
+            $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
+            $('#toolNewDoc').addEventListener('click', ()=>{ createDoc(); closeTools(); });
+            $('#toolNewFolder').addEventListener('click', ()=>{ createFolder(null); closeTools(); });
+            $('#toolNewNovel').addEventListener('click', ()=>{ createNovel(); closeTools(); });
+            $('#toolTplPerson').addEventListener('click', ()=>{ insertTemplate('person'); closeTools(); });
+            $('#toolTplScene').addEventListener('click', ()=>{ insertTemplate('scene'); closeTools(); });
+            $('#toolTplWorld').addEventListener('click', ()=>{ insertTemplate('world'); closeTools(); });
+            $('#toolExportTxt').addEventListener('click', ()=>{ const doc = docs.find(d=>d.id===currentDocId); if (!doc) return; download((doc.title||'导出')+'.txt', (doc.content||''), 'text/plain;charset=utf-8'); });
+            $('#toolExportMd').addEventListener('click', ()=>{ const doc = docs.find(d=>d.id===currentDocId); if (!doc) return; download((doc.title||'导出')+'.md', (doc.content||''), 'text/markdown;charset=utf-8'); });
+            $('#toolImport').addEventListener('click', ()=>{ $('#importFile').click(); closeTools(); });
 
-            // New doc/folder/novel
+            // Settings drawer
+            $('#settingsBtn').addEventListener('click', openDrawer); $('#closeDrawer').addEventListener('click', closeDrawer); drawerOverlay.addEventListener('click', closeDrawer);
+            $all('#themeChips .chip').forEach(chip => chip.addEventListener('click', () => { const theme = chip.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：' + chip.textContent); }));
+            $('#saveBarPrefs').addEventListener('click', saveBarPrefs);
+
+            // Footer actions
             $('#newDocBtn').addEventListener('click', () => createDoc());
             $('#newFolderBtn').addEventListener('click', () => createFolder(null));
             $('#newNovelBtn').addEventListener('click', createNovel);
+            $('#importBtn').addEventListener('click', () => $('#importFile').click());
+            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc(text, null, file.name.replace(/\.[^.]+$/, '')); e.target.value=''; showSnack('已导入：' + file.name); });
 
             // Search
             $('#searchInput').addEventListener('input', debounce((e) => renderTree(e.target.value), 120));
-
-            // Import
-            $('#importBtn').addEventListener('click', () => $('#importFile').click());
-            $('#importFile').addEventListener('change', async (e) => { const file = e.target.files && e.target.files[0]; if (!file) return; const text = await file.text(); createDoc(text, null, file.name.replace(/\.[^.]+$/, '')); e.target.value = ''; showSnack('已导入：' + file.name); });
 
             // Title / Editor
             titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
             editor.addEventListener('input', () => { markSaved(false); updateWordStats(); persist(); });
 
-            // Passive listeners for smoother scrolling on mobile
-            editor.addEventListener('touchstart', () => {}, { passive: true });
-            editor.addEventListener('touchmove', () => {}, { passive: true });
-            document.addEventListener('scroll', throttleRaf(() => {}), { passive: true, capture: true });
+            // Keyboard shortcuts (mobile safe)
+            document.addEventListener('keydown', (e) => { const mod = e.ctrlKey || e.metaKey; if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); } if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); } }, { passive: false });
 
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                const mod = e.ctrlKey || e.metaKey;
-                if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); }
-                if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); }
-            }, { passive: false });
-
-            // Settings drawer
-            $('#settingsBtn').addEventListener('click', openDrawer);
-            $('#setGoalBtn').addEventListener('click', openDrawer);
-            $('#closeDrawer').addEventListener('click', closeDrawer);
-            drawerOverlay.addEventListener('click', closeDrawer);
-
-            // Theme select in drawer
-            $all('#themeChips .chip').forEach(chip => chip.addEventListener('click', () => { const theme = chip.dataset.theme; saveTheme(theme); applyTheme(theme); showSnack('主题：' + chip.textContent); }));
-
-            // Density select
-            $all('#densityChips .chip').forEach(chip => chip.addEventListener('click', () => { const d = chip.dataset.density; saveDensity(d); applyDensity(d); showSnack('界面密度：' + (d === 'compact' ? '紧凑' : '舒适')); }));
-
-            // Goal input (live apply)
-            goalInput.addEventListener('change', () => { const n = parseInt(goalInput.value || '0', 10); if (Number.isFinite(n) && n >= 0) { saveGoal(n); updateWordStats(); showSnack('已更新今日目标：' + n); } });
-
-            // Mobile toolbar
-            $('#mPerson').addEventListener('click', () => insertTemplate('person'));
-            $('#mScene').addEventListener('click', () => insertTemplate('scene'));
-            $('#mWorld').addEventListener('click', () => insertTemplate('world'));
-            $('#mNewDoc').addEventListener('click', () => createDoc());
-            $('#mFocus').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); });
-            $('#mSettings').addEventListener('click', openDrawer);
+            // Touch passive
+            editor.addEventListener('touchstart', () => {}, { passive: true }); editor.addEventListener('touchmove', () => {}, { passive: true }); document.addEventListener('scroll', throttleRaf(() => {}), { passive: true, capture: true });
         }
 
         // Boot
-        bindToolbar();
-        bindGlobal();
-        renderTree();
-        selectDoc(currentDocId || docs[0].id);
-        updateWordStats();
+        function initBars(){ renderSymbolBar(); renderShortcutBar(); }
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); initBars();
     </script>
 </body>
 </html>
