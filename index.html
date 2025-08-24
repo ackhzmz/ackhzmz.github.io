@@ -24,7 +24,8 @@
             --hover-bg: rgba(127,127,127,0.06);
             --active-bg: rgba(74,134,232,0.12);
             --mobile-bar-height: 48px;
-            --mobile-rows: 2;
+            --mobile-rows: 1;
+            --caret-color: #4a86e8;
         }
 
         [data-theme="dark"] {
@@ -42,6 +43,37 @@
             --link: #93c5fd;
             --hover-bg: rgba(255,255,255,0.05);
             --active-bg: rgba(110,168,254,0.15);
+            --caret-color: #6ea8fe;
+        }
+
+        [data-theme="sepia"] {
+            --primary-color: #8b5e34;
+            --text-color: #3e2c1c;
+            --muted-text: #7b6a58;
+            --bg-color: #f3ead7;
+            --panel-bg: #faf3e3;
+            --border-color: #e1d7c6;
+            --accent: #9c6f3d;
+            --warning: #c48f3c;
+            --link: #7a4e2b;
+            --hover-bg: rgba(139,94,52,0.07);
+            --active-bg: rgba(139,94,52,0.12);
+            --caret-color: #8b5e34;
+        }
+
+        [data-theme="eye"] {
+            --primary-color: #3aa675;
+            --text-color: #1a2b22;
+            --muted-text: #587a6a;
+            --bg-color: #e9f5ef;
+            --panel-bg: #f6fbf8;
+            --border-color: #d7ece2;
+            --accent: #2bb673;
+            --warning: #cc9a06;
+            --link: #2f8f6b;
+            --hover-bg: rgba(58,166,117,0.08);
+            --active-bg: rgba(58,166,117,0.14);
+            --caret-color: #2f8f6b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
@@ -94,19 +126,19 @@
 
         .toolbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 30; }
         .menu-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; color: var(--muted-text); }
-        .title-input { width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 0.95rem; font-weight: 600; }
+        .title-input { width: 100%; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; background: transparent; color: var(--text-color); font-size: 0.95rem; font-weight: 600; }
         .title-input:focus { outline: 2px solid rgba(74,134,232,0.25); }
         #toolsBtn { background: none; border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 8px; color: var(--muted-text); }
 
-        #editor-wrapper { display: flex; justify-content: center; width: 100%; }
-        #editor { width: min(100%, var(--editor-width)); margin: 8px 10px; padding: 14px; font-size: 1rem; line-height: 1.7; background-color: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow-md); min-height: 52vh; resize: vertical; }
-        #editor:focus { outline: 3px solid rgba(74,134,232,0.15); border-color: rgba(74,134,232,0.4); }
-
-        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: flex; gap: 10px; align-items: center; }
+        .word-count { padding: 8px 10px; background-color: var(--panel-bg); border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted-text); display: flex; gap: 10px; align-items: center; position: sticky; top: 48px; z-index: 25; }
         .goal { display: flex; align-items: center; gap: 6px; }
         .progress-bar { width: 120px; height: 8px; border-radius: 6px; background: rgba(127,127,127,0.12); overflow: hidden; border: 1px solid var(--border-color); }
         .progress { height: 100%; background: linear-gradient(90deg, var(--accent), #2dd4bf); width: 0%; }
         .save-indicator { margin-left: auto; font-size: 12px; color: var(--muted-text); }
+
+        #editor-wrapper { display: flex; justify-content: center; width: 100%; }
+        #editor { width: min(100%, var(--editor-width)); margin: 8px 10px; padding: 14px; font-size: 1rem; line-height: 1.8; background-color: var(--panel-bg); color: var(--text-color); border: none; border-radius: 12px; box-shadow: var(--shadow-md); min-height: 56vh; resize: vertical; caret-color: var(--caret-color); }
+        #editor:focus { outline: none; }
 
         /* Overlays */
         #sidebar-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.35); z-index: 20; display: none; }
@@ -141,7 +173,7 @@
         .sheet-row:hover { background: var(--hover-bg); }
         .sheet-indent { width: 14px; }
 
-        /* Mobile Bottom Bars: shortcuts + symbols */
+        /* Mobile Bottom Symbol Bar */
         #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: block; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
         #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; overflow-x: auto; gap: 6px; padding: 6px 8px; }
         #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 15px; padding: 6px 10px; white-space: nowrap; }
@@ -188,10 +220,6 @@
             <button id="toolsBtn" title="工具" class="icon-btn">⋯</button>
         </div>
 
-        <div id="editor-wrapper" class="pad-bottom">
-            <textarea id="editor" spellcheck="false" placeholder="开始创作……"></textarea>
-        </div>
-
         <div class="word-count">
             <div>字数：<span id="charCount">0</span></div>
             <div>段落：<span id="paraCount">0</span></div>
@@ -201,6 +229,10 @@
                 <span id="goalNow">0</span>
             </div>
             <div class="save-indicator" id="saveIndicator">已保存</div>
+        </div>
+
+        <div id="editor-wrapper" class="pad-bottom">
+            <textarea id="editor" spellcheck="false" placeholder="开始创作……"></textarea>
         </div>
     </div>
 
@@ -217,6 +249,8 @@
                 <div class="radio-row" id="themeChips">
                     <button class="chip" data-theme="light">明亮</button>
                     <button class="chip" data-theme="dark">暗黑</button>
+                    <button class="chip" data-theme="sepia">古风</button>
+                    <button class="chip" data-theme="eye">护眼</button>
                 </div>
             </div>
             <div class="form-group">
@@ -226,10 +260,6 @@
             <div class="form-group">
                 <label>符号栏（用空格分隔）</label>
                 <input id="symbolsInput" class="text-input" placeholder="，。、「」（）—…！？：；“”">
-            </div>
-            <div class="form-group">
-                <label>快捷栏</label>
-                <div id="shortcutChecks" class="radio-row"></div>
             </div>
             <button id="saveBarPrefs" class="primary-btn">保存</button>
         </div>
@@ -283,9 +313,8 @@
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
 
-    <!-- Mobile Bottom Bars -->
+    <!-- Mobile Bottom Symbol Bar -->
     <nav id="mobileBar">
-        <div class="row" id="shortcutBar"></div>
         <div class="row" id="symbolBar"></div>
     </nav>
 
@@ -308,8 +337,7 @@
             THEME: 'theme',
             GOAL: 'dailyGoal',
             PROGRESS: 'dailyProgress',
-            SYMBOLS: 'customSymbols',
-            SHORTCUTS: 'customShortcuts'
+            SYMBOLS: 'customSymbols'
         };
         function loadDocs() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCS) || '[]'); } catch { return []; } }
         function saveDocs(v) { localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(v)); }
@@ -328,8 +356,6 @@
         function saveProgressMap(map) { localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(map)); }
         function loadSymbols() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SYMBOLS) || '[]'); } catch { return []; } }
         function saveSymbols(arr) { localStorage.setItem(STORAGE_KEYS.SYMBOLS, JSON.stringify(arr)); }
-        function loadShortcuts() { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.SHORTCUTS) || '[]'); } catch { return []; } }
-        function saveShortcuts(arr) { localStorage.setItem(STORAGE_KEYS.SHORTCUTS, JSON.stringify(arr)); }
 
         // App state
         let docs = loadDocs();
@@ -362,7 +388,6 @@
         const sheet = $('#moveSheet');
         const sheetOverlay = $('#sheetOverlay');
         const sheetBody = $('#moveSheetBody');
-        const shortcutBar = $('#shortcutBar');
         const symbolBar = $('#symbolBar');
 
         // Theme
@@ -385,7 +410,6 @@
             saveFolders(folders);
             saveFolderState(folderOpenState);
         }
-        // Ensure sort fields exist
         function ensureOrdering() {
             const perParent = new Map();
             for (const f of folders) { const pid = f.parentId || null; if (!perParent.has(pid)) perParent.set(pid, []); perParent.get(pid).push(f); }
@@ -415,7 +439,6 @@
             rootDrop.addEventListener('drop', (e) => { if (!draggedDocId) return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
             treeEl.appendChild(rootDrop);
 
-            // Root docs
             for (const d of getFolderDocs(null)) {
                 if (keyword && !d.title.toLowerCase().includes(keyword)) continue;
                 treeEl.appendChild(renderDocNode(d, 0));
@@ -438,7 +461,6 @@
 
                 row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
 
-                // Dragover: doc move OR folder sort
                 row.addEventListener('dragover', (e) => {
                     if (draggedDocId) { e.preventDefault(); row.classList.add('drop-target'); return; }
                     if (draggedFolderId && draggedFolderId !== folder.id) {
@@ -655,30 +677,25 @@
         function hideSnack(){ $('#snackbar').classList.remove('show'); }
 
         // Drawers
-        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); loadBarPrefsIntoUI(); }
+        function openDrawer() { drawer.classList.add('show'); drawerOverlay.style.display = 'block'; goalInput.value = loadGoal(); selectThemeChip(loadTheme()); loadSymbolsPrefIntoUI(); }
         function closeDrawer() { drawer.classList.remove('show'); drawerOverlay.style.display = 'none'; }
         function selectThemeChip(theme) { $all('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme)); }
-
         function openTools() { toolsDrawer.classList.add('show'); toolsOverlay.style.display = 'block'; }
         function closeTools() { toolsDrawer.classList.remove('show'); toolsOverlay.style.display = 'none'; }
 
-        // Custom bottom bars
+        // Symbol bar
         const DEFAULT_SYMBOLS = ['，','。','、','「','」','（','）','—','…','！','？','：','；','“','”'];
-        const DEFAULT_SHORTCUTS = ['person','scene','world','newdoc','focus','settings'];
         function getSymbols(){ const a = loadSymbols(); return a.length ? a : DEFAULT_SYMBOLS; }
-        function getShortcuts(){ const a = loadShortcuts(); return a.length ? a : DEFAULT_SHORTCUTS; }
         function renderSymbolBar(){ symbolBar.innerHTML=''; for (const sym of getSymbols()){ const b = createEl('button','m-btn'); b.textContent = sym; b.addEventListener('click',()=> insertAtCursor(sym)); symbolBar.appendChild(b); } }
-        function renderShortcutBar(){ shortcutBar.innerHTML=''; const map = { person: ['人物', ()=>insertTemplate('person')], scene: ['场景', ()=>insertTemplate('scene')], world: ['世界', ()=>insertTemplate('world')], newdoc: ['新建', ()=>createDoc()], novel: ['小说', ()=>createNovel()], focus: ['专注', ()=>document.body.classList.toggle('focus-mode')], settings: ['设置', ()=>openDrawer()] };
-            for (const k of getShortcuts()){ if (!map[k]) continue; const [label, fn] = map[k]; const b = createEl('button','m-btn'); b.textContent = label; b.addEventListener('click', fn); shortcutBar.appendChild(b); } }
-        function loadBarPrefsIntoUI(){ $('#symbolsInput').value = getSymbols().join(' '); const checks = $('#shortcutChecks'); checks.innerHTML=''; const OPTIONS = [['person','人物'],['scene','场景'],['world','世界'],['newdoc','新建'],['novel','小说'],['focus','专注'],['settings','设置']]; const cur = new Set(getShortcuts()); for (const [key,label] of OPTIONS){ const chip = createEl('button','chip'); chip.textContent = label; chip.dataset.action = key; chip.classList.toggle('active', cur.has(key)); chip.addEventListener('click', ()=>{ chip.classList.toggle('active'); }); checks.appendChild(chip); } }
-        function saveBarPrefs(){ const syms = $('#symbolsInput').value.trim().split(/\s+/).filter(Boolean); saveSymbols(syms.slice(0,24)); const sel = Array.from($('#shortcutChecks').querySelectorAll('.chip.active')).map(c=>c.dataset.action); saveShortcuts(sel.slice(0,10)); renderSymbolBar(); renderShortcutBar(); showSnack('已保存自定义栏'); }
+        function loadSymbolsPrefIntoUI(){ $('#symbolsInput').value = getSymbols().join(' '); }
+        function saveBarPrefs(){ const syms = $('#symbolsInput').value.trim().split(/\s+/).filter(Boolean); saveSymbols(syms.slice(0,24)); renderSymbolBar(); showSnack('已保存符号栏'); }
 
         // Bindings
         function bindGlobal(){
             // Sidebar
             $('#menuToggle').addEventListener('click', () => { sidebar.classList.toggle('show'); overlay.style.display = sidebar.classList.contains('show') ? 'block' : 'none'; });
             overlay.addEventListener('click', () => { sidebar.classList.remove('show'); overlay.style.display = 'none'; });
-            $('#themeToggle').addEventListener('click', () => { const cur = loadTheme(); const next = (cur === 'dark') ? 'light' : 'dark'; saveTheme(next); applyTheme(next); showSnack('主题：' + (next === 'dark' ? '暗黑' : '明亮')); });
+            $('#themeToggle').addEventListener('click', () => { const cur = loadTheme(); const next = (cur === 'dark') ? 'light' : (cur === 'light' ? 'sepia' : (cur === 'sepia' ? 'eye' : 'dark')); saveTheme(next); applyTheme(next); showSnack('主题：' + (next === 'dark' ? '暗黑' : next === 'light' ? '明亮' : next === 'sepia' ? '古风' : '护眼')); });
 
             // Tools
             $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
@@ -711,6 +728,16 @@
             titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
             editor.addEventListener('input', () => { markSaved(false); updateWordStats(); persist(); });
 
+            // Enter to jump out from paired symbols when cursor between them
+            editor.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                const val = editor.value; const pos = editor.selectionStart; if (pos !== editor.selectionEnd) return;
+                if (pos <= 0 || pos >= val.length) return;
+                const next = val[pos]; const prev = val[pos-1];
+                const pairs = new Map([[')','('],[']','['],['}','{'],['”','“'],['’','‘'],['」','「'],['》','《'],['）','（'],['"','"'],['\'','\'']]);
+                if (pairs.has(next) && pairs.get(next) === prev) { e.preventDefault(); editor.selectionStart = editor.selectionEnd = pos + 1; editor.focus(); }
+            });
+
             // Keyboard shortcuts (mobile safe)
             document.addEventListener('keydown', (e) => { const mod = e.ctrlKey || e.metaKey; if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveNow(); showSnack('已保存'); } if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#searchInput').focus(); } }, { passive: false });
 
@@ -719,8 +746,8 @@
         }
 
         // Boot
-        function initBars(){ renderSymbolBar(); renderShortcutBar(); }
-        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); initBars();
+        function initBar(){ renderSymbolBar(); }
+        bindGlobal(); renderTree(); selectDoc(currentDocId || docs[0].id); updateWordStats(); initBar();
     </script>
 </body>
 </html>
