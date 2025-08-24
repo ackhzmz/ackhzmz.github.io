@@ -16,6 +16,11 @@
       --danger: #ef4444;
       --ok: #16a34a;
       --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.06);
+      --editor-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --editor-size: 16px;
+      --editor-line-height: 1.7;
+      --editor-max-width: 860px;
+      --editor-paragraph-gap: 10px;
     }
     .dark {
       --bg: #0b0f14;
@@ -49,13 +54,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-bottom: 1px solid var(--border);
       background: var(--bg-elev);
       box-shadow: var(--shadow);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
     }
 
     .brand {
@@ -69,8 +74,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      height: 32px;
-      padding: 0 12px;
+      height: 30px;
+      padding: 0 10px;
       border: 1px solid var(--border);
       border-radius: 8px;
       background: transparent;
@@ -82,12 +87,13 @@
     .btn.primary:hover { background: var(--primary-600); }
     .btn.danger { border-color: transparent; background: rgba(239, 68, 68, 0.12); color: var(--danger); }
     .btn.ghost { border-color: transparent; }
+    .btn.icon { width: 30px; justify-content: center; padding: 0; }
 
     .layout {
       display: grid;
       grid-template-columns: 300px 1fr;
       min-height: 0;
-      height: calc(100vh - 58px);
+      height: calc(100vh - 50px);
     }
 
     aside {
@@ -95,6 +101,7 @@
       min-height: 0;
       display: flex;
       flex-direction: column;
+      background: var(--bg);
     }
 
     .aside-header {
@@ -106,7 +113,7 @@
 
     .search-input {
       width: 100%;
-      height: 32px;
+      height: 30px;
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0 10px;
@@ -126,7 +133,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 10px;
+      padding: 8px 10px;
       border: 1px solid transparent;
       border-radius: 8px;
       cursor: grab;
@@ -140,6 +147,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .chapter-actions { display: none; gap: 6px; }
+    .chapter-item:hover .chapter-actions { display: inline-flex; }
     .drag-hint { color: var(--muted); font-size: 12px; }
 
     main {
@@ -147,14 +156,16 @@
       min-height: 0;
       display: grid;
       grid-template-rows: auto auto 1fr auto;
+      position: relative;
     }
 
     .novel-title-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 16px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--border);
+      background: var(--bg);
     }
     .novel-title {
       font-size: 18px;
@@ -172,19 +183,28 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 16px;
+      padding: 8px 16px;
       border-bottom: 1px solid var(--border);
+      background: var(--bg-elev);
     }
 
     .editor {
-      padding: 10px 16px 16px 16px;
+      padding: 10px 0 0 0;
       min-height: 0;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .editor-inner {
+      width: 100%;
+      max-width: var(--editor-max-width);
+      padding: 0 20px 16px 20px;
     }
 
     .chapter-name-input {
       width: 100%;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       padding: 8px 10px;
       border: 1px solid var(--border);
@@ -197,14 +217,18 @@
       margin-top: 12px;
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 14px 16px;
+      padding: 18px 20px;
       min-height: calc(100% - 80px);
       max-height: calc(100% - 80px);
       overflow: auto;
-      line-height: 1.7;
+      line-height: var(--editor-line-height);
       outline: none;
       background: var(--bg-elev);
+      font-family: var(--editor-font);
+      font-size: var(--editor-size);
+      white-space: pre-wrap;
     }
+    .content p { margin: 0 0 var(--editor-paragraph-gap) 0; }
 
     .footer {
       display: flex;
@@ -216,12 +240,89 @@
       background: var(--bg-elev);
       font-size: 12px;
       color: var(--muted);
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
     }
 
     .counts { display: flex; gap: 14px; align-items: center; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
 
     .hidden { display: none; }
+
+    /* Drawers & overlays */
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(460px, 90vw);
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transform: translateX(100%);
+      transition: transform 0.2s ease;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer header { position: sticky; top: 0; z-index: 1; }
+    .drawer-body { padding: 12px; overflow: auto; }
+
+    .toast-wrap {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: grid;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--bg-elev);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+    }
+
+    .inline-banner {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      background: rgba(59,130,246,0.1);
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .inline-banner.show { display: flex; }
+
+    /* Find/replace panel */
+    .find-panel {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 8px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 25;
+    }
+    .find-panel input { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; background: transparent; color: var(--text); }
+
+    /* Immersive/focus/typewriter */
+    .immersive aside, .immersive .novel-title-row, .immersive .chapter-toolbar, .immersive .footer { display: none; }
+    .immersive .layout { grid-template-columns: 1fr; }
 
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
@@ -234,10 +335,15 @@
     <header>
       <div class="brand">📖 小说写作应用</div>
       <div class="spacer"></div>
-      <button class="btn" id="btn-import">导入JSON</button>
-      <button class="btn" id="btn-export-txt">导出TXT</button>
-      <button class="btn" id="btn-export-json">导出JSON</button>
+      <button class="btn" id="btn-import" title="导入JSON">导入</button>
+      <button class="btn" id="btn-export-txt" title="导出为TXT">导出TXT</button>
+      <button class="btn" id="btn-export-json" title="导出为JSON">导出JSON</button>
+      <button class="btn" id="btn-find" title="查找/替换 (Ctrl+F)">查找</button>
+      <button class="btn" id="btn-history" title="版本历史">历史</button>
+      <button class="btn" id="btn-trash" title="回收站">回收站</button>
+      <button class="btn" id="btn-prefs" title="偏好设置">偏好</button>
       <button class="btn" id="btn-theme">切换主题</button>
+      <button class="btn" id="btn-help" title="快捷键">?</button>
     </header>
 
     <div class="layout">
@@ -251,21 +357,33 @@
       </aside>
 
       <main>
+        <div class="inline-banner" id="banner">
+          <span id="banner-text">已移动到回收站</span>
+          <button class="btn" id="banner-action">撤销</button>
+        </div>
         <div class="novel-title-row">
           <input id="novel-title" class="novel-title" placeholder="作品标题（可选）" />
           <div id="save-indicator" class="drag-hint">已保存</div>
+          <div class="spacer"></div>
+          <div class="drag-hint" id="goal-progress"></div>
         </div>
 
         <div class="chapter-toolbar">
-          <button id="btn-rename" class="btn">重命名章节</button>
-          <button id="btn-delete" class="btn danger">删除章节</button>
+          <button id="btn-rename" class="btn">重命名</button>
+          <button id="btn-duplicate" class="btn">复制章节</button>
+          <button id="btn-merge-prev" class="btn">与上合并</button>
+          <button id="btn-merge-next" class="btn">与下合并</button>
+          <button id="btn-split" class="btn">在光标处分章</button>
+          <button id="btn-delete" class="btn danger">移至回收站</button>
           <div class="spacer"></div>
           <div id="active-chapter-name" class="drag-hint"></div>
         </div>
 
         <div class="editor">
-          <input id="chapter-name" class="chapter-name-input" placeholder="章节名" />
-          <div id="content" class="content" contenteditable="true" spellcheck="false" placeholder="开始写作吧..."></div>
+          <div class="editor-inner">
+            <input id="chapter-name" class="chapter-name-input" placeholder="章节名" />
+            <div id="content" class="content" contenteditable="true" spellcheck="false" placeholder="开始写作吧..."></div>
+          </div>
         </div>
 
         <div class="footer">
@@ -274,6 +392,7 @@
             <span>总字数：<strong id="total-words">0</strong></span>
             <span>本章字符：<strong id="chapter-chars">0</strong></span>
             <span>预计阅读：<strong id="reading-mins">0</strong> 分钟</span>
+            <span>今日进度：<strong id="today-words">0</strong></span>
           </div>
           <div>
             <span class="status-dot" title="自动保存状态"></span>
@@ -286,17 +405,117 @@
 
   <input id="file-input" type="file" accept="application/json" class="hidden" />
 
+  <!-- Drawers -->
+  <section class="drawer" id="drawer-prefs" aria-label="偏好设置">
+    <header class="aside-header">
+      <div class="brand">偏好设置</div>
+      <div class="spacer"></div>
+      <button class="btn" data-close-drawer="drawer-prefs">关闭</button>
+    </header>
+    <div class="drawer-body">
+      <div style="display:grid;gap:12px;">
+        <label>字体
+          <select id="pref-font" class="search-input">
+            <option value="sans">无衬线</option>
+            <option value="serif">衬线</option>
+            <option value="mono">等宽</option>
+          </select>
+        </label>
+        <label>字号
+          <input id="pref-size" type="range" min="14" max="22" value="16" />
+        </label>
+        <label>行高
+          <input id="pref-line" type="range" min="1.4" max="2.2" step="0.05" value="1.7" />
+        </label>
+        <label>编辑器最大宽度
+          <input id="pref-width" type="range" min="600" max="1200" step="10" value="860" />
+        </label>
+        <label>目标字数
+          <input id="pref-goal" type="number" min="0" step="100" placeholder="如 2000" class="search-input" />
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input id="pref-immersive" type="checkbox" /> 沉浸模式
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input id="pref-typewriter" type="checkbox" /> 打字机模式（保持光标居中）
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="drawer" id="drawer-history" aria-label="版本历史">
+    <header class="aside-header">
+      <div class="brand">版本历史</div>
+      <div class="spacer"></div>
+      <button class="btn" id="btn-snapshot">保存快照</button>
+      <button class="btn" data-close-drawer="drawer-history">关闭</button>
+    </header>
+    <div class="drawer-body">
+      <div id="history-list" style="display:grid;gap:8px;"></div>
+    </div>
+  </section>
+
+  <section class="drawer" id="drawer-trash" aria-label="回收站">
+    <header class="aside-header">
+      <div class="brand">回收站</div>
+      <div class="spacer"></div>
+      <button class="btn" id="btn-empty-trash" class="danger">清空</button>
+      <button class="btn" data-close-drawer="drawer-trash">关闭</button>
+    </header>
+    <div class="drawer-body">
+      <div id="trash-list" style="display:grid;gap:8px;"></div>
+    </div>
+  </section>
+
+  <!-- Find/replace panel -->
+  <div class="find-panel" id="find-panel">
+    <input id="find-input" placeholder="查找..." />
+    <input id="replace-input" placeholder="替换为..." />
+    <button class="btn" id="btn-find-prev">上一个</button>
+    <button class="btn" id="btn-find-next">下一个</button>
+    <button class="btn" id="btn-replace-one">替换</button>
+    <button class="btn" id="btn-replace-all">全部替换</button>
+    <button class="btn" id="btn-find-close">关闭</button>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <!-- Help overlay -->
+  <section class="drawer" id="drawer-help" aria-label="快捷键">
+    <header class="aside-header">
+      <div class="brand">快捷键</div>
+      <div class="spacer"></div>
+      <button class="btn" data-close-drawer="drawer-help">关闭</button>
+    </header>
+    <div class="drawer-body">
+      <ul>
+        <li>Ctrl+S：保存</li>
+        <li>Ctrl+N：新建章节</li>
+        <li>Alt+↑/↓：切换章节</li>
+        <li>Ctrl+F：查找/替换</li>
+        <li>Ctrl+/：显示快捷键</li>
+      </ul>
+    </div>
+  </section>
+
   <script>
     (function() {
-      const STORAGE_KEY = 'novelWriterStateV1';
+      const STORAGE_KEY = 'novelWriterStateV2';
       const THEME_KEY = 'novelWriterTheme';
 
-      /** @type {{ novelTitle: string, chapters: Array<{id:string,title:string,content:string}>, activeId: string|null }} */
+      /**
+       * @typedef {{ id:string, title:string, content:string, createdAt:number, updatedAt:number, history:Array<{id:string, ts:number, title:string, content:string}>, lastSnapshotTs?:number }} Chapter
+       * @typedef {{ novelTitle:string, chapters:Chapter[], activeId:string|null, trash:Chapter[], preferences:any, today:any }} State
+       */
+      /** @type {State} */
       let state = null;
       let isSaving = false;
       let saveTimer = null;
       let filterKeyword = '';
       let dragFromIndex = null;
+      let findState = { index: -1 };
+      let pendingUndo = null;
 
       const $ = sel => document.querySelector(sel);
       const $$ = sel => Array.from(document.querySelectorAll(sel));
@@ -306,6 +525,10 @@
         chapterSearch: $('#chapter-search'),
         newChapter: $('#btn-new-chapter'),
         rename: $('#btn-rename'),
+        duplicate: $('#btn-duplicate'),
+        mergePrev: $('#btn-merge-prev'),
+        mergeNext: $('#btn-merge-next'),
+        split: $('#btn-split'),
         del: $('#btn-delete'),
         content: $('#content'),
         chapterName: $('#chapter-name'),
@@ -315,6 +538,7 @@
         totalWords: $('#total-words'),
         chapterChars: $('#chapter-chars'),
         readingMins: $('#reading-mins'),
+        todayWords: $('#today-words'),
         statusText: $('#status-text'),
         btnImport: $('#btn-import'),
         btnExportTxt: $('#btn-export-txt'),
@@ -322,6 +546,40 @@
         btnTheme: $('#btn-theme'),
         fileInput: $('#file-input'),
         activeChapterName: $('#active-chapter-name'),
+        findPanel: $('#find-panel'),
+        findInput: $('#find-input'),
+        replaceInput: $('#replace-input'),
+        btnFind: $('#btn-find'),
+        btnFindPrev: $('#btn-find-prev'),
+        btnFindNext: $('#btn-find-next'),
+        btnReplaceOne: $('#btn-replace-one'),
+        btnReplaceAll: $('#btn-replace-all'),
+        btnFindClose: $('#btn-find-close'),
+        drawerPrefs: $('#drawer-prefs'),
+        drawerHistory: $('#drawer-history'),
+        drawerTrash: $('#drawer-trash'),
+        drawerHelp: $('#drawer-help'),
+        btnPrefs: $('#btn-prefs'),
+        btnHistory: $('#btn-history'),
+        btnTrash: $('#btn-trash'),
+        btnHelp: $('#btn-help'),
+        toastWrap: $('#toast-wrap'),
+        banner: $('#banner'),
+        bannerText: $('#banner-text'),
+        bannerAction: $('#banner-action'),
+        historyList: $('#history-list'),
+        trashList: $('#trash-list'),
+        btnEmptyTrash: $('#btn-empty-trash'),
+        btnSnapshot: $('#btn-snapshot'),
+        goalProgress: $('#goal-progress'),
+        // preferences controls
+        prefFont: $('#pref-font'),
+        prefSize: $('#pref-size'),
+        prefLine: $('#pref-line'),
+        prefWidth: $('#pref-width'),
+        prefGoal: $('#pref-goal'),
+        prefImmersive: $('#pref-immersive'),
+        prefTypewriter: $('#pref-typewriter'),
       };
 
       function initTheme() {
@@ -335,41 +593,78 @@
         const dark = !document.documentElement.classList.contains('dark');
         document.documentElement.classList.toggle('dark', dark);
         localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+        showToast(dark ? '已切换到深色主题' : '已切换到浅色主题');
       }
 
-      function generateId() {
-        return 'c_' + Math.random().toString(36).slice(2, 10);
+      function generateId(prefix = 'c') {
+        return prefix + '_' + Math.random().toString(36).slice(2, 10);
       }
 
       function defaultState() {
         const firstId = generateId();
+        const now = Date.now();
         return {
           novelTitle: '',
           chapters: [
-            { id: firstId, title: '第一章', content: '' },
+            { id: firstId, title: '第一章', content: '', createdAt: now, updatedAt: now, history: [] },
           ],
           activeId: firstId,
+          trash: [],
+          preferences: {
+            font: 'sans', size: 16, line: 1.7, width: 860, immersive: false, typewriter: false, goal: 0,
+          },
+          today: { date: dateKey(now), wordsAdded: 0 },
+        };
+      }
+
+      function dateKey(ts) { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+      function migrateV1ToV2(v1) {
+        const now = Date.now();
+        const chapters = (v1.chapters || []).map(ch => ({ id: ch.id || generateId(), title: ch.title || '未命名章节', content: String(ch.content||''), createdAt: now, updatedAt: now, history: [] }));
+        return {
+          novelTitle: String(v1.novelTitle||''),
+          chapters: chapters.length ? chapters : defaultState().chapters,
+          activeId: v1.activeId || (chapters[0] && chapters[0].id),
+          trash: [],
+          preferences: { font: 'sans', size: 16, line: 1.7, width: 860, immersive: false, typewriter: false, goal: 0 },
+          today: { date: dateKey(now), wordsAdded: 0 },
         };
       }
 
       function loadState() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return defaultState();
-          const parsed = JSON.parse(raw);
-          if (!parsed.chapters || !Array.isArray(parsed.chapters) || parsed.chapters.length === 0) {
-            return defaultState();
-          }
-          return parsed;
+          const rawV2 = localStorage.getItem('novelWriterStateV2');
+          if (rawV2) return JSON.parse(rawV2);
+          const rawV1 = localStorage.getItem('novelWriterStateV1');
+          if (rawV1) return migrateV1ToV2(JSON.parse(rawV1));
+          return defaultState();
         } catch (e) {
           console.warn('解析存档失败，已重置', e);
           return defaultState();
         }
       }
 
-      function setStatus(text) {
-        el.statusText.textContent = text;
+      function setStatus(text) { el.statusText.textContent = text; }
+
+      function showToast(text) {
+        const d = document.createElement('div');
+        d.className = 'toast';
+        d.textContent = text;
+        el.toastWrap.appendChild(d);
+        setTimeout(() => { d.remove(); }, 2000);
       }
+
+      function showBanner(text, actionText, onAction) {
+        el.bannerText.textContent = text;
+        el.banner.classList.add('show');
+        const handler = () => { onAction && onAction(); hideBanner(); };
+        el.bannerAction.textContent = actionText || '确定';
+        el.bannerAction.onclick = handler;
+        // Auto hide after 6s
+        setTimeout(() => hideBanner(), 6000);
+      }
+      function hideBanner() { el.banner.classList.remove('show'); el.bannerAction.onclick = null; }
 
       function scheduleSave(reason) {
         if (saveTimer) clearTimeout(saveTimer);
@@ -391,7 +686,6 @@
       }
 
       function computeWordCount(text) {
-        // 中文按字符计数，英文按单词分隔
         const onlySpaces = (text || '').replace(/\s+/g, '');
         const chineseChars = (onlySpaces.match(/[\u4e00-\u9fa5]/g) || []).length;
         const nonChinese = onlySpaces.replace(/[\u4e00-\u9fa5]/g, ' ').trim();
@@ -405,18 +699,28 @@
         const chapterWords = computeWordCount(chapterText);
         const chapterChars = chapterText.length;
         const totalWords = state.chapters.reduce((sum, ch) => sum + computeWordCount(ch.content), 0);
-        const readingMins = Math.max(1, Math.round(totalWords / 500)); // 粗略估计：500字/分钟
+        const readingMins = Math.max(1, Math.round(totalWords / 500));
 
         el.chapterWords.textContent = chapterWords;
         el.chapterChars.textContent = chapterChars;
         el.totalWords.textContent = totalWords;
         el.readingMins.textContent = readingMins;
         el.activeChapterName.textContent = active ? `当前：${active.title}` : '';
+
+        const todayKey = dateKey(Date.now());
+        if (state.today.date !== todayKey) state.today = { date: todayKey, wordsAdded: 0 };
+        el.todayWords.textContent = state.today.wordsAdded;
+
+        const g = state.preferences.goal || 0;
+        if (g > 0) {
+          const pct = Math.min(100, Math.round(state.today.wordsAdded / g * 100));
+          el.goalProgress.textContent = `今日目标 ${state.today.wordsAdded}/${g}（${pct}%）`;
+        } else {
+          el.goalProgress.textContent = '';
+        }
       }
 
-      function getActiveChapter() {
-        return state.chapters.find(c => c.id === state.activeId) || null;
-      }
+      function getActiveChapter() { return state.chapters.find(c => c.id === state.activeId) || null; }
 
       function setActiveChapter(id) {
         state.activeId = id;
@@ -448,8 +752,15 @@
           title.className = 'chapter-title';
           title.textContent = item.title || '未命名章节';
 
+          const actions = document.createElement('div');
+          actions.className = 'chapter-actions';
+          const btnDup = document.createElement('button'); btnDup.className = 'btn ghost'; btnDup.textContent = '复制'; btnDup.onclick = (e)=>{e.stopPropagation();duplicateChapter(item.id)};
+          const btnDel = document.createElement('button'); btnDel.className = 'btn ghost'; btnDel.textContent = '删除'; btnDel.onclick = (e)=>{e.stopPropagation();moveToTrash(item.id)};
+          actions.append(btnDup, btnDel);
+
           li.appendChild(dot);
           li.appendChild(title);
+          li.appendChild(actions);
 
           li.addEventListener('click', () => setActiveChapter(item.id));
 
@@ -488,48 +799,168 @@
         if (!ch) return;
         el.chapterName.value = ch.title || '';
         el.content.innerHTML = '';
-        // 保留换行
         el.content.textContent = ch.content || '';
         computeStats();
+        applyPrefsToVars();
       }
 
       function addChapter() {
         const id = generateId();
         const idx = state.chapters.length + 1;
         const title = `第${idx}章`;
-        state.chapters.push({ id, title, content: '' });
+        const now = Date.now();
+        state.chapters.push({ id, title, content: '', createdAt: now, updatedAt: now, history: [] });
         state.activeId = id;
         renderSidebar();
         renderEditor();
         scheduleSave('add-chapter');
+        showToast('已创建新章节');
       }
 
-      function renameChapter() {
-        const active = getActiveChapter();
-        if (!active) return;
-        const name = prompt('输入新的章节名：', active.title || '');
-        if (name === null) return;
-        active.title = name.trim() || '未命名章节';
-        el.chapterName.value = active.title;
+      function duplicateChapter(id = null) {
+        const srcId = id || state.activeId; const src = state.chapters.find(c=>c.id===srcId); if(!src) return;
+        const now = Date.now();
+        const dup = { id: generateId(), title: src.title + '（副本）', content: src.content, createdAt: now, updatedAt: now, history: [] };
+        const idx = state.chapters.findIndex(c=>c.id===srcId);
+        state.chapters.splice(idx+1, 0, dup);
+        state.activeId = dup.id;
+        renderSidebar(); renderEditor(); scheduleSave('duplicate');
+        showToast('已复制章节');
+      }
+
+      function renameChapterInline() {
+        const active = getActiveChapter(); if (!active) return;
+        active.title = el.chapterName.value.trim() || '未命名章节';
+        active.updatedAt = Date.now();
         renderSidebar();
-        scheduleSave('rename');
+        scheduleSave('rename-inline');
       }
 
-      function deleteChapter() {
-        const active = getActiveChapter();
-        if (!active) return;
-        if (state.chapters.length <= 1) {
-          alert('至少保留一个章节。');
-          return;
+      function mergeWithPrev() {
+        const idx = state.chapters.findIndex(c=>c.id===state.activeId); if (idx<=0) { showToast('无法与上一章合并'); return; }
+        const prev = state.chapters[idx-1]; const cur = state.chapters[idx];
+        prev.content = (prev.content + (prev.content?"\n\n":"") + cur.content).trim();
+        prev.updatedAt = Date.now();
+        state.chapters.splice(idx,1);
+        state.activeId = prev.id;
+        renderSidebar(); renderEditor(); scheduleSave('merge-prev');
+        showToast('已与上一章合并');
+      }
+
+      function mergeWithNext() {
+        const idx = state.chapters.findIndex(c=>c.id===state.activeId); if (idx<0||idx>=state.chapters.length-1) { showToast('无法与下一章合并'); return; }
+        const cur = state.chapters[idx]; const next = state.chapters[idx+1];
+        cur.content = (cur.content + (cur.content?"\n\n":"") + next.content).trim();
+        cur.updatedAt = Date.now();
+        state.chapters.splice(idx+1,1);
+        renderSidebar(); renderEditor(); scheduleSave('merge-next');
+        showToast('已与下一章合并');
+      }
+
+      function getCaretIndexInContent() {
+        const sel = window.getSelection(); if (!sel || sel.rangeCount===0) return 0;
+        const range = sel.getRangeAt(0);
+        // Compute index by iterating text nodes
+        let index = 0; let found = false;
+        function walk(node) {
+          if (found) return;
+          if (node === range.startContainer) { index += range.startOffset; found = true; return; }
+          if (node.nodeType === Node.TEXT_NODE) { index += node.nodeValue.length; }
+          else { for (const child of node.childNodes) walk(child); }
         }
-        if (!confirm(`确认删除章节：“${active.title}”？`)) return;
-        const idx = state.chapters.findIndex(c => c.id === active.id);
-        state.chapters.splice(idx, 1);
-        const next = state.chapters[Math.max(0, idx - 1)] || state.chapters[0];
-        state.activeId = next.id;
-        renderSidebar();
-        renderEditor();
-        scheduleSave('delete');
+        walk(el.content);
+        return index;
+      }
+
+      function splitAtCursor() {
+        const ch = getActiveChapter(); if(!ch) return;
+        const idx = getCaretIndexInContent();
+        const text = el.content.textContent || '';
+        if (idx<=0 || idx>=text.length) { showToast('将光标放在需要分章的位置'); return; }
+        const left = text.slice(0, idx).trimEnd();
+        const right = text.slice(idx).trimStart();
+        ch.content = left; ch.updatedAt = Date.now();
+        const now = Date.now();
+        const newCh = { id: generateId(), title: ch.title + '（下）', content: right, createdAt: now, updatedAt: now, history: [] };
+        const i = state.chapters.findIndex(c=>c.id===ch.id);
+        state.chapters.splice(i+1,0,newCh);
+        state.activeId = newCh.id;
+        renderSidebar(); renderEditor(); scheduleSave('split');
+        showToast('已分章');
+      }
+
+      function moveToTrash(id = null) {
+        const cid = id || state.activeId; const idx = state.chapters.findIndex(c=>c.id===cid); if (idx<0) return;
+        const removed = state.chapters.splice(idx,1)[0];
+        state.trash.unshift({ ...removed });
+        // choose next active
+        const next = state.chapters[Math.max(0, idx-1)] || state.chapters[0] || null;
+        state.activeId = next ? next.id : null;
+        renderSidebar(); renderEditor(); scheduleSave('trash');
+        pendingUndo = () => {
+          // restore from trash front
+          const tIdx = state.trash.findIndex(t=>t.id===removed.id);
+          if (tIdx>=0) {
+            const restored = state.trash.splice(tIdx,1)[0];
+            state.chapters.splice(Math.min(idx, state.chapters.length), 0, restored);
+            state.activeId = restored.id;
+            renderSidebar(); renderEditor(); scheduleSave('undo-trash');
+            showToast('已撤销删除');
+          }
+        };
+        showBanner(`已将“${removed.title}”移至回收站`, '撤销', () => pendingUndo && pendingUndo());
+      }
+
+      function restoreFromTrash(id) {
+        const i = state.trash.findIndex(t=>t.id===id); if(i<0) return;
+        const restored = state.trash.splice(i,1)[0];
+        state.chapters.push(restored); state.activeId = restored.id;
+        renderSidebar(); renderEditor(); scheduleSave('restore');
+        showToast('已从回收站恢复');
+      }
+
+      function emptyTrash() {
+        state.trash = [];
+        renderTrash(); scheduleSave('empty-trash');
+        showToast('回收站已清空');
+      }
+
+      function renderTrash() {
+        el.trashList.innerHTML = '';
+        if (state.trash.length===0) { el.trashList.textContent = '回收站为空'; return; }
+        for (const ch of state.trash) {
+          const row = document.createElement('div');
+          row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px';
+          const t = document.createElement('div'); t.style.flex='1'; t.textContent = ch.title;
+          const b1 = document.createElement('button'); b1.className='btn'; b1.textContent='恢复'; b1.onclick=()=>restoreFromTrash(ch.id);
+          const b2 = document.createElement('button'); b2.className='btn danger'; b2.textContent='彻底删除'; b2.onclick=()=>{ state.trash = state.trash.filter(x=>x.id!==ch.id); renderTrash(); scheduleSave('purge-one'); showToast('已删除'); };
+          row.append(t,b1,b2); el.trashList.appendChild(row);
+        }
+      }
+
+      function snapshotNow() {
+        const ch = getActiveChapter(); if(!ch) return;
+        const snap = { id: generateId('h'), ts: Date.now(), title: ch.title, content: ch.content };
+        ch.history.unshift(snap);
+        ch.lastSnapshotTs = Date.now();
+        scheduleSave('snapshot');
+        renderHistory();
+        showToast('已保存快照');
+      }
+
+      function renderHistory() {
+        const ch = getActiveChapter(); if(!ch) { el.historyList.textContent='无章节'; return; }
+        el.historyList.innerHTML = '';
+        if (!ch.history.length) { el.historyList.textContent = '暂无历史快照'; return; }
+        for (const h of ch.history) {
+          const row = document.createElement('div');
+          row.style.display='grid'; row.style.gridTemplateColumns='1fr auto auto'; row.style.gap='8px'; row.style.alignItems='center';
+          const ts = new Date(h.ts).toLocaleString();
+          const t = document.createElement('div'); t.textContent = `${ts} - ${h.title}`;
+          const view = document.createElement('button'); view.className='btn'; view.textContent='查看'; view.onclick=()=>{ el.content.textContent = h.content; ch.content = h.content; renderEditor(); showToast('已加载快照内容（未保存）'); };
+          const restore = document.createElement('button'); restore.className='btn primary'; restore.textContent='恢复'; restore.onclick=()=>{ ch.title = h.title; ch.content = h.content; el.chapterName.value = ch.title; renderEditor(); scheduleSave('restore-snap'); showToast('已恢复到该快照'); };
+          row.append(t, view, restore); el.historyList.appendChild(row);
+        }
       }
 
       function exportJSON() {
@@ -541,6 +972,7 @@
         a.download = `${title}.novel.json`;
         a.click();
         URL.revokeObjectURL(url);
+        showToast('已导出 JSON');
       }
 
       function exportTXT() {
@@ -556,6 +988,7 @@
         a.download = (state.novelTitle ? state.novelTitle : 'novel') + '.txt';
         a.click();
         URL.revokeObjectURL(url);
+        showToast('已导出 TXT');
       }
 
       function importJSONFile(file) {
@@ -571,46 +1004,89 @@
                 id: String(ch.id || generateId()),
                 title: String(ch.title || '未命名章节'),
                 content: String(ch.content || ''),
+                createdAt: Number(ch.createdAt || Date.now()),
+                updatedAt: Number(ch.updatedAt || Date.now()),
+                history: Array.isArray(ch.history) ? ch.history : [],
               })),
               activeId: String(obj.activeId || obj.chapters[0].id || obj.chapters[0].title || generateId()),
+              trash: Array.isArray(obj.trash) ? obj.trash : [],
+              preferences: Object.assign({ font:'sans', size:16, line:1.7, width:860, immersive:false, typewriter:false, goal:0 }, obj.preferences || {}),
+              today: obj.today && obj.today.date ? obj.today : { date: dateKey(Date.now()), wordsAdded: 0 },
             };
             renderSidebar();
             renderEditor();
             scheduleSave('import');
-            alert('导入成功');
+            showToast('导入成功');
           } catch (e) {
-            alert('导入失败：' + e.message);
+            showToast('导入失败');
           }
         };
         reader.readAsText(file, 'utf-8');
       }
 
       function onContentChanged() {
-        const active = getActiveChapter();
-        if (!active) return;
+        const active = getActiveChapter(); if (!active) return;
+        const beforeLen = active.content.length;
         active.content = el.content.textContent || '';
+        active.updatedAt = Date.now();
+        const delta = active.content.length - beforeLen;
+        if (delta > 0) {
+          const todayKey = dateKey(Date.now());
+          if (state.today.date !== todayKey) state.today = { date: todayKey, wordsAdded: 0 };
+          state.today.wordsAdded += computeWordCount(active.content.slice(Math.max(0, active.content.length - delta)));
+        }
         computeStats();
         scheduleSave('edit');
+        if (state.preferences.typewriter) centerCaret();
       }
 
-      function onChapterNameChanged() {
-        const active = getActiveChapter();
-        if (!active) return;
-        active.title = el.chapterName.value;
-        renderSidebar();
-        computeStats();
-        scheduleSave('rename-inline');
+      function centerCaret() {
+        const sel = window.getSelection(); if (!sel || sel.rangeCount===0) return;
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const containerRect = el.content.getBoundingClientRect();
+        if (!rect || !rect.height) return;
+        const offset = (rect.top + rect.bottom) / 2 - (containerRect.top + containerRect.bottom) / 2;
+        el.content.scrollTop += offset;
       }
 
-      function onNovelTitleChanged() {
-        state.novelTitle = el.novelTitle.value;
-        scheduleSave('title');
+      function onChapterNameChanged() { renameChapterInline(); }
+
+      function onNovelTitleChanged() { state.novelTitle = el.novelTitle.value; scheduleSave('title'); }
+
+      function openDrawer(d) { d.classList.add('open'); }
+      function closeDrawer(d) { d.classList.remove('open'); }
+
+      function applyPrefsToVars() {
+        const p = state.preferences;
+        document.documentElement.style.setProperty('--editor-size', p.size + 'px');
+        document.documentElement.style.setProperty('--editor-line-height', String(p.line));
+        document.documentElement.style.setProperty('--editor-max-width', p.width + 'px');
+        if (p.font==='serif') document.documentElement.style.setProperty('--editor-font', 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif');
+        else if (p.font==='mono') document.documentElement.style.setProperty('--editor-font', 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace');
+        else document.documentElement.style.setProperty('--editor-font', 'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial');
+        document.body.classList.toggle('immersive', !!p.immersive);
+      }
+
+      function syncPrefsUI() {
+        const p = state.preferences;
+        el.prefFont.value = p.font;
+        el.prefSize.value = p.size;
+        el.prefLine.value = p.line;
+        el.prefWidth.value = p.width;
+        el.prefGoal.value = p.goal || '';
+        el.prefImmersive.checked = !!p.immersive;
+        el.prefTypewriter.checked = !!p.typewriter;
       }
 
       function setupEvents() {
         el.newChapter.addEventListener('click', addChapter);
-        el.rename.addEventListener('click', renameChapter);
-        el.del.addEventListener('click', deleteChapter);
+        el.rename.addEventListener('click', () => el.chapterName.focus());
+        el.duplicate.addEventListener('click', () => duplicateChapter());
+        el.mergePrev.addEventListener('click', mergeWithPrev);
+        el.mergeNext.addEventListener('click', mergeWithNext);
+        el.split.addEventListener('click', splitAtCursor);
+        el.del.addEventListener('click', () => moveToTrash());
 
         el.btnExportJson.addEventListener('click', exportJSON);
         el.btnExportTxt.addEventListener('click', exportTXT);
@@ -632,32 +1108,112 @@
 
         el.btnTheme.addEventListener('click', toggleTheme);
 
+        // Drawers
+        el.btnPrefs.addEventListener('click', () => { syncPrefsUI(); openDrawer(el.drawerPrefs); });
+        el.btnHistory.addEventListener('click', () => { renderHistory(); openDrawer(el.drawerHistory); });
+        el.btnTrash.addEventListener('click', () => { renderTrash(); openDrawer(el.drawerTrash); });
+        el.btnHelp.addEventListener('click', () => openDrawer(el.drawerHelp));
+        $$('[data-close-drawer]').forEach(b=> b.addEventListener('click', (e)=>{ const id = e.currentTarget.getAttribute('data-close-drawer'); const d = document.getElementById(id); if(d) closeDrawer(d); }));
+
+        el.btnEmptyTrash.addEventListener('click', emptyTrash);
+        el.btnSnapshot.addEventListener('click', snapshotNow);
+
+        // Find/replace
+        function toggleFind(show) { el.findPanel.style.display = show ? 'flex' : 'none'; if (show) el.findInput.focus(); }
+        el.btnFind.addEventListener('click', () => toggleFind(el.findPanel.style.display!== 'flex'));
+        el.btnFindClose.addEventListener('click', () => toggleFind(false));
+        el.btnFindNext.addEventListener('click', () => findNext());
+        el.btnFindPrev.addEventListener('click', () => findPrev());
+        el.btnReplaceOne.addEventListener('click', () => replaceOne());
+        el.btnReplaceAll.addEventListener('click', () => replaceAll());
+
+        // Prefs change
+        el.prefFont.addEventListener('change', () => { state.preferences.font = el.prefFont.value; applyPrefsToVars(); scheduleSave('pref-font'); });
+        el.prefSize.addEventListener('input', () => { state.preferences.size = Number(el.prefSize.value); applyPrefsToVars(); scheduleSave('pref-size'); });
+        el.prefLine.addEventListener('input', () => { state.preferences.line = Number(el.prefLine.value); applyPrefsToVars(); scheduleSave('pref-line'); });
+        el.prefWidth.addEventListener('input', () => { state.preferences.width = Number(el.prefWidth.value); applyPrefsToVars(); scheduleSave('pref-width'); });
+        el.prefGoal.addEventListener('input', () => { state.preferences.goal = Number(el.prefGoal.value||0); computeStats(); scheduleSave('pref-goal'); });
+        el.prefImmersive.addEventListener('change', () => { state.preferences.immersive = el.prefImmersive.checked; applyPrefsToVars(); scheduleSave('pref-immersive'); });
+        el.prefTypewriter.addEventListener('change', () => { state.preferences.typewriter = el.prefTypewriter.checked; scheduleSave('pref-typewriter'); });
+
         document.addEventListener('keydown', (e) => {
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-            e.preventDefault();
-            scheduleSave('shortcut');
-          }
-          if ((e.altKey || e.metaKey) && e.key === 'ArrowDown') {
-            e.preventDefault();
-            const idx = state.chapters.findIndex(c => c.id === state.activeId);
-            const next = state.chapters[idx + 1];
-            if (next) setActiveChapter(next.id);
-          }
-          if ((e.altKey || e.metaKey) && e.key === 'ArrowUp') {
-            e.preventDefault();
-            const idx = state.chapters.findIndex(c => c.id === state.activeId);
-            const prev = state.chapters[idx - 1];
-            if (prev) setActiveChapter(prev.id);
-          }
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
-            e.preventDefault();
-            addChapter();
-          }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); scheduleSave('shortcut'); showToast('已保存'); }
+          if ((e.altKey || e.metaKey) && e.key === 'ArrowDown') { e.preventDefault(); const idx = state.chapters.findIndex(c => c.id === state.activeId); const next = state.chapters[idx + 1]; if (next) setActiveChapter(next.id); }
+          if ((e.altKey || e.metaKey) && e.key === 'ArrowUp') { e.preventDefault(); const idx = state.chapters.findIndex(c => c.id === state.activeId); const prev = state.chapters[idx - 1]; if (prev) setActiveChapter(prev.id); }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') { e.preventDefault(); addChapter(); }
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); el.findPanel.style.display==='flex' ? el.findInput.focus() : (el.findPanel.style.display='flex', el.findInput.focus()); }
+          if ((e.ctrlKey || e.metaKey) && e.key === '/') { e.preventDefault(); openDrawer(el.drawerHelp); }
         });
 
-        window.addEventListener('beforeunload', () => {
-          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
-        });
+        window.addEventListener('beforeunload', () => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {} });
+      }
+
+      function findNext() { findCore(1); }
+      function findPrev() { findCore(-1); }
+      function findCore(dir) {
+        const text = el.content.textContent || '';
+        const q = el.findInput.value || '';
+        if (!q) return;
+        const idx = (findState.index < 0 ? -dir : findState.index) + dir;
+        const nextIndex = searchIndex(text, q, idx, dir);
+        if (nextIndex >= 0) { selectRangeInContent(nextIndex, q.length); findState.index = nextIndex; showToast(`已定位 (${nextIndex+1})`); }
+        else { showToast('没有更多结果'); }
+      }
+      function searchIndex(text, q, from, dir) {
+        if (dir > 0) return text.toLowerCase().indexOf(q.toLowerCase(), Math.max(0, from));
+        // backwards
+        const sub = text.toLowerCase().slice(0, Math.max(0, from));
+        return sub.lastIndexOf(q.toLowerCase());
+      }
+      function selectRangeInContent(start, length) {
+        const range = document.createRange();
+        let pos = 0; let foundStart = null; let foundNode = null;
+        function walk(node) {
+          if (foundNode) return;
+          if (node.nodeType === Node.TEXT_NODE) {
+            const len = node.nodeValue.length;
+            if (pos + len >= start && foundStart === null) {
+              foundStart = { node, offset: start - pos };
+            }
+            if (foundStart && pos + len >= start + length) {
+              foundNode = { node, offset: start + length - pos };
+            }
+            pos += len;
+          } else {
+            for (const child of node.childNodes) walk(child);
+          }
+        }
+        walk(el.content);
+        if (foundStart && foundNode) {
+          range.setStart(foundStart.node, foundStart.offset);
+          range.setEnd(foundNode.node, foundNode.offset);
+          const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+          el.content.focus();
+        }
+      }
+      function replaceOne() {
+        const q = el.findInput.value || ''; if (!q) return;
+        const r = el.replaceInput.value || '';
+        const text = el.content.textContent || '';
+        const start = findState.index >= 0 ? findState.index : text.toLowerCase().indexOf(q.toLowerCase());
+        if (start < 0) { showToast('未找到'); return; }
+        const before = text.slice(0, start);
+        const after = text.slice(start + q.length);
+        el.content.textContent = before + r + after;
+        onContentChanged();
+        findState.index = start + r.length; // next search from here
+        selectRangeInContent(findState.index, 0);
+      }
+      function replaceAll() {
+        const q = el.findInput.value || ''; if (!q) return;
+        const r = el.replaceInput.value || '';
+        const text = el.content.textContent || '';
+        const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        const replaced = text.replace(re, r);
+        el.content.textContent = replaced;
+        onContentChanged();
+        showToast('已全部替换');
+        findState.index = -1;
       }
 
       function boot() {
@@ -666,6 +1222,7 @@
         renderSidebar();
         renderEditor();
         setupEvents();
+        applyPrefsToVars();
         setStatus('已就绪');
       }
 
