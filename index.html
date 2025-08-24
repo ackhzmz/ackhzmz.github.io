@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>纯纯写作 · 小说创作工作台</title>
     <style>
         :root {
@@ -23,6 +23,7 @@
             --tree-indent: 18px;
             --hover-bg: rgba(127,127,127,0.06);
             --active-bg: rgba(74,134,232,0.12);
+            --mobile-bar-height: 56px;
         }
 
         [data-theme="dark"] {
@@ -210,10 +211,26 @@
         .num-input { width: 120px; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 6px 8px; border-radius: 8px; }
 
         /* Snackbar */
-        #snackbar { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 10px 14px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
+        #snackbar { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 10px 14px; box-shadow: var(--shadow-md); display: none; align-items: center; gap: 10px; z-index: 80; }
         #snackbar.show { display: inline-flex; animation: fadeup 180ms ease; }
         #snackbar .snack-action { color: var(--primary-color); cursor: pointer; }
         @keyframes fadeup { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+        /* Move-To Sheet */
+        #sheetOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 65; }
+        #moveSheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-md); transform: translateY(100%); transition: transform 0.25s ease; z-index: 70; }
+        #moveSheet.show { transform: translateY(0); }
+        .sheet-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+        .sheet-body { max-height: 48vh; overflow: auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+        .sheet-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; margin: 4px 8px; cursor: pointer; }
+        .sheet-row:hover { background: var(--hover-bg); }
+        .sheet-indent { width: 14px; }
+
+        /* Mobile Toolbar */
+        #mobileBar { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; padding-bottom: env(safe-area-inset-bottom); }
+        #mobileBar .row { height: var(--mobile-bar-height); display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 6px; }
+        #mobileBar .m-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-color); border-radius: 10px; font-size: 16px; }
+        #mobileBar .m-btn:active { background: var(--hover-bg); }
 
         /* Responsive */
         @media (max-width: 1024px) { :root { --sidebar-width: 260px; --editor-width: 680px; } }
@@ -226,6 +243,8 @@
             .toolbar { grid-template-columns: auto 1fr auto; gap: 6px; }
             .format-bar { display: none; }
             #settingsDrawer { width: 92vw; }
+            #mobileBar { display: block; }
+            #editor { padding-bottom: calc(28px + var(--mobile-bar-height) + env(safe-area-inset-bottom)); }
         }
     </style>
 </head>
@@ -342,8 +361,31 @@
         </div>
     </aside>
 
+    <!-- Move-To Sheet -->
+    <div id="sheetOverlay"></div>
+    <aside id="moveSheet">
+        <div class="sheet-header">
+            <span>移动到</span>
+            <button id="closeMoveSheet" class="icon-btn">✖</button>
+        </div>
+        <div id="moveSheetBody" class="sheet-body"></div>
+    </aside>
+
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
+
+    <!-- Mobile Toolbar -->
+    <nav id="mobileBar">
+        <div class="row">
+            <button class="m-btn" data-cmd="bold"><b>B</b></button>
+            <button class="m-btn" data-cmd="italic"><i>I</i></button>
+            <button class="m-btn" data-cmd="underline"><u>U</u></button>
+            <button class="m-btn" data-block="H2">H2</button>
+            <button class="m-btn" data-cmd="insertUnorderedList">•</button>
+            <button class="m-btn" id="mFocus">🎯</button>
+            <button class="m-btn" id="mSettings">⚙️</button>
+        </div>
+    </nav>
 
     <script>
         // Utilities
@@ -392,7 +434,8 @@
         let isSaving = false;
         let lastCharCountForProgress = 0;
         let draggedDocId = null;
-        let lastDeleted = null; // {doc, prevId}
+        let lastDeleted = null; // {doc}
+        let moveTargetDocId = null;
 
         // Elements
         const sidebar = $('#sidebar');
@@ -409,6 +452,9 @@
         const drawer = $('#settingsDrawer');
         const drawerOverlay = $('#drawerOverlay');
         const goalInput = $('#goalInput');
+        const sheet = $('#moveSheet');
+        const sheetOverlay = $('#sheetOverlay');
+        const sheetBody = $('#moveSheetBody');
 
         // Theme setup
         function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
@@ -417,7 +463,6 @@
         // Density setup
         function applyDensity(density) {
             document.body.dataset.density = density;
-            // simple density tuning via CSS vars
             if (density === 'compact') {
                 document.documentElement.style.setProperty('--editor-width', '720px');
             } else {
@@ -457,7 +502,7 @@
             // Root drop target
             const rootDrop = createEl('div', 'tree-root-drop');
             rootDrop.textContent = '拖动文档到此处移动到根目录';
-            rootDrop.addEventListener('dragover', (e) => { e.preventDefault(); rootDrop.classList.add('dragover'); });
+            rootDrop.addEventListener('dragover', (e) => { e.preventDefault(); rootDrop.classList.add('dragover'); }, { passive: false });
             rootDrop.addEventListener('dragleave', () => rootDrop.classList.remove('dragover'));
             rootDrop.addEventListener('drop', (e) => { e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId, null); });
             treeEl.appendChild(rootDrop);
@@ -489,7 +534,7 @@
                 actions.appendChild(addBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
 
                 row.appendChild(indent); row.appendChild(caret); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
-                row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('drop-target'); });
+                row.addEventListener('dragover', (e) => { e.preventDefault(); row.classList.add('drop-target'); }, { passive: false });
                 row.addEventListener('dragleave', () => row.classList.remove('drop-target'));
                 row.addEventListener('drop', (e) => { e.preventDefault(); row.classList.remove('drop-target'); moveDocToFolder(draggedDocId, folder.id); });
 
@@ -527,9 +572,11 @@
             const actions = createEl('div', 'node-actions');
             const starBtn = createEl('button', 'icon-btn'); starBtn.innerHTML = doc.starred ? '⭐' : '☆'; starBtn.title = doc.starred ? '取消收藏' : '收藏';
             starBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(doc.id); });
+            const moveBtn = createEl('button', 'icon-btn'); moveBtn.textContent = '↪️'; moveBtn.title = '移动到';
+            moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveSheet(doc.id); });
             const delBtn = createEl('button', 'icon-btn'); delBtn.textContent = '🗑️'; delBtn.title = '删除文档';
             delBtn.addEventListener('click', (e) => { e.stopPropagation(); softDeleteDoc(doc.id); });
-            actions.appendChild(starBtn); actions.appendChild(delBtn);
+            actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn);
 
             row.appendChild(indent); row.appendChild(icon); row.appendChild(title); row.appendChild(actions);
             row.addEventListener('click', () => selectDoc(doc.id));
@@ -570,6 +617,7 @@
             doc.updatedAt = Date.now();
             saveDocs(docs);
             renderTree($('#searchInput').value);
+            if (docId === currentDocId) showSnack('已移动到' + (folderId ? '选中文件夹' : '根目录'));
         }
 
         function softDeleteDoc(id) {
@@ -617,7 +665,6 @@
         }
 
         function deleteFolder(folderId) {
-            // move docs in folder to root, and reparent subfolders to its parent
             const folder = folders.find(f => f.id === folderId);
             if (!folder) return;
             const parentId = folder.parentId || null;
@@ -627,6 +674,39 @@
             saveDocs(docs); saveFolders(folders);
             showSnack('文件夹已删除（内容已上移）');
             renderTree($('#searchInput').value);
+        }
+
+        // Move-To sheet
+        function openMoveSheet(docId) {
+            moveTargetDocId = docId;
+            renderMoveSheet();
+            sheet.classList.add('show');
+            sheetOverlay.style.display = 'block';
+        }
+        function closeMoveSheet() {
+            sheet.classList.remove('show');
+            sheetOverlay.style.display = 'none';
+            moveTargetDocId = null;
+        }
+        function renderMoveSheet() {
+            sheetBody.innerHTML = '';
+            const rootRow = createEl('div', 'sheet-row');
+            rootRow.innerHTML = '<span>📄</span><span>根目录</span>';
+            rootRow.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, null); closeMoveSheet(); });
+            sheetBody.appendChild(rootRow);
+            function renderFolderOption(folder, level) {
+                const row = createEl('div', 'sheet-row');
+                const indent = createEl('div', 'sheet-indent'); indent.style.marginLeft = (level * 14) + 'px';
+                const icon = createEl('span'); icon.textContent = '📁';
+                const name = createEl('span'); name.textContent = folder.name;
+                row.appendChild(indent); row.appendChild(icon); row.appendChild(name);
+                row.addEventListener('click', () => { if (!moveTargetDocId) return; moveDocToFolder(moveTargetDocId, folder.id); closeMoveSheet(); });
+                sheetBody.appendChild(row);
+                const children = getChildrenFolders(folder.id).sort((a,b) => a.name.localeCompare(b.name));
+                for (const cf of children) renderFolderOption(cf, level + 1);
+            }
+            const tops = getChildrenFolders(null).sort((a,b) => a.name.localeCompare(b.name));
+            for (const f of tops) renderFolderOption(f, 0);
         }
 
         // Saving
@@ -645,7 +725,7 @@
             saveDocs(docs);
             markSaved(true);
             renderTree($('#searchInput').value);
-        }, 400);
+        }, 350);
 
         function saveNow() { markSaved(false); persist(); }
 
@@ -735,6 +815,10 @@
         function selectThemeChip(theme) { $all('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme)); }
         function selectDensityChip(d) { $all('#densityChips .chip').forEach(c => c.classList.toggle('active', c.dataset.density === d)); }
 
+        // Move sheet bindings
+        $('#closeMoveSheet').addEventListener('click', closeMoveSheet);
+        sheetOverlay.addEventListener('click', closeMoveSheet);
+
         // Bind toolbar
         function bindToolbar() {
             document.querySelectorAll('.toolbar-btn[data-cmd]').forEach(btn => {
@@ -781,6 +865,11 @@
             titleInput.addEventListener('input', () => { markSaved(false); persist(); renderTree($('#searchInput').value); });
             editor.addEventListener('input', () => { markSaved(false); updateWordStats(); persist(); });
 
+            // Passive listeners for smoother scrolling on mobile
+            editor.addEventListener('touchstart', () => {}, { passive: true });
+            editor.addEventListener('touchmove', () => {}, { passive: true });
+            document.addEventListener('scroll', throttleRaf(() => {}), { passive: true, capture: true });
+
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 const mod = e.ctrlKey || e.metaKey;
@@ -809,6 +898,12 @@
 
             // Goal input (live apply)
             goalInput.addEventListener('change', () => { const n = parseInt(goalInput.value || '0', 10); if (Number.isFinite(n) && n >= 0) { saveGoal(n); updateWordStats(); showSnack('已更新今日目标：' + n); } });
+
+            // Mobile toolbar
+            $all('#mobileBar .m-btn[data-cmd]').forEach(btn => btn.addEventListener('click', () => { const cmd = btn.getAttribute('data-cmd'); exec(cmd); saveNow(); }));
+            $all('#mobileBar .m-btn[data-block]').forEach(btn => btn.addEventListener('click', () => { const tag = btn.getAttribute('data-block'); setBlock(tag); saveNow(); }));
+            $('#mFocus').addEventListener('click', () => { document.body.classList.toggle('focus-mode'); });
+            $('#mSettings').addEventListener('click', openDrawer);
         }
 
         // Boot
