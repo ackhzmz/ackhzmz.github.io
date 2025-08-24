@@ -145,21 +145,18 @@
 
         /* Overlays */
         #sidebar-overlay { position: fixed; top: 0; bottom: 0; left: var(--sidebar-width); right: 0; background: rgba(0,0,0,0.35); display: none; z-index: 50; }
-        #drawerOverlay, #toolsOverlay, #sheetOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 60; }
+        /* overlays removed (non-modal) */
 
         /* Move-To Sheet */
-        #sheetOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 65; }
-        #moveSheet { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel-bg); border-top: 1px solid var(--border-color); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-md); transform: translateY(100%); transition: transform 0.25s ease; z-index: 70; }
-        #moveSheet.show { transform: translateY(0); }
-        .sheet-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
-        .sheet-body { max-height: 52vh; overflow: auto; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+        /* move sheet removed */
         .sheet-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; margin: 4px 8px; cursor: pointer; }
         .sheet-row:hover { background: var(--hover-bg); }
         .sheet-indent { width: 14px; }
 
         /* Drawers */
-        #settingsDrawer, #toolsDrawer { position: fixed; top: 0; right: 0; height: 100%; width: 92vw; max-width: 380px; background: var(--panel-bg); border-left: 1px solid var(--border-color); box-shadow: var(--shadow-md); transform: translateX(100%); transition: transform 0.25s ease; z-index: 70; display: flex; flex-direction: column; }
-        #settingsDrawer.show, #toolsDrawer.show { transform: translateX(0); }
+        /* Inline panels inside sidebar (non-modal) */
+        #settingsDrawer, #toolsDrawer { position: static; height: auto; width: auto; max-width: none; background: var(--panel-bg); border-left: none; border-top: 1px solid var(--border-color); box-shadow: none; transform: none; transition: none; z-index: auto; display: none; flex-direction: column; }
+        #settingsDrawer.show, #toolsDrawer.show { display: flex; }
         .drawer-header { padding: 12px 14px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
         .drawer-body { padding: 10px 14px; overflow: auto; }
         .form-group { margin-bottom: 12px; }
@@ -169,6 +166,9 @@
         .chip.active { background: var(--active-bg); border-color: var(--primary-color); }
         .num-input, .text-input, .text-area { width: 100%; border: 1px solid var(--border-color); background: transparent; color: var(--text-color); padding: 8px 10px; border-radius: 8px; }
         .text-area { min-height: 88px; line-height: 1.6; }
+        /* Multi-level list look */
+        .children { border-left: 1px dashed var(--border-color); margin-left: calc(var(--tree-indent)); padding-left: 6px; }
+        .folder-node::before, .doc-node::before { content: ""; position: absolute; left: calc(var(--tree-indent) - 6px); width: 10px; top: 50%; border-top: 1px dashed var(--border-color); }
 
         /* Bottom Bars */
         #nameBar { position: fixed; left: 0; right: 0; bottom: calc(var(--mobile-bar-height) + env(safe-area-inset-bottom)); background: var(--panel-bg); border-top: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: none; z-index: 55; }
@@ -244,12 +244,11 @@
         </div>
     </div>
 
-    <!-- Settings Drawer -->
-    <div id="drawerOverlay"></div>
-    <aside id="settingsDrawer">
+    <!-- Settings Panel (inline, non-modal) -->
+    <aside id="settingsDrawer" class="show">
         <div class="drawer-header">
             <span>设置</span>
-            <button id="closeDrawer" class="icon-btn">✖</button>
+            <div></div>
         </div>
         <div class="drawer-body">
             <div class="form-group">
@@ -281,12 +280,11 @@
         </div>
     </aside>
 
-    <!-- Tools Drawer -->
-    <div id="toolsOverlay"></div>
-    <aside id="toolsDrawer">
+    <!-- Tools Panel (inline, non-modal) -->
+    <aside id="toolsDrawer" class="show">
         <div class="drawer-header">
             <span>工具</span>
-            <button id="closeTools" class="icon-btn">✖</button>
+            <div></div>
         </div>
         <div class="drawer-body">
             <div class="form-group">
@@ -317,14 +315,7 @@
     </aside>
 
     <!-- Move-To Sheet -->
-    <div id="sheetOverlay"></div>
-    <aside id="moveSheet">
-        <div class="sheet-header">
-            <span>移动到</span>
-            <button id="closeMoveSheet" class="icon-btn">✖</button>
-        </div>
-        <div id="moveSheetBody" class="sheet-body"></div>
-    </aside>
+    
 
     <!-- Snackbar -->
     <div id="snackbar"><span id="snackMsg"></span><span id="snackAction" class="snack-action"></span></div>
@@ -396,14 +387,11 @@
         const drawer = $('#settingsDrawer');
         const drawerOverlay = $('#drawerOverlay');
         const toolsDrawer = $('#toolsDrawer');
-        const toolsOverlay = $('#toolsOverlay');
         const docGoalInput = $('#docGoalInput');
         const jumpPairsInput = $('#jumpPairsInput');
         const pairColorInput = $('#pairColorInput');
         const factionInput = $('#factionInput');
-        const sheet = $('#moveSheet');
-        const sheetOverlay = $('#sheetOverlay');
-        const sheetBody = $('#moveSheetBody');
+
 
         // Theme
         function applyTheme(theme){ document.documentElement.setAttribute('data-theme', theme); selectThemeChip(theme); }
@@ -435,7 +423,7 @@
         function setOpen(fid,open){ folderOpenState[fid]=open; saveFolderState(folderOpenState); }
         function renderTree(filter=''){ const kw=(filter||'').trim().toLowerCase(); treeEl.innerHTML=''; const rootDrop=createEl('div','tree-root-drop'); rootDrop.textContent='拖动文档到此处移动到根目录'; rootDrop.addEventListener('dragover',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.add('dragover'); },{passive:false}); rootDrop.addEventListener('dragleave',()=> rootDrop.classList.remove('dragover')); rootDrop.addEventListener('drop',(e)=>{ if(!draggedDocId)return; e.preventDefault(); rootDrop.classList.remove('dragover'); moveDocToFolder(draggedDocId,null); }); treeEl.appendChild(rootDrop); for(const d of getFolderDocs(null)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; treeEl.appendChild(renderDocNode(d,0)); } function renderFolder(f,level){ const row=createEl('div','folder-node'); row.dataset.folderId=f.id; const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const caret=createEl('div','caret'); caret.textContent=isOpen(f.id)?'▾':'▸'; caret.addEventListener('click',()=>{ const op=!isOpen(f.id); setOpen(f.id,op); caret.textContent=op?'▾':'▸'; children.style.display=op?'':'none'; }); const handle=createEl('div','drag-handle'); handle.textContent='≡'; handle.title='拖动排序'; handle.draggable=true; handle.addEventListener('dragstart', (e)=>{ draggedFolderId=f.id; e.dataTransfer.effectAllowed='move'; }); handle.addEventListener('dragend', ()=>{ draggedFolderId=null; }); const icon=createEl('div','icon-folder'); const title=createEl('div','folder-title'); title.textContent=f.name; const actions=createEl('div','node-actions'); const addDocBtn=createEl('button','icon-btn'); addDocBtn.textContent='📝＋'; addDocBtn.title='新建文档'; addDocBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createDoc('',f.id,'新文档'); }); const addFolderBtn=createEl('button','icon-btn'); addFolderBtn.textContent='＋'; addFolderBtn.title='新建子文件夹'; addFolderBtn.addEventListener('click',(e)=>{ e.stopPropagation(); createFolder(f.id); }); const renameBtn=createEl('button','icon-btn'); renameBtn.textContent='✎'; renameBtn.title='重命名'; renameBtn.addEventListener('click',(e)=>{ e.stopPropagation(); inlineRenameFolder(f.id,title); }); actions.appendChild(addDocBtn); actions.appendChild(addFolderBtn); actions.appendChild(renameBtn); row.appendChild(indent); row.appendChild(caret); row.appendChild(handle); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('dragover',(e)=>{ if(draggedDocId){ e.preventDefault(); row.classList.add('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); }},{passive:false}); row.addEventListener('dragleave',()=>{ row.classList.remove('drop-target','drop-before','drop-after'); }); row.addEventListener('drop',(e)=>{ e.preventDefault(); if(draggedDocId){ moveDocToFolder(draggedDocId,f.id); row.classList.remove('drop-target'); return; } if(draggedFolderId && draggedFolderId!==f.id){ const dragged=folders.find(x=>x.id===draggedFolderId); if(!dragged|| (dragged.parentId||null)!==(f.parentId||null)) return; const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderFolders(dragged.parentId||null, draggedFolderId, f.id, before?'before':'after'); } row.classList.remove('drop-before','drop-after'); }); const children=createEl('div','children'); children.style.display=isOpen(f.id)?'':'none'; for(const d of getFolderDocs(f.id)){ if(kw && !d.title.toLowerCase().includes(kw)) continue; children.appendChild(renderDocNode(d,level+1)); } for(const sf of getChildrenFolders(f.id)) children.appendChild(renderFolder(sf,level+1)); const wrap=createEl('div'); wrap.appendChild(row); wrap.appendChild(children); return wrap; } for(const f of getChildrenFolders(null)) treeEl.appendChild(renderFolder(f,0)); }
         function renderDocNode(doc, level){ const row=createEl('div','doc-node'); row.dataset.docId=doc.id; if(doc.id===currentDocId) row.classList.add('active'); const indent=createEl('div','indent'); indent.style.marginLeft=(level*14)+'px'; const handle=createEl('div','drag-handle'); handle.textContent='≡'; handle.title='拖动排序'; handle.draggable=true; handle.addEventListener('dragstart',(e)=>{ draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; }); handle.addEventListener('dragend',()=>{ draggedDocId=null; row.classList.remove('drop-before','drop-after'); }); row.draggable=true; row.addEventListener('dragstart',(e)=>{ if(e.target!==handle && !e.target.classList.contains('drag-handle')){ // allow row-drag fallback
-                draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; } }); row.addEventListener('dragend',()=>{ draggedDocId=null; }); const icon=createEl('div','icon-doc'); const title=createEl('div','doc-title'); title.textContent=doc.title||'无标题'; const actions=createEl('div','node-actions'); const starBtn=createEl('button','icon-btn'); starBtn.innerHTML=doc.starred?'⭐':'☆'; starBtn.title=doc.starred?'取消收藏':'收藏'; starBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleStar(doc.id); }); const moveBtn=createEl('button','icon-btn'); moveBtn.textContent='↪️'; moveBtn.title='移动到'; moveBtn.addEventListener('click',(e)=>{ e.stopPropagation(); openMoveSheet(doc.id); }); const delBtn=createEl('button','icon-btn'); delBtn.textContent='🗑️'; delBtn.title='删除'; delBtn.addEventListener('click',(e)=>{ e.stopPropagation(); softDeleteDoc(doc.id); }); actions.appendChild(starBtn); actions.appendChild(moveBtn); actions.appendChild(delBtn); row.appendChild(indent); row.appendChild(handle); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('click',()=> selectDoc(doc.id)); row.addEventListener('dragover',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); },{passive:false}); row.addEventListener('dragleave',()=> row.classList.remove('drop-before','drop-after')); row.addEventListener('drop',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderDocs(doc.folderId||null, draggedDocId, doc.id, before?'before':'after'); }); return row; }
+                draggedDocId=doc.id; e.dataTransfer.effectAllowed='move'; } }); row.addEventListener('dragend',()=>{ draggedDocId=null; }); const icon=createEl('div','icon-doc'); const title=createEl('div','doc-title'); title.textContent=doc.title||'无标题'; const actions=createEl('div','node-actions'); const starBtn=createEl('button','icon-btn'); starBtn.innerHTML=doc.starred?'⭐':'☆'; starBtn.title=doc.starred?'取消收藏':'收藏'; starBtn.addEventListener('click',(e)=>{ e.stopPropagation(); toggleStar(doc.id); });  const delBtn=createEl('button','icon-btn'); delBtn.textContent='🗑️'; delBtn.title='删除'; delBtn.addEventListener('click',(e)=>{ e.stopPropagation(); softDeleteDoc(doc.id); }); actions.appendChild(starBtn); actions.appendChild(delBtn); row.appendChild(indent); row.appendChild(handle); row.appendChild(icon); row.appendChild(title); row.appendChild(actions); row.addEventListener('click',()=> selectDoc(doc.id)); row.addEventListener('dragover',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; row.classList.toggle('drop-before',before); row.classList.toggle('drop-after',!before); },{passive:false}); row.addEventListener('dragleave',()=> row.classList.remove('drop-before','drop-after')); row.addEventListener('drop',(e)=>{ if(!draggedDocId || draggedDocId===doc.id) return; const dragged=docs.find(d=>d.id===draggedDocId); if(!dragged || (dragged.folderId||null)!==(doc.folderId||null)) return; e.preventDefault(); const rect=row.getBoundingClientRect(); const before=(e.clientY-rect.top)<rect.height/2; reorderDocs(doc.folderId||null, draggedDocId, doc.id, before?'before':'after'); }); return row; }
         function reorderDocs(parentId, draggedId, targetId, position){ const list=docs.filter(d=>(d.folderId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((d,i)=>[d.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, docs.find(d=>d.id===draggedId)); list.forEach((d,i)=> d.sort=i); saveDocs(docs); renderTree($('#searchInput').value); }
         function reorderFolders(parentId, draggedId, targetId, position){ const list=folders.filter(f=>(f.parentId||null)===(parentId||null)).sort((a,b)=>a.sort-b.sort); const idx=new Map(list.map((f,i)=>[f.id,i])); const di=idx.get(draggedId), ti=idx.get(targetId); if(di==null||ti==null) return; list.splice(di,1); list.splice(position==='before'?ti:ti+1,0, folders.find(f=>f.id===draggedId)); list.forEach((f,i)=> f.sort=i); saveFolders(folders); renderTree($('#searchInput').value); }
 
@@ -507,11 +495,11 @@
         let snackTimer=null; function showSnack(msg){ const el=$('#snackbar'); $('#snackMsg').textContent=msg; $('#snackAction').textContent=''; el.classList.add('show'); clearTimeout(snackTimer); snackTimer=setTimeout(()=> el.classList.remove('show'), 1600); }
 
         // Drawers & settings
-        function openDrawer(){ drawer.classList.add('show'); drawerOverlay.style.display='block'; const doc=currentDoc(); docGoalInput.value = doc && typeof doc.goal==='number' ? String(doc.goal) : '1000'; loadBarsIntoSettings(); }
-        function closeDrawer(){ drawer.classList.remove('show'); drawerOverlay.style.display='none'; }
+        function openDrawer(){ drawer.classList.add('show'); const doc=currentDoc(); docGoalInput.value = doc && typeof doc.goal==='number' ? String(doc.goal) : '1000'; loadBarsIntoSettings(); }
+        function closeDrawer(){ drawer.classList.remove('show'); }
         function selectThemeChip(theme){ $all('#themeChips .chip').forEach(c=> c.classList.toggle('active', c.dataset.theme===theme)); }
-        function openTools(){ toolsDrawer.classList.add('show'); toolsOverlay.style.display='block'; }
-        function closeTools(){ toolsDrawer.classList.remove('show'); toolsOverlay.style.display='none'; }
+        function openTools(){ toolsDrawer.classList.add('show'); }
+        function closeTools(){ toolsDrawer.classList.remove('show'); }
         function loadBarsIntoSettings(){ const pairColor=loadPairColor(); pairColorInput.value=pairColor; jumpPairsInput.value=loadJumpPairs().join(' '); const factions=loadFactions(); const lines=factions.map(f=>`${f.group} ${f.color}: ${f.names.join(' ')}`); factionInput.value=lines.join('\n'); }
         function saveSettings(){ const pairsTokens=(jumpPairsInput.value||'').trim().split(/\s+/).filter(Boolean); const pairs=[]; for(const tok of pairsTokens){ if(tok.length>=2) pairs.push(tok.slice(0,2)); } if(!pairs.length) pairs.push(...["()","[]","{}","“”","‘’","「」","《》","（）","''","\"\""]); saveJumpPairs(pairs);
             let color=(pairColorInput.value||'#f59e0b').trim(); if(!color) color='#f59e0b'; savePairColor(color);
@@ -529,7 +517,7 @@
             $('#themeToggle').addEventListener('click', ()=>{ const cur=loadTheme(); const next= (cur==='dark')?'light': (cur==='light')?'sepia': (cur==='sepia')?'eye':'dark'; saveTheme(next); applyTheme(next); applyDynamicColors(); updateHighlight(); });
 
             // Tools
-            $('#toolsBtn').addEventListener('click', openTools); $('#closeTools').addEventListener('click', closeTools); toolsOverlay.addEventListener('click', closeTools);
+            $('#toolsBtn').addEventListener('click', ()=>{ toolsDrawer.classList.toggle('show'); });
             $('#toolNewDoc').addEventListener('click', ()=>{ createDoc(); closeTools(); });
             $('#toolNewFolder').addEventListener('click', ()=>{ createFolder(null); closeTools(); });
             $('#toolNewNovel').addEventListener('click', ()=>{ createNovel(); closeTools(); });
