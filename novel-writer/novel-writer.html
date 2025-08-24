@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#111827">
+    <title>Novel Writer - 单文件版</title>
+    <style>
+      :root{
+        --bg:#0f172a; /* slate-900 */
+        --fg:#e5e7eb; /* gray-200 */
+        --muted:#94a3b8; /* slate-400 */
+        --card:#111827; /* slate-800 */
+        --border:#1f2937; /* gray-800 */
+        --brand:#6366f1; /* indigo-500 */
+        --danger:#ef4444; /* red-500 */
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0;
+        background:var(--bg);
+        color:var(--fg);
+        font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+      }
+      a{color:inherit;text-decoration:none}
+      .container{max-width:680px;margin:0 auto;padding:16px}
+      header{
+        position:sticky;top:0;z-index:10;
+        backdrop-filter:saturate(180%) blur(8px);
+        background:color-mix(in oklab, var(--bg) 85%, black 15%);
+        border-bottom:1px solid var(--border);
+      }
+      .row{display:flex;align-items:center;gap:8px}
+      .grow{flex:1}
+      h1{font-size:18px;margin:0;padding:12px 8px;text-align:center}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--fg);}
+      .btn.primary{background:var(--brand);border-color:transparent;color:white}
+      .btn.danger{background:color-mix(in oklab, var(--danger) 92%, black 8%);border-color:transparent;color:white}
+      .btn.block{display:flex;width:100%}
+      .btn:active{transform:scale(0.98)}
+      input,textarea{width:100%;border:1px solid var(--border);background:transparent;border-radius:10px;color:var(--fg);padding:10px}
+      textarea{min-height:50vh;resize:vertical;line-height:1.6}
+      .card{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+      .item{padding:12px 14px;border-top:1px solid var(--border)}
+      .item:first-child{border-top:none}
+      .muted{color:var(--muted)}
+      .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .sp8{height:8px}
+      .sp12{height:12px}
+      .sp16{height:16px}
+      .right{float:right}
+      .hidden{display:none}
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container row">
+        <button id="backBtn" class="btn" aria-label="返回" title="返回" onclick="history.back()" style="visibility:hidden">← 返回</button>
+        <h1 id="titleBar" class="grow">Novel Writer</h1>
+        <button id="homeBtn" class="btn" onclick="go('#/')">主页</button>
+      </div>
+    </header>
+
+    <main class="container" id="app"></main>
+
+    <script>
+      // ---- Util ----
+      function generateId(prefix='id'){
+        const r=Math.random().toString(36).slice(2,8)
+        const t=Date.now().toString(36)
+        return `${prefix}_${t}_${r}`
+      }
+      function el(html){
+        const tpl=document.createElement('template');
+        tpl.innerHTML=html.trim();
+        return tpl.content.firstElementChild;
+      }
+      function fmtDate(ts){
+        const d=new Date(ts);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+      }
+      function countWords(text){
+        if(!text) return 0;
+        const chinese=(text.replace(/\s/g,'').match(/[\u4e00-\u9fa5]/g)||[]).length;
+        const english=(text.trim().split(/\s+/).filter(Boolean)).length;
+        return chinese+english;
+      }
+
+      // ---- Storage (localStorage) ----
+      const LS_KEYS={novels:'nw_novels_v1',chapters:'nw_chapters_v1'};
+      function loadNovels(){try{return JSON.parse(localStorage.getItem(LS_KEYS.novels)||'[]')}catch{return []}}
+      function saveNovels(arr){localStorage.setItem(LS_KEYS.novels,JSON.stringify(arr))}
+      function loadChapters(){try{return JSON.parse(localStorage.getItem(LS_KEYS.chapters)||'[]')}catch{return []}}
+      function saveChapters(arr){localStorage.setItem(LS_KEYS.chapters,JSON.stringify(arr))}
+
+      // CRUD helpers
+      function listNovels(){return loadNovels().sort((a,b)=>b.updatedAt-a.updatedAt)}
+      function getNovel(id){return loadNovels().find(n=>n.id===id)}
+      function putNovel(novel){const ns=loadNovels();const i=ns.findIndex(n=>n.id===novel.id); if(i>=0)ns[i]=novel;else ns.push(novel); saveNovels(ns)}
+      function removeNovel(id){
+        saveNovels(loadNovels().filter(n=>n.id!==id));
+        const cs=loadChapters().filter(c=>c.novelId!==id);saveChapters(cs);
+      }
+      function listChapters(novelId){return loadChapters().filter(c=>c.novelId===novelId).sort((a,b)=>a.createdAt-b.createdAt)}
+      function getChapter(id){return loadChapters().find(c=>c.id===id)}
+      function putChapter(ch){const cs=loadChapters();const i=cs.findIndex(c=>c.id===ch.id); if(i>=0)cs[i]=ch;else cs.push(ch); saveChapters(cs)}
+      function removeChapter(id){saveChapters(loadChapters().filter(c=>c.id!==id))}
+
+      // ---- Router ----
+      function parseHash(){
+        const raw=location.hash.replace(/^#/, '')||'/';
+        const seg=raw.split('/').filter(Boolean);
+        // routes: /, /novel/:novelId, /novel/:novelId/editor/:chapterId
+        if(seg.length===0) return {name:'home'};
+        if(seg[0]==='novel' && seg[1] && seg.length===2) return {name:'novel', novelId:decodeURIComponent(seg[1])};
+        if(seg[0]==='novel' && seg[1] && seg[2]==='editor' && seg[3]) return {name:'editor', novelId:decodeURIComponent(seg[1]), chapterId:decodeURIComponent(seg[3])};
+        return {name:'home'};
+      }
+      function go(hash){if(location.hash===hash){render()}else{location.hash=hash}}
+
+      // ---- Views ----
+      const app=document.getElementById('app');
+      const titleBar=document.getElementById('titleBar');
+      const backBtn=document.getElementById('backBtn');
+
+      function render(){
+        const r=parseHash();
+        app.innerHTML='';
+        if(r.name==='home'){ renderHome(); titleBar.textContent='我的小说'; backBtn.style.visibility='hidden'; }
+        else if(r.name==='novel'){ renderNovel(r.novelId); titleBar.textContent='小说详情'; backBtn.style.visibility='visible'; }
+        else if(r.name==='editor'){ renderEditor(r.novelId, r.chapterId); titleBar.textContent='章节编辑'; backBtn.style.visibility='visible'; }
+      }
+
+      function renderHome(){
+        const list=listNovels();
+        const wrap=el(`
+          <div>
+            <div class="card">
+              <div class="item">
+                <input id="nvTitle" placeholder="小说标题">
+                <div class="sp8"></div>
+                <textarea id="nvDesc" placeholder="简介（可选）" style="min-height:72px"></textarea>
+                <div class="sp8"></div>
+                <button class="btn primary block" id="createNovelBtn">新建小说</button>
+              </div>
+            </div>
+            <div class="sp16"></div>
+            <div class="row">
+              <button class="btn" id="importBtn">导入 JSON</button>
+              <button class="btn" id="exportBtn">导出 JSON</button>
+            </div>
+            <div class="sp16"></div>
+            <div class="card" id="novelList"></div>
+          </div>
+        `);
+        app.appendChild(wrap);
+
+        const listBox=wrap.querySelector('#novelList');
+        if(list.length===0){
+          listBox.appendChild(el(`<div class="item muted" style="text-align:center">暂无作品，创建一个吧</div>`));
+        }else{
+          list.forEach(n=>{
+            const row=el(`
+              <div class="item">
+                <div class="row">
+                  <div class="grow">
+                    <div style="font-weight:600">${n.title}</div>
+                    ${n.description?`<div class="muted" style="font-size:12px">${n.description}</div>`:''}
+                    <div class="muted" style="font-size:12px">更新：${fmtDate(n.updatedAt)}</div>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <button class="btn" onclick="go('#/novel/${encodeURIComponent(n.id)}')">进入</button>
+                    <button class="btn danger" onclick="(confirm('删除该小说及其所有章节？')&&(removeNovel('${n.id}'),render()))">删除</button>
+                  </div>
+                </div>
+              </div>
+            `);
+            listBox.appendChild(row);
+          })
+        }
+
+        wrap.querySelector('#createNovelBtn').onclick=()=>{
+          const title=wrap.querySelector('#nvTitle').value.trim();
+          const description=wrap.querySelector('#nvDesc').value.trim();
+          if(!title){alert('请输入标题');return}
+          const now=Date.now();
+          const novel={id:generateId('novel'),title,description,createdAt:now,updatedAt:now};
+          putNovel(novel);
+          render();
+          go(`#/novel/${novel.id}`);
+        };
+
+        wrap.querySelector('#exportBtn').onclick=()=>{
+          const data={novels:loadNovels(),chapters:loadChapters(),version:1,exportedAt:Date.now()};
+          const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+          const a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download=`novel-writer-backup-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        };
+
+        wrap.querySelector('#importBtn').onclick=()=>{
+          const input=document.createElement('input');
+          input.type='file'; input.accept='application/json';
+          input.onchange=()=>{
+            const f=input.files?.[0]; if(!f) return;
+            const rd=new FileReader();
+            rd.onload=()=>{
+              try{
+                const data=JSON.parse(rd.result||'{}');
+                if(!data || !Array.isArray(data.novels) || !Array.isArray(data.chapters)) throw new Error('格式错误');
+                // merge by id and updatedAt
+                const novelMap=new Map(loadNovels().map(n=>[n.id,n]));
+                for(const n of data.novels){
+                  const old=novelMap.get(n.id);
+                  if(!old || (n.updatedAt||0)>(old.updatedAt||0)) novelMap.set(n.id,n);
+                }
+                saveNovels(Array.from(novelMap.values()));
+                const chMap=new Map(loadChapters().map(c=>[c.id,c]));
+                for(const c of data.chapters){
+                  const old=chMap.get(c.id);
+                  if(!old || (c.updatedAt||0)>(old.updatedAt||0)) chMap.set(c.id,c);
+                }
+                saveChapters(Array.from(chMap.values()));
+                alert('导入完成');
+                render();
+              }catch(e){alert('导入失败：'+e.message)}
+            };
+            rd.readAsText(f);
+          };
+          input.click();
+        };
+      }
+
+      function renderNovel(novelId){
+        const novel=getNovel(novelId);
+        if(!novel){ app.appendChild(el('<div class="muted">未找到该小说</div>')); return }
+        const chapters=listChapters(novelId);
+        const wrap=el(`
+          <div>
+            <div class="card">
+              <div class="item">
+                <div class="row">
+                  <div class="grow" style="font-weight:700;font-size:18px">${novel.title}</div>
+                  <button class="btn" id="exportMdBtn">导出 Markdown</button>
+                </div>
+                ${novel.description?`<div class="sp8"></div><div class="muted">${novel.description}</div>`:''}
+              </div>
+              <div class="item">
+                <input id="chTitle" placeholder="新章节标题">
+                <div class="sp8"></div>
+                <div class="grid2">
+                  <button class="btn primary" id="createChapterBtn">新建章节并编辑</button>
+                  <button class="btn" onclick="go('#/')">返回首页</button>
+                </div>
+              </div>
+            </div>
+            <div class="sp16"></div>
+            <div class="card" id="chapList"></div>
+          </div>
+        `);
+        app.appendChild(wrap);
+
+        const listBox=wrap.querySelector('#chapList');
+        if(chapters.length===0){
+          listBox.appendChild(el('<div class="item muted" style="text-align:center">暂无章节</div>'))
+        }else{
+          chapters.forEach(c=>{
+            listBox.appendChild(el(`
+              <div class="item">
+                <div class="row">
+                  <div class="grow">
+                    <div style="font-weight:600">${c.title}</div>
+                    <div class="muted" style="font-size:12px">字数：${c.wordCount} · 更新：${fmtDate(c.updatedAt)}</div>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <button class="btn" onclick="go('#/novel/${encodeURIComponent(novelId)}/editor/${encodeURIComponent(c.id)}')">编辑</button>
+                    <button class="btn danger" onclick="(confirm('删除该章节？')&&(removeChapter('${c.id}'),render()))">删除</button>
+                  </div>
+                </div>
+              </div>
+            `))
+          })
+        }
+
+        wrap.querySelector('#createChapterBtn').onclick=()=>{
+          const title=wrap.querySelector('#chTitle').value.trim();
+          if(!title){alert('请输入章节标题');return}
+          const now=Date.now();
+          const ch={id:generateId('ch'),novelId,title,content:'',wordCount:0,createdAt:now,updatedAt:now};
+          putChapter(ch); // also bump novel updatedAt
+          putNovel({...novel,updatedAt:Date.now()});
+          go(`#/novel/${novelId}/editor/${ch.id}`);
+        };
+
+        wrap.querySelector('#exportMdBtn').onclick=()=>{
+          const parts=[`# ${novel.title}`];
+          if(novel.description) parts.push('',novel.description,'');
+          const list=listChapters(novelId);
+          for(const c of list){
+            parts.push(`\n\n## ${c.title}\n\n${c.content||''}`);
+          }
+          const blob=new Blob([parts.join('\n')],{type:'text/markdown'});
+          const a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download=`${novel.title.replace(/[^\w\u4e00-\u9fa5-]+/g,'_')}.md`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        };
+      }
+
+      function renderEditor(novelId, chapterId){
+        const novel=getNovel(novelId);
+        const ch=getChapter(chapterId);
+        if(!novel||!ch){ app.appendChild(el('<div class="muted">未找到章节</div>')); return }
+        const wrap=el(`
+          <div>
+            <div class="card">
+              <div class="item">
+                <div class="muted" style="font-size:12px">作品：${novel.title}</div>
+                <div class="sp8"></div>
+                <input id="titleInput" value="${ch.title.replace(/&/g,'&amp;').replace(/</g,'&lt;')}">
+              </div>
+              <div class="item">
+                <textarea id="contentInput" placeholder="开始写作... 支持 Markdown">${(ch.content||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</textarea>
+                <div class="sp8"></div>
+                <div class="row">
+                  <div class="muted grow" id="wordInfo">字数：${ch.wordCount}</div>
+                  <button class="btn" onclick="go('#/novel/${encodeURIComponent(novelId)}')">章节列表</button>
+                  <button class="btn" onclick="go('#/')">首页</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `);
+        app.appendChild(wrap);
+
+        const titleInput=wrap.querySelector('#titleInput');
+        const contentInput=wrap.querySelector('#contentInput');
+        const wordInfo=wrap.querySelector('#wordInfo');
+        let saveTimer=null;
+
+        function scheduleSave(){
+          clearTimeout(saveTimer);
+          saveTimer=setTimeout(()=>{
+            const latest=getChapter(chapterId);
+            if(!latest) return;
+            const newTitle=titleInput.value.trim()||'未命名章节';
+            const newContent=contentInput.value;
+            const wc=countWords(newContent);
+            const updated={...latest,title:newTitle,content:newContent,wordCount:wc,updatedAt:Date.now()};
+            putChapter(updated);
+            // bump novel updated time
+            const novel=getNovel(novelId); if(novel) putNovel({...novel,updatedAt:Date.now()});
+            wordInfo.textContent=`字数：${wc}`;
+          }, 350);
+        }
+
+        titleInput.addEventListener('input', scheduleSave);
+        contentInput.addEventListener('input', scheduleSave);
+      }
+
+      window.addEventListener('hashchange', render);
+      render();
+    </script>
+  </body>
+</html>
