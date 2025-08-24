@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯纯写作 - 手机版Markdown编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        /* 顶部状态栏 */
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 4px 16px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 24px;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 主应用栏 */
+        .app-bar {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .app-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .menu-btn span {
+            width: 100%;
+            height: 2px;
+            background: #333;
+            transition: 0.3s;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .app-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-type {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .cloud-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cloud-icon::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #f44336;
+            border-radius: 50%;
+        }
+
+        .word-count {
+            font-size: 12px;
+            color: #666;
+            position: absolute;
+            bottom: 8px;
+            right: 16px;
+        }
+
+        /* 侧滑栏 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .directory-list {
+            padding: 16px;
+        }
+
+        .directory-item {
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .directory-item:hover {
+            background: #f5f5f5;
+        }
+
+        .directory-item.active {
+            background: #e3f2fd;
+        }
+
+        .directory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+        }
+
+        .directory-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chevron {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+
+        .chevron.expanded {
+            transform: rotate(90deg);
+        }
+
+        .directory-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .add-btn {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .subdirectory {
+            margin-left: 24px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .subdirectory.expanded {
+            max-height: 200px;
+        }
+
+        .subdirectory-item {
+            padding: 10px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .subdirectory-item:hover {
+            background: #f0f0f0;
+        }
+
+        .subdirectory-item.active {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .subdirectory-name {
+            font-size: 13px;
+            color: #555;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            padding: 20px 16px;
+            min-height: calc(100vh - 120px);
+        }
+
+        .title-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            background: transparent;
+            margin-bottom: 20px;
+            padding: 8px 0;
+        }
+
+        .title-input::placeholder {
+            color: #999;
+        }
+
+        .content-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            background: transparent;
+            resize: none;
+            min-height: 300px;
+        }
+
+        .content-input::placeholder {
+            color: #ccc;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* 浮动操作按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .fab-icon {
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+            
+            .main-content {
+                padding: 16px 12px;
+            }
+            
+            .app-bar {
+                padding: 12px;
+            }
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 1001;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部状态栏 -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span>晚上 11:17</span>
+        </div>
+        <div class="status-right">
+            <span>203K/s</span>
+            <span>📶</span>
+            <span>HD</span>
+            <span>📶</span>
+            <span>WiFi</span>
+            <span>🔋 81%</span>
+        </div>
+    </div>
+
+    <!-- 主应用栏 -->
+    <div class="app-bar">
+        <div class="app-left">
+            <div class="menu-btn" id="menuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="app-title">纯纯写作</div>
+        </div>
+        <div class="app-right">
+            <div class="file-type">TXT</div>
+            <div class="cloud-icon">☁️</div>
+            <div class="more-btn">⋯</div>
+        </div>
+        <div class="word-count">字数: 0</div>
+    </div>
+
+    <!-- 侧滑栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">篇章(5)</div>
+            <div class="sidebar-subtitle">纯纯写作</div>
+            <div class="sidebar-actions">
+                <button class="action-btn">🔍</button>
+                <button class="action-btn">📋</button>
+                <button class="action-btn">⚙️</button>
+            </div>
+        </div>
+        <div class="directory-list">
+            <div class="directory-item" data-level="1">
+                <div class="directory-header">
+                    <div class="directory-left">
+                        <span class="chevron">▶</span>
+                        <span class="directory-name">卷 1</span>
+                    </div>
+                    <div class="add-btn">+</div>
+                </div>
+                <div class="subdirectory">
+                    <div class="subdirectory-item active">
+                        <div class="subdirectory-name">如你所愿</div>
+                    </div>
+                    <div class="subdirectory-item">
+                        <div class="subdirectory-name">纯纯写作 - 愿文字带我们穿越时光, 连接过去遥想未来</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="directory-item" data-level="1">
+                <div class="directory-header">
+                    <div class="directory-left">
+                        <span class="chevron">▶</span>
+                        <span class="directory-name">卷 2</span>
+                    </div>
+                    <div class="add-btn">+</div>
+                </div>
+                <div class="subdirectory">
+                    <div class="subdirectory-item">
+                        <div class="subdirectory-name">纯纯写作 - 保护机制</div>
+                    </div>
+                    <div class="subdirectory-item">
+                        <div class="subdirectory-name">关于纯纯写作高级版</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <input type="text" class="title-input" placeholder="标题" id="titleInput">
+        <textarea class="content-input" placeholder="开始写作..." id="contentInput"></textarea>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <div class="nav-icon">👑</div>
+            <div class="nav-label">高级版</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">↶</div>
+            <div class="nav-label">撤销</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">↷</div>
+            <div class="nav-label">重做</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">➕</div>
+            <div class="nav-label">新建</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">📤</div>
+            <div class="nav-label">分享</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">🎨</div>
+            <div class="nav-label">主题</div>
+        </div>
+        <div class="nav-item">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">设置</div>
+        </div>
+    </div>
+
+    <!-- 浮动操作按钮 -->
+    <div class="fab" id="fab">
+        <div class="fab-icon">+</div>
+    </div>
+
+    <!-- 工具提示 -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 侧滑栏功能
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const titleInput = document.getElementById('titleInput');
+        const contentInput = document.getElementById('contentInput');
+
+        // 打开/关闭侧滑栏
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // 目录展开/收起功能
+        const directoryItems = document.querySelectorAll('.directory-item');
+        
+        directoryItems.forEach(item => {
+            const header = item.querySelector('.directory-header');
+            const chevron = item.querySelector('.chevron');
+            const subdirectory = item.querySelector('.subdirectory');
+            
+            header.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-btn')) return;
+                
+                chevron.classList.toggle('expanded');
+                subdirectory.classList.toggle('expanded');
+            });
+        });
+
+        // 子目录项点击事件
+        const subdirectoryItems = document.querySelectorAll('.subdirectory-item');
+        subdirectoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除其他活动项
+                subdirectoryItems.forEach(i => i.classList.remove('active'));
+                // 添加当前活动项
+                item.classList.add('active');
+                
+                // 更新标题
+                titleInput.value = item.querySelector('.subdirectory-name').textContent;
+                
+                // 关闭侧滑栏
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            });
+        });
+
+        // 字数统计
+        function updateWordCount() {
+            const titleLength = titleInput.value.length;
+            const contentLength = contentInput.value.length;
+            const totalLength = titleLength + contentLength;
+            
+            const wordCountElement = document.querySelector('.word-count');
+            wordCountElement.textContent = `字数: ${totalLength}`;
+        }
+
+        titleInput.addEventListener('input', updateWordCount);
+        contentInput.addEventListener('input', updateWordCount);
+
+        // 触摸滑动支持
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            currentX = e.touches[0].clientX;
+            const diffX = currentX - startX;
+            
+            // 从左向右滑动打开侧滑栏
+            if (diffX > 50 && startX < 50) {
+                sidebar.classList.add('open');
+                overlay.classList.add('show');
+                isDragging = false;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // 添加按钮功能
+        const addBtns = document.querySelectorAll('.add-btn');
+        addBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const directoryItem = btn.closest('.directory-item');
+                const directoryName = directoryItem.querySelector('.directory-name').textContent;
+                
+                const newName = prompt(`在"${directoryName}"下添加新项目:`);
+                if (newName && newName.trim()) {
+                    const subdirectory = directoryItem.querySelector('.subdirectory');
+                    const newItem = document.createElement('div');
+                    newItem.className = 'subdirectory-item';
+                    newItem.innerHTML = `<div class="subdirectory-name">${newName}</div>`;
+                    
+                    // 添加点击事件
+                    newItem.addEventListener('click', () => {
+                        subdirectoryItems.forEach(i => i.classList.remove('active'));
+                        newItem.classList.add('active');
+                        titleInput.value = newName;
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('show');
+                    });
+                    
+                    subdirectory.appendChild(newItem);
+                    subdirectory.classList.add('expanded');
+                    directoryItem.querySelector('.chevron').classList.add('expanded');
+                }
+            });
+        });
+
+        // 浮动操作按钮功能
+        const fab = document.getElementById('fab');
+        fab.addEventListener('click', () => {
+            const newTitle = prompt('请输入新文档标题:');
+            if (newTitle && newTitle.trim()) {
+                titleInput.value = newTitle;
+                contentInput.value = '';
+                updateWordCount();
+            }
+        });
+
+        // 工具提示功能
+        function showTooltip(element, text) {
+            const tooltip = document.getElementById('tooltip');
+            const rect = element.getBoundingClientRect();
+            
+            tooltip.textContent = text;
+            tooltip.style.left = rect.left + rect.width / 2 + 'px';
+            tooltip.style.top = rect.top - 30 + 'px';
+            tooltip.classList.add('show');
+        }
+
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('show');
+        }
+
+        // 为导航项添加工具提示
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            const label = item.querySelector('.nav-label').textContent;
+            
+            item.addEventListener('mouseenter', () => showTooltip(item, label));
+            item.addEventListener('mouseleave', hideTooltip);
+        });
+
+        // 初始化
+        updateWordCount();
+        
+        // 设置默认内容
+        titleInput.value = '如你所愿';
+        contentInput.value = '开始你的写作之旅...';
+        updateWordCount();
+    </script>
+</body>
+</html>
